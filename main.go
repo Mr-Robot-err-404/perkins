@@ -26,9 +26,29 @@ func main() {
 
 func parse_grid(b []byte) canvas.Grid {
 	grid := canvas.Grid{}
+	width := 0
 
 	for line := range bytes.SplitSeq(b, []byte("\n")) {
-		grid = append(grid, []rune(string(line)))
+		trim(&line)
+		r := []rune(string(line))
+		width = max(width, len(r))
+	}
+	for line := range bytes.SplitSeq(b, []byte("\n")) {
+		trim(&line)
+		r := []rune(string(line))
+		size := width - len(r)
+		pad(&r, size)
+		grid = append(grid, r)
 	}
 	return grid
+}
+
+func trim(b *[]byte) {
+	bytes.TrimSuffix(*b, []byte(" "))
+}
+
+func pad(r *[]rune, size int) {
+	for range size {
+		*r = append(*r, ' ')
+	}
 }
