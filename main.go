@@ -30,11 +30,17 @@ func parse_grid(b []byte) canvas.Grid {
 
 	for line := range bytes.SplitSeq(b, []byte("\n")) {
 		trim(&line)
+		if len(line) == 0 {
+			continue
+		}
 		r := []rune(string(line))
 		width = max(width, len(r))
 	}
 	for line := range bytes.SplitSeq(b, []byte("\n")) {
 		trim(&line)
+		if len(line) == 0 {
+			continue
+		}
 		r := []rune(string(line))
 		size := width - len(r)
 		pad(&r, size)

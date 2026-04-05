@@ -20,6 +20,9 @@ const (
 	VIM_RIGHT string = "l"
 	VIM_DOWN  string = "j"
 	VIM_UP    string = "k"
+	JUMP_DOWN string = "ctrl+d"
+	JUMP_UP   string = "ctrl+u"
+	CENTER    string = "c"
 )
 
 func New(width, height int, grid Grid) Model {
@@ -49,6 +52,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 		case VIM_DOWN:
 			m.cursor.row = min(len(m.Grid)-1, m.cursor.row+1)
+		case JUMP_DOWN:
+			m.cursor.row = len(m.Grid) - 1
+		case JUMP_UP:
+			m.cursor.row = 0
 		case "$":
 			m.cursor.col = len(m.Grid[m.cursor.row]) - 1
 		case "_":
