@@ -15,6 +15,13 @@ type Model struct {
 	Grid   Grid
 }
 
+const (
+	VIM_LEFT  string = "h"
+	VIM_RIGHT string = "l"
+	VIM_DOWN  string = "j"
+	VIM_UP    string = "k"
+)
+
 func New(width, height int, grid Grid) Model {
 	return Model{
 		width:  width,
@@ -29,6 +36,26 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case VIM_LEFT:
+			m.cursor.col = max(0, m.cursor.col-1)
+
+		case VIM_RIGHT:
+			m.cursor.col = min(len(m.Grid[m.cursor.row])-1, m.cursor.col+1)
+		case VIM_UP:
+			m.cursor.row = max(0, m.cursor.row-1)
+
+		case VIM_DOWN:
+			m.cursor.row = min(len(m.Grid)-1, m.cursor.row+1)
+		case "$":
+			m.cursor.col = len(m.Grid[m.cursor.row]) - 1
+		case "_":
+			m.cursor.col = 0
+
+		}
+	}
 	return m, nil
 }
 
