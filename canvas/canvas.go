@@ -1,6 +1,7 @@
 package canvas
 
 import (
+	"github.com/Mr-Robot-err-404/perkins/common"
 	"github.com/Mr-Robot-err-404/perkins/theme"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -11,7 +12,7 @@ type Grid [][]rune
 type Model struct {
 	width  int
 	height int
-	cursor Pos
+	cursor common.Pos
 	Grid   Grid
 }
 
@@ -30,7 +31,7 @@ func New(width, height int, grid Grid) Model {
 		width:  width,
 		height: height,
 		Grid:   grid,
-		cursor: Pos{},
+		cursor: common.Pos{},
 	}
 }
 
@@ -43,25 +44,27 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case VIM_LEFT:
-			m.cursor.col = max(0, m.cursor.col-1)
+			m.cursor.Col = max(0, m.cursor.Col-1)
 
 		case VIM_RIGHT:
-			m.cursor.col = min(len(m.Grid[m.cursor.row])-1, m.cursor.col+1)
+			m.cursor.Col = min(len(m.Grid[m.cursor.Row])-1, m.cursor.Col+1)
 		case VIM_UP:
-			m.cursor.row = max(0, m.cursor.row-1)
+			m.cursor.Row = max(0, m.cursor.Row-1)
 
 		case VIM_DOWN:
-			m.cursor.row = min(len(m.Grid)-1, m.cursor.row+1)
+			m.cursor.Row = min(len(m.Grid)-1, m.cursor.Row+1)
 		case JUMP_DOWN:
-			m.cursor.row = len(m.Grid) - 1
+			m.cursor.Row = len(m.Grid) - 1
 		case JUMP_UP:
-			m.cursor.row = 0
+			m.cursor.Row = 0
 		case CENTER:
 			m.cursor = find_center(m.Grid)
+		case "G":
+			m.cursor.Row = len(m.Grid) - 1
 		case "$":
-			m.cursor.col = len(m.Grid[m.cursor.row]) - 1
+			m.cursor.Col = len(m.Grid[m.cursor.Row]) - 1
 		case "_":
-			m.cursor.col = 0
+			m.cursor.Col = 0
 
 		}
 	}

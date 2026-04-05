@@ -2,12 +2,9 @@ package canvas
 
 import (
 	"strings"
-)
 
-type Pos struct {
-	row int
-	col int
-}
+	"github.com/Mr-Robot-err-404/perkins/common"
+)
 
 const (
 	canvasBG   = "\x1b[48;2;22;22;29m"
@@ -15,13 +12,13 @@ const (
 	reset      = "\x1b[0m"
 )
 
-func grid_to_canvas(grid Grid, cursor Pos) string {
+func grid_to_canvas(grid Grid, cursor common.Pos) string {
 	cv := strings.Builder{}
 	cv.WriteString(canvasBG)
 
 	for row, line := range grid {
 		for col, r := range line {
-			if row == cursor.row && col == cursor.col {
+			if row == cursor.Row && col == cursor.Col {
 				cv.WriteString(reset)
 				cv.WriteString(cursorAnsi)
 				cv.WriteRune(r)
@@ -39,9 +36,9 @@ func grid_to_canvas(grid Grid, cursor Pos) string {
 	return cv.String()
 }
 
-func find_center(grid Grid) Pos {
-	return Pos{
-		row: len(grid) / 2,
-		col: (len(grid[0]) / 2) - 1,
+func find_center(grid Grid) common.Pos {
+	return common.Pos{
+		Row: len(grid) / 2,
+		Col: (len(grid[0]) / 2) - 1,
 	}
 }
