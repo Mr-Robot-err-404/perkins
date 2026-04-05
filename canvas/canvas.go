@@ -11,7 +11,7 @@ type Grid [][]rune
 type Model struct {
 	width  int
 	height int
-	cursor Cursor
+	cursor Pos
 	Grid   Grid
 }
 
@@ -30,7 +30,7 @@ func New(width, height int, grid Grid) Model {
 		width:  width,
 		height: height,
 		Grid:   grid,
-		cursor: Cursor{},
+		cursor: Pos{},
 	}
 }
 
@@ -56,6 +56,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			m.cursor.row = len(m.Grid) - 1
 		case JUMP_UP:
 			m.cursor.row = 0
+		case CENTER:
+			m.cursor = find_center(m.Grid)
 		case "$":
 			m.cursor.col = len(m.Grid[m.cursor.row]) - 1
 		case "_":

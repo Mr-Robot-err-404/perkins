@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-type Cursor struct {
+type Pos struct {
 	row int
 	col int
 }
@@ -15,7 +15,7 @@ const (
 	reset      = "\x1b[0m"
 )
 
-func grid_to_canvas(grid Grid, cursor Cursor) string {
+func grid_to_canvas(grid Grid, cursor Pos) string {
 	cv := strings.Builder{}
 	cv.WriteString(canvasBG)
 
@@ -37,4 +37,11 @@ func grid_to_canvas(grid Grid, cursor Cursor) string {
 	}
 	cv.WriteString(reset)
 	return cv.String()
+}
+
+func find_center(grid Grid) Pos {
+	return Pos{
+		row: len(grid) / 2,
+		col: (len(grid[0]) / 2) - 1,
+	}
 }
