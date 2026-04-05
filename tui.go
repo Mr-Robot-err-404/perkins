@@ -12,8 +12,9 @@ const panelWidth int = 42
 type model struct {
 	width  int
 	height int
-	canvas canvas.Model
 	panel  panel.Model
+	canvas canvas.Model
+	grid   canvas.Grid
 }
 
 func (m model) Init() tea.Cmd {
@@ -54,16 +55,10 @@ func (m model) View() string {
 	return lipgloss.JoinHorizontal(lipgloss.Top, m.canvas.View(), m.panel.View())
 }
 
-func newModel() model {
+func newModel(grid canvas.Grid) model {
 	return model{
-		canvas: canvas.New(0, 0),
+		canvas: canvas.New(0, 0, grid),
 		panel:  panel.New(panelWidth, 0),
+		grid:   grid,
 	}
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }

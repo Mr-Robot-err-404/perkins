@@ -6,13 +6,22 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+type Grid [][]rune
+
 type Model struct {
 	width  int
 	height int
+	cursor Cursor
+	Grid   Grid
 }
 
-func New(width, height int) Model {
-	return Model{width: width, height: height}
+func New(width, height int, grid Grid) Model {
+	return Model{
+		width:  width,
+		height: height,
+		Grid:   grid,
+		cursor: Cursor{},
+	}
 }
 
 func (m Model) Init() tea.Cmd {
@@ -30,7 +39,7 @@ func (m Model) View() string {
 		Background(theme.SumiInk1).
 		AlignHorizontal(lipgloss.Center).
 		AlignVertical(lipgloss.Center).
-		Render("canvas")
+		Render(grid_to_canvas(m.Grid, m.cursor))
 }
 
 func (m Model) Resize(width, height int) Model {
