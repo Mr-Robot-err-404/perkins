@@ -45,20 +45,20 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		switch msg.String() {
 		case VIM_LEFT:
 			m.cursor.Col = max(0, m.cursor.Col-1)
-
 		case VIM_RIGHT:
 			m.cursor.Col = min(len(m.Grid[m.cursor.Row])-1, m.cursor.Col+1)
 		case VIM_UP:
 			m.cursor.Row = max(0, m.cursor.Row-1)
-
 		case VIM_DOWN:
 			m.cursor.Row = min(len(m.Grid)-1, m.cursor.Row+1)
+
 		case JUMP_DOWN:
 			m.cursor.Row = len(m.Grid) - 1
 		case JUMP_UP:
 			m.cursor.Row = 0
 		case CENTER:
 			m.cursor = find_center(m.Grid)
+
 		case "G":
 			m.cursor.Row = len(m.Grid) - 1
 		case "$":

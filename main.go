@@ -50,7 +50,7 @@ func parse_grid(b []byte) canvas.Grid {
 }
 
 func trim(b *[]byte) {
-	bytes.TrimSuffix(*b, []byte(" "))
+	*b = bytes.TrimSuffix(*b, []byte(" "))
 }
 
 func pad(r *[]rune, size int) {
