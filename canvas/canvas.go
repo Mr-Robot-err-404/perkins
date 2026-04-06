@@ -48,29 +48,6 @@ func New(width, height int, grid Grid, selected core.Selected) Model {
 func (m Model) Init() tea.Cmd {
 	return nil
 }
-func (m Model) toggle_mode(mode int) int {
-	if mode == m.mode {
-		return NORMAL_MODE
-	}
-	return mode
-}
-func (m Model) expand_selection() {
-	if m.mode != VISUAL_BLOCK {
-		return
-	}
-	pos := *m.Cursor
-	m.Selected[pos] = true
-}
-func (m Model) update_cursor(pos core.Pos) {
-	*m.prev_cursor = *m.Cursor
-	*m.Cursor = pos
-	m.expand_selection()
-}
-func (m Model) set_normal_mode() Model {
-	m.mode = NORMAL_MODE
-	clear(m.Selected)
-	return m
-}
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
