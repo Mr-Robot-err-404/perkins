@@ -3,14 +3,12 @@ package panel
 import (
 	"strings"
 
-	"github.com/Mr-Robot-err-404/perkins/common"
+	"github.com/Mr-Robot-err-404/perkins/core"
 	"github.com/Mr-Robot-err-404/perkins/theme"
 )
 
 const (
 	Cell string = "██"
-	Base rune   = 0x2800
-	Full rune   = 0x28FF
 )
 
 type Cells = [4][2]bool
@@ -42,14 +40,14 @@ func set_cell(color string, s string) string {
 func magnifier(r rune) Cells {
 	cells := Cells{}
 
-	if r < Base || r > Full {
+	if !core.Is_Braille(r) {
 		return cells
 	}
-	b := bitmap(r)
+	b := core.Bitmap(r)
 
 	var n byte
 	for ; n < 8; n++ {
-		pos, ok := common.Ascii_map[n]
+		pos, ok := core.Ascii_map[n]
 		if !ok {
 			continue
 		}
@@ -60,8 +58,4 @@ func magnifier(r rune) Cells {
 		cells[pos.Row][pos.Col] = true
 	}
 	return cells
-}
-
-func bitmap(r rune) byte {
-	return byte(r - Base)
 }

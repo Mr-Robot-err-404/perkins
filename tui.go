@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/Mr-Robot-err-404/perkins/canvas"
+	"github.com/Mr-Robot-err-404/perkins/core"
 	"github.com/Mr-Robot-err-404/perkins/panel"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -34,6 +35,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.canvas = m.canvas.Resize(canvasWidth, m.height)
 		m.panel = m.panel.Resize(panelWidth, m.height)
 		return m, nil
+	case panel.FlipMsg:
+		pos := m.canvas.Cursor
+		r := m.grid[pos.Row][pos.Col]
+
+		if !core.Is_Braille(r) {
+			return m, nil
+		}
+		b := core.Bitmap(r)
+		b = core.Flip(b, msg.Bit)
+		m.grid[pos.Row][pos.Col] = core.Bitmap_To_Braille(b)
 	}
 
 	var cmds []tea.Cmd

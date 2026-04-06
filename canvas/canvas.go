@@ -1,7 +1,7 @@
 package canvas
 
 import (
-	"github.com/Mr-Robot-err-404/perkins/common"
+	"github.com/Mr-Robot-err-404/perkins/core"
 	"github.com/Mr-Robot-err-404/perkins/theme"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -12,7 +12,7 @@ type Grid [][]rune
 type Model struct {
 	width  int
 	height int
-	Cursor *common.Pos
+	Cursor *core.Pos
 	Grid   Grid
 }
 
@@ -31,7 +31,7 @@ func New(width, height int, grid Grid) Model {
 		width:  width,
 		height: height,
 		Grid:   grid,
-		Cursor: &common.Pos{},
+		Cursor: &core.Pos{},
 	}
 }
 

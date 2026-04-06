@@ -6,12 +6,17 @@ import (
 	"os"
 
 	"github.com/Mr-Robot-err-404/perkins/canvas"
+	"github.com/Mr-Robot-err-404/perkins/debug"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
 	b, err := os.ReadFile("ascii")
 
+	if err != nil {
+		panic(err.Error())
+	}
+	err = debug.Init()
 	if err != nil {
 		panic(err.Error())
 	}

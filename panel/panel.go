@@ -11,6 +11,7 @@ type Model struct {
 	height int
 	Cell   func() rune
 }
+type FlipMsg struct{ Bit byte }
 
 func New(width, height int, get func() rune) Model {
 	return Model{width: width, height: height, Cell: get}
@@ -19,8 +20,34 @@ func New(width, height int, get func() rune) Model {
 func (m Model) Init() tea.Cmd {
 	return nil
 }
+func FlipBit(b byte) tea.Cmd {
+	return func() tea.Msg {
+		return FlipMsg{Bit: b}
+	}
+}
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "1":
+			return m, FlipBit(0)
+		case "2":
+			return m, FlipBit(1)
+		case "3":
+			return m, FlipBit(2)
+		case "4":
+			return m, FlipBit(6)
+		case "5":
+			return m, FlipBit(3)
+		case "6":
+			return m, FlipBit(4)
+		case "7":
+			return m, FlipBit(5)
+		case "8":
+			return m, FlipBit(7)
+		}
+	}
 	return m, nil
 }
 

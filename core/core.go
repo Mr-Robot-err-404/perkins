@@ -1,9 +1,14 @@
-package common
+package core
 
 type Pos struct {
 	Row int
 	Col int
 }
+
+const (
+	Base rune = 0x2800
+	Full rune = 0x28FF
+)
 
 var Pos_map = map[Pos]byte{
 	{Col: 0, Row: 0}: 0,
@@ -25,4 +30,20 @@ var Ascii_map = map[byte]Pos{
 	4: {Col: 1, Row: 1},
 	5: {Col: 1, Row: 2},
 	7: {Col: 1, Row: 3},
+}
+
+func Bitmap(r rune) byte {
+	return byte(r - Base)
+}
+
+func Bitmap_To_Braille(bitmap byte) rune {
+	return rune(bitmap) + Base
+}
+
+func Flip(b byte, bit byte) byte {
+	return b ^ (1 << bit)
+}
+
+func Is_Braille(r rune) bool {
+	return r >= Base && r <= Full
 }
