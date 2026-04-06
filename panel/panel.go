@@ -9,10 +9,11 @@ import (
 type Model struct {
 	width  int
 	height int
+	Cell   func() rune
 }
 
-func New(width, height int) Model {
-	return Model{width: width, height: height}
+func New(width, height int, get func() rune) Model {
+	return Model{width: width, height: height, Cell: get}
 }
 
 func (m Model) Init() tea.Cmd {
@@ -30,7 +31,13 @@ func (m Model) View() string {
 		Background(theme.SumiInk3).
 		AlignHorizontal(lipgloss.Center).
 		AlignVertical(lipgloss.Center).
-		Render("panel")
+		Render(m.magnify())
+}
+
+func (m Model) magnify() string {
+	r := m.Cell()
+	cells := magnifier(r)
+	return render_magnifier(cells)
 }
 
 func (m Model) Resize(width, height int) Model {

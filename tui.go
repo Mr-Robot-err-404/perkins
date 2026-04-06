@@ -55,10 +55,15 @@ func (m model) View() string {
 	return lipgloss.JoinHorizontal(lipgloss.Top, m.canvas.View(), m.panel.View())
 }
 
+func (m model) GetCell() rune {
+	return m.grid[m.canvas.Cursor.Row][m.canvas.Cursor.Col]
+}
+
 func newModel(grid canvas.Grid) model {
-	return model{
+	m := model{
 		canvas: canvas.New(0, 0, grid),
-		panel:  panel.New(panelWidth, 0),
 		grid:   grid,
 	}
+	m.panel = panel.New(panelWidth, 0, m.GetCell)
+	return m
 }

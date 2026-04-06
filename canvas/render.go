@@ -4,26 +4,21 @@ import (
 	"strings"
 
 	"github.com/Mr-Robot-err-404/perkins/common"
-)
-
-const (
-	canvasBG   = "\x1b[48;2;22;22;29m"
-	cursorAnsi = "\x1b[48;2;200;192;147;38;2;13;12;12m"
-	reset      = "\x1b[0m"
+	"github.com/Mr-Robot-err-404/perkins/theme"
 )
 
 func grid_to_canvas(grid Grid, cursor common.Pos) string {
 	cv := strings.Builder{}
-	cv.WriteString(canvasBG)
+	cv.WriteString(theme.CanvasBG)
 
 	for row, line := range grid {
 		for col, r := range line {
 			if row == cursor.Row && col == cursor.Col {
-				cv.WriteString(reset)
-				cv.WriteString(cursorAnsi)
+				cv.WriteString(theme.Reset)
+				cv.WriteString(theme.CursorAnsi)
 				cv.WriteRune(r)
-				cv.WriteString(reset)
-				cv.WriteString(canvasBG)
+				cv.WriteString(theme.Reset)
+				cv.WriteString(theme.CanvasBG)
 				continue
 			}
 			cv.WriteRune(r)
@@ -32,7 +27,7 @@ func grid_to_canvas(grid Grid, cursor common.Pos) string {
 			cv.WriteString("\n")
 		}
 	}
-	cv.WriteString(reset)
+	cv.WriteString(theme.Reset)
 	return cv.String()
 }
 

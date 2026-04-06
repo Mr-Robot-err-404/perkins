@@ -12,7 +12,7 @@ type Grid [][]rune
 type Model struct {
 	width  int
 	height int
-	cursor common.Pos
+	Cursor *common.Pos
 	Grid   Grid
 }
 
@@ -31,7 +31,7 @@ func New(width, height int, grid Grid) Model {
 		width:  width,
 		height: height,
 		Grid:   grid,
-		cursor: common.Pos{},
+		Cursor: &common.Pos{},
 	}
 }
 
@@ -44,27 +44,27 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case VIM_LEFT:
-			m.cursor.Col = max(0, m.cursor.Col-1)
+			m.Cursor.Col = max(0, m.Cursor.Col-1)
 		case VIM_RIGHT:
-			m.cursor.Col = min(len(m.Grid[m.cursor.Row])-1, m.cursor.Col+1)
+			m.Cursor.Col = min(len(m.Grid[m.Cursor.Row])-1, m.Cursor.Col+1)
 		case VIM_UP:
-			m.cursor.Row = max(0, m.cursor.Row-1)
+			m.Cursor.Row = max(0, m.Cursor.Row-1)
 		case VIM_DOWN:
-			m.cursor.Row = min(len(m.Grid)-1, m.cursor.Row+1)
+			m.Cursor.Row = min(len(m.Grid)-1, m.Cursor.Row+1)
 
 		case JUMP_DOWN:
-			m.cursor.Row = len(m.Grid) - 1
+			m.Cursor.Row = len(m.Grid) - 1
 		case JUMP_UP:
-			m.cursor.Row = 0
+			m.Cursor.Row = 0
 		case CENTER:
-			m.cursor = find_center(m.Grid)
+			*m.Cursor = find_center(m.Grid)
 
 		case "G":
-			m.cursor.Row = len(m.Grid) - 1
+			m.Cursor.Row = len(m.Grid) - 1
 		case "$":
-			m.cursor.Col = len(m.Grid[m.cursor.Row]) - 1
+			m.Cursor.Col = len(m.Grid[m.Cursor.Row]) - 1
 		case "_":
-			m.cursor.Col = 0
+			m.Cursor.Col = 0
 
 		}
 	}
@@ -78,7 +78,7 @@ func (m Model) View() string {
 		Background(theme.SumiInk1).
 		AlignHorizontal(lipgloss.Center).
 		AlignVertical(lipgloss.Center).
-		Render(grid_to_canvas(m.Grid, m.cursor))
+		Render(grid_to_canvas(m.Grid, *m.Cursor))
 }
 
 func (m Model) Resize(width, height int) Model {
