@@ -25,7 +25,7 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		if msg.String() == "q" || msg.String() == "ctrl+c" {
+		if msg.String() == "ctrl+c" {
 			return m, tea.Quit
 		}
 	case tea.WindowSizeMsg:
@@ -45,6 +45,24 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		b := core.Bitmap(r)
 		b = core.Flip(b, msg.Bit)
 		m.grid[pos.Row][pos.Col] = core.Bitmap_To_Braille(b)
+
+	case panel.FillMsg:
+		pos := m.canvas.Cursor
+		r := m.grid[pos.Row][pos.Col]
+
+		if !core.Is_Braille(r) {
+			return m, nil
+		}
+		m.grid[pos.Row][pos.Col] = core.Full
+
+	case panel.ClearMsg:
+		pos := m.canvas.Cursor
+		r := m.grid[pos.Row][pos.Col]
+
+		if !core.Is_Braille(r) {
+			return m, nil
+		}
+		m.grid[pos.Row][pos.Col] = core.Base
 	}
 
 	var cmds []tea.Cmd

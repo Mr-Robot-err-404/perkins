@@ -12,6 +12,8 @@ type Model struct {
 	Cell   func() rune
 }
 type FlipMsg struct{ Bit byte }
+type ClearMsg struct{}
+type FillMsg struct{}
 
 func New(width, height int, get func() rune) Model {
 	return Model{width: width, height: height, Cell: get}
@@ -26,26 +28,41 @@ func FlipBit(b byte) tea.Cmd {
 	}
 }
 
+func Clear() tea.Cmd {
+	return func() tea.Msg {
+		return ClearMsg{}
+	}
+}
+func Fill() tea.Cmd {
+	return func() tea.Msg {
+		return FillMsg{}
+	}
+}
+
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "1":
+		case "1", "q":
 			return m, FlipBit(0)
-		case "2":
+		case "2", "w":
 			return m, FlipBit(1)
-		case "3":
+		case "3", "e":
 			return m, FlipBit(2)
-		case "4":
+		case "4", "r":
 			return m, FlipBit(6)
-		case "5":
+		case "5", "u":
 			return m, FlipBit(3)
-		case "6":
+		case "6", "i":
 			return m, FlipBit(4)
-		case "7":
+		case "7", "o":
 			return m, FlipBit(5)
-		case "8":
+		case "8", "p":
 			return m, FlipBit(7)
+		case "x":
+			return m, Clear()
+		case "f":
+			return m, Fill()
 		}
 	}
 	return m, nil
