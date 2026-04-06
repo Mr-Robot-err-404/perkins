@@ -4,6 +4,7 @@ type Pos struct {
 	Row int
 	Col int
 }
+type Selected map[Pos]bool
 
 const (
 	Base rune = 0x2800

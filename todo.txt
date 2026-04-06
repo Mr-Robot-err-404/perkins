@@ -1,9 +1,14 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> visual mode
 -> visual block mode
 -> color palette
 -> simple undo & redo path
 -> symmetrical selection
 -> mouse actions
+
+--------------------------------------------
+TUI quality of life
+--------------------------------------------
+-> jump height set to half canvas height
+-> number jumps

@@ -14,11 +14,7 @@ func grid_to_canvas(grid Grid, cursor core.Pos) string {
 	for row, line := range grid {
 		for col, r := range line {
 			if row == cursor.Row && col == cursor.Col {
-				cv.WriteString(theme.Reset)
-				cv.WriteString(theme.CursorAnsi)
-				cv.WriteRune(r)
-				cv.WriteString(theme.Reset)
-				cv.WriteString(theme.CanvasBG)
+				set_canvas_cell(&cv, theme.CursorAnsi, r)
 				continue
 			}
 			cv.WriteRune(r)
@@ -29,6 +25,14 @@ func grid_to_canvas(grid Grid, cursor core.Pos) string {
 	}
 	cv.WriteString(theme.Reset)
 	return cv.String()
+}
+
+func set_canvas_cell(cv *strings.Builder, ansi string, r rune) {
+	cv.WriteString(theme.Reset)
+	cv.WriteString(ansi)
+	cv.WriteRune(r)
+	cv.WriteString(theme.Reset)
+	cv.WriteString(theme.CanvasBG)
 }
 
 func find_center(grid Grid) core.Pos {

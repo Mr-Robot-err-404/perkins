@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/Mr-Robot-err-404/perkins/canvas"
+	"github.com/Mr-Robot-err-404/perkins/core"
 	"github.com/Mr-Robot-err-404/perkins/debug"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -60,6 +61,6 @@ func trim(b *[]byte) {
 
 func pad(r *[]rune, size int) {
 	for range size {
-		*r = append(*r, ' ')
+		*r = append(*r, core.Base)
 	}
 }

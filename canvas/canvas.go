@@ -10,11 +10,19 @@ import (
 type Grid [][]rune
 
 type Model struct {
-	width  int
-	height int
-	Cursor *core.Pos
-	Grid   Grid
+	width       int
+	height      int
+	mode        int
+	Cursor      *core.Pos
+	prev_cursor *core.Pos
+	Grid        Grid
+	Selected    core.Selected
 }
+
+const (
+	NORMAL_MODE int = iota
+	VISUAL_BLOCK
+)
 
 const (
 	VIM_LEFT  string = "h"
@@ -26,17 +34,37 @@ const (
 	CENTER    string = "c"
 )
 
-func New(width, height int, grid Grid) Model {
+func New(width, height int, grid Grid, selected core.Selected) Model {
 	return Model{
-		width:  width,
-		height: height,
-		Grid:   grid,
-		Cursor: &core.Pos{},
+		width:       width,
+		height:      height,
+		Grid:        grid,
+		Selected:    selected,
+		Cursor:      &core.Pos{},
+		prev_cursor: &core.Pos{},
 	}
 }
 
 func (m Model) Init() tea.Cmd {
 	return nil
+}
+func (m Model) toggle_mode(mode int) int {
+	if mode == m.mode {
+		return NORMAL_MODE
+	}
+	return mode
+}
+func (m Model) expand_selection() {
+	if m.mode != VISUAL_BLOCK {
+		return
+	}
+	pos := *m.Cursor
+	m.Selected[pos] = true
+}
+func (m Model) update_cursor(pos core.Pos) {
+	*m.prev_cursor = *m.Cursor
+	*m.Cursor = pos
+	m.expand_selection()
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
@@ -44,28 +72,62 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case VIM_LEFT:
-			m.Cursor.Col = max(0, m.Cursor.Col-1)
+			m.update_cursor(core.Pos{Row: m.Cursor.Row, Col: max(0, m.Cursor.Col-1)})
 		case VIM_RIGHT:
-			m.Cursor.Col = min(len(m.Grid[m.Cursor.Row])-1, m.Cursor.Col+1)
+			m.update_cursor(core.Pos{
+				Row: m.Cursor.Row,
+				Col: min(len(m.Grid[m.Cursor.Row])-1, m.Cursor.Col+1),
+			})
 		case VIM_UP:
-			m.Cursor.Row = max(0, m.Cursor.Row-1)
+			m.update_cursor(core.Pos{
+				Col: m.Cursor.Col,
+				Row: max(0, m.Cursor.Row-1),
+			})
 		case VIM_DOWN:
-			m.Cursor.Row = min(len(m.Grid)-1, m.Cursor.Row+1)
+			m.update_cursor(core.Pos{
+				Col: m.Cursor.Col,
+				Row: min(len(m.Grid)-1, m.Cursor.Row+1),
+			})
 
 		case JUMP_DOWN:
-			m.Cursor.Row = len(m.Grid) - 1
+			m.update_cursor(core.Pos{
+				Col: m.Cursor.Col,
+				Row: len(m.Grid) - 1,
+			})
 		case JUMP_UP:
-			m.Cursor.Row = 0
+			m.update_cursor(core.Pos{
+				Col: m.Cursor.Col,
+				Row: 0,
+			})
 		case CENTER:
-			*m.Cursor = find_center(m.Grid)
+			m.update_cursor(find_center(m.Grid))
 
 		case "G":
-			m.Cursor.Row = len(m.Grid) - 1
+			m.update_cursor(core.Pos{
+				Col: m.Cursor.Col,
+				Row: len(m.Grid) - 1,
+			})
 		case "$":
-			m.Cursor.Col = len(m.Grid[m.Cursor.Row]) - 1
+			m.update_cursor(core.Pos{
+				Row: m.Cursor.Row,
+				Col: len(m.Grid[m.Cursor.Row]) - 1,
+			})
 		case "_":
-			m.Cursor.Col = 0
+			m.update_cursor(core.Pos{
+				Row: m.Cursor.Row,
+				Col: 0,
+			})
 
+		case "v", "ctrl+v":
+			m.mode = m.toggle_mode(VISUAL_BLOCK)
+			if m.mode == NORMAL_MODE {
+				clear(m.Selected)
+				return m, nil
+			}
+			pos := *m.Cursor
+			m.Selected[pos] = true
+		case "esc":
+			m.mode = NORMAL_MODE
 		}
 	}
 	return m, nil

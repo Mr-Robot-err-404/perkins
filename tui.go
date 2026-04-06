@@ -11,11 +11,12 @@ import (
 const panelWidth int = 42
 
 type model struct {
-	width  int
-	height int
-	panel  panel.Model
-	canvas canvas.Model
-	grid   canvas.Grid
+	width    int
+	height   int
+	panel    panel.Model
+	canvas   canvas.Model
+	grid     canvas.Grid
+	selected core.Selected
 }
 
 func (m model) Init() tea.Cmd {
@@ -89,9 +90,11 @@ func (m model) GetCell() rune {
 }
 
 func newModel(grid canvas.Grid) model {
+	selected := make(core.Selected)
 	m := model{
-		canvas: canvas.New(0, 0, grid),
-		grid:   grid,
+		canvas:   canvas.New(0, 0, grid, selected),
+		grid:     grid,
+		selected: selected,
 	}
 	m.panel = panel.New(panelWidth, 0, m.GetCell)
 	return m
