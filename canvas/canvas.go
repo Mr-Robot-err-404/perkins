@@ -66,6 +66,11 @@ func (m Model) update_cursor(pos core.Pos) {
 	*m.Cursor = pos
 	m.expand_selection()
 }
+func (m Model) set_normal_mode() Model {
+	m.mode = NORMAL_MODE
+	clear(m.Selected)
+	return m
+}
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -119,15 +124,17 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			})
 
 		case "v", "ctrl+v":
-			m.mode = m.toggle_mode(VISUAL_BLOCK)
-			if m.mode == NORMAL_MODE {
-				clear(m.Selected)
+			mode := m.toggle_mode(VISUAL_BLOCK)
+
+			if mode == NORMAL_MODE {
+				m = m.set_normal_mode()
 				return m, nil
 			}
+			m.mode = mode
 			pos := *m.Cursor
 			m.Selected[pos] = true
 		case "esc":
-			m.mode = NORMAL_MODE
+			m = m.set_normal_mode()
 		}
 	}
 	return m, nil
@@ -140,7 +147,7 @@ func (m Model) View() string {
 		Background(theme.SumiInk1).
 		AlignHorizontal(lipgloss.Center).
 		AlignVertical(lipgloss.Center).
-		Render(grid_to_canvas(m.Grid, *m.Cursor))
+		Render(grid_to_canvas(m.Grid, m.Selected, *m.Cursor))
 }
 
 func (m Model) Resize(width, height int) Model {
