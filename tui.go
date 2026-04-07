@@ -8,8 +8,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const panelWidth int = 42
-
 type model struct {
 	width    int
 	height   int
@@ -17,6 +15,28 @@ type model struct {
 	canvas   canvas.Model
 	grid     canvas.Grid
 	selected core.Selected
+}
+
+const PANEL_WIDTH int = 42
+
+func (m model) apply_action(action int) {
+	switch action {
+	case panel.FILL_ACTION:
+		for pos := range m.selected {
+			set_grid_cell(pos, m.grid, core.Full)
+		}
+	case panel.CLEAR_ACTION:
+		for pos := range m.selected {
+			set_grid_cell(pos, m.grid, core.Base)
+		}
+	}
+}
+func set_grid_cell(pos core.Pos, grid canvas.Grid, value rune) {
+	r := grid[pos.Row][pos.Col]
+	if !core.Is_Braille(r) {
+		return
+	}
+	grid[pos.Row][pos.Col] = value
 }
 
 func (m model) Init() tea.Cmd {
@@ -32,10 +52,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-		canvasWidth := max(0, m.width-panelWidth)
-		m.canvas = m.canvas.Resize(canvasWidth, m.height)
-		m.panel = m.panel.Resize(panelWidth, m.height)
+
+		canvas_width := max(0, m.width-PANEL_WIDTH)
+		m.canvas = m.canvas.Resize(canvas_width, m.height)
+		m.panel = m.panel.Resize(PANEL_WIDTH, m.height)
 		return m, nil
+
 	case panel.FlipMsg:
 		pos := m.canvas.Cursor
 		r := m.grid[pos.Row][pos.Col]
@@ -47,23 +69,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		b = core.Flip(b, msg.Bit)
 		m.grid[pos.Row][pos.Col] = core.Bitmap_To_Braille(b)
 
-	case panel.FillMsg:
-		pos := m.canvas.Cursor
-		r := m.grid[pos.Row][pos.Col]
-
-		if !core.Is_Braille(r) {
-			return m, nil
-		}
-		m.grid[pos.Row][pos.Col] = core.Full
-
-	case panel.ClearMsg:
-		pos := m.canvas.Cursor
-		r := m.grid[pos.Row][pos.Col]
-
-		if !core.Is_Braille(r) {
-			return m, nil
-		}
-		m.grid[pos.Row][pos.Col] = core.Base
+	case panel.ActionMsg:
+		m.apply_action(msg.Action)
 	}
 
 	var cmds []tea.Cmd
@@ -85,7 +92,7 @@ func (m model) View() string {
 	return lipgloss.JoinHorizontal(lipgloss.Top, m.canvas.View(), m.panel.View())
 }
 
-func (m model) GetCell() rune {
+func (m model) get_cell() rune {
 	return m.grid[m.canvas.Cursor.Row][m.canvas.Cursor.Col]
 }
 
@@ -96,6 +103,6 @@ func newModel(grid canvas.Grid) model {
 		grid:     grid,
 		selected: selected,
 	}
-	m.panel = panel.New(panelWidth, 0, m.GetCell)
+	m.panel = panel.New(PANEL_WIDTH, 0, m.get_cell)
 	return m
 }

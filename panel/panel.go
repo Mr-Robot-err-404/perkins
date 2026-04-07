@@ -12,8 +12,12 @@ type Model struct {
 	Cell   func() rune
 }
 type FlipMsg struct{ Bit byte }
-type ClearMsg struct{}
-type FillMsg struct{}
+type ActionMsg struct{ Action int }
+
+const (
+	FILL_ACTION int = iota + 1
+	CLEAR_ACTION
+)
 
 func New(width, height int, get func() rune) Model {
 	return Model{width: width, height: height, Cell: get}
@@ -30,12 +34,12 @@ func FlipBit(b byte) tea.Cmd {
 
 func Clear() tea.Cmd {
 	return func() tea.Msg {
-		return ClearMsg{}
+		return ActionMsg{Action: CLEAR_ACTION}
 	}
 }
 func Fill() tea.Cmd {
 	return func() tea.Msg {
-		return FillMsg{}
+		return ActionMsg{Action: FILL_ACTION}
 	}
 }
 

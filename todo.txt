@@ -1,7 +1,7 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> visual block mode
+-> apply actions to selected cells
 -> color palette
 -> simple undo & redo path
 -> symmetrical selection
