@@ -1,13 +1,18 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> symmetrical selection
+-> parse existing colors
 -> color palette
 -> simple undo & redo path
 -> mouse actions
+-> save edited file
+-> crop canvas with empty sides
+-> help menu
 
 --------------------------------------------
 TUI quality of life
 --------------------------------------------
 -> jump height set to half canvas height
 -> number jumps
+-> vim niceties :: w, yank
+-> handle large ascii files

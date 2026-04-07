@@ -120,7 +120,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			m.mode = m.toggle_mode(VISUAL_BLOCK)
 
 			if m.mode == NORMAL_MODE {
-				m = m.set_normal_mode()
+				m.reset_to_normal()
 				return m, nil
 			}
 			pos := *m.Cursor
@@ -134,7 +134,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			m.expand_selection()
 
 		case "esc":
-			m = m.set_normal_mode()
+			m.mode = NORMAL_MODE
+			m.reset_to_normal()
 		}
 	}
 	return m, nil
