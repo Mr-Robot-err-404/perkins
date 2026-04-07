@@ -18,15 +18,24 @@ type Model struct {
 	harpoon     *Harpoon
 	prev_cursor *core.Pos
 	Cursor      *core.Pos
+	selector    *Selector
 }
 type Harpoon struct {
 	min core.Pos
 	max core.Pos
 }
+type Selector struct {
+	mirror int
+}
 
 const (
 	NORMAL_MODE int = iota
 	VISUAL_BLOCK
+)
+const (
+	MIRROR_DISABLE int = iota
+	VERTICAL
+	HORIZONTAL
 )
 
 const (
@@ -48,6 +57,7 @@ func New(width, height int, grid Grid, selected core.Selected) Model {
 		Cursor:      &core.Pos{},
 		prev_cursor: &core.Pos{},
 		harpoon:     &Harpoon{},
+		selector:    &Selector{},
 	}
 }
 
@@ -116,6 +126,13 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			pos := *m.Cursor
 			m.Selected[pos] = true
 			*m.harpoon = Harpoon{min: pos, max: pos}
+		case "=":
+			m.set_mirror_axis(VERTICAL)
+			m.expand_selection()
+		case "|":
+			m.set_mirror_axis(HORIZONTAL)
+			m.expand_selection()
+
 		case "esc":
 			m = m.set_normal_mode()
 		}
