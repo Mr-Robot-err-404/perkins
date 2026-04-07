@@ -84,8 +84,8 @@ func (m Model) View() string {
 
 func (m Model) magnify() string {
 	r := m.Cell()
-	cells := magnifier(r)
-	return render_magnifier(cells)
+	bits := magnifier(r)
+	return render_magnifier(bits)
 }
 
 func (m Model) Resize(width, height int) Model {

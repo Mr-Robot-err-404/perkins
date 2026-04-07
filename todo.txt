@@ -1,10 +1,9 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> apply actions to selected cells
+-> symmetrical selection
 -> color palette
 -> simple undo & redo path
--> symmetrical selection
 -> mouse actions
 
 --------------------------------------------

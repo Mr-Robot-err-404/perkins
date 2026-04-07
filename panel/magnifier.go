@@ -11,23 +11,23 @@ const (
 	Cell string = "██"
 )
 
-type Cells = [4][2]bool
+type Bits = [4][2]bool
 
-func render_magnifier(cells Cells) string {
+func render_magnifier(bits Bits) string {
 	s := strings.Builder{}
 
-	for i, current := range cells {
-		s.WriteString(derive_cell(current[0]))
+	for i, current := range bits {
+		s.WriteString(derive_bit(current[0]))
 		s.WriteString(" ")
-		s.WriteString(derive_cell(current[1]))
-		if i < len(cells)-1 {
+		s.WriteString(derive_bit(current[1]))
+		if i < len(bits)-1 {
 			s.WriteString("\n")
 		}
 	}
 	return s.String()
 }
 
-func derive_cell(on bool) string {
+func derive_bit(on bool) string {
 	if on {
 		return set_cell(theme.ActiveCellFG, Cell)
 	}
@@ -37,11 +37,11 @@ func set_cell(color string, s string) string {
 	return theme.Reset + color + s + theme.Reset + theme.PanelBG
 }
 
-func magnifier(r rune) Cells {
-	cells := Cells{}
+func magnifier(r rune) Bits {
+	bits := Bits{}
 
 	if !core.Is_Braille(r) {
-		return cells
+		return bits
 	}
 	b := core.Bitmap(r)
 
@@ -55,7 +55,7 @@ func magnifier(r rune) Cells {
 		if bit == 0 {
 			continue
 		}
-		cells[pos.Row][pos.Col] = true
+		bits[pos.Row][pos.Col] = true
 	}
-	return cells
+	return bits
 }
