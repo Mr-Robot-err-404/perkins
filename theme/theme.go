@@ -14,7 +14,7 @@ const (
 	CellBG       = "\x1b[48;2;13;12;12m"
 	PanelBG      = "\x1b[48;2;31;31;40m"
 	CursorAnsi   = "\x1b[48;2;200;192;147;38;2;13;12;12m"
-	SelectionBG  = "\x1b[48;2;49;49;68m"
+	SelectionBG  = "\x1b[48;2;90;90;110m"
 	ActiveCellFG = "\x1b[38;2;126;156;216m"
 	Reset        = "\x1b[0m"
 )

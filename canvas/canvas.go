@@ -13,10 +13,15 @@ type Model struct {
 	width       int
 	height      int
 	mode        int
-	Cursor      *core.Pos
-	prev_cursor *core.Pos
 	Grid        Grid
 	Selected    core.Selected
+	harpoon     *Harpoon
+	prev_cursor *core.Pos
+	Cursor      *core.Pos
+}
+type Harpoon struct {
+	min core.Pos
+	max core.Pos
 }
 
 const (
@@ -42,6 +47,7 @@ func New(width, height int, grid Grid, selected core.Selected) Model {
 		Selected:    selected,
 		Cursor:      &core.Pos{},
 		prev_cursor: &core.Pos{},
+		harpoon:     &Harpoon{},
 	}
 }
 
@@ -101,15 +107,15 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			})
 
 		case "v", "ctrl+v":
-			mode := m.toggle_mode(VISUAL_BLOCK)
+			m.mode = m.toggle_mode(VISUAL_BLOCK)
 
-			if mode == NORMAL_MODE {
+			if m.mode == NORMAL_MODE {
 				m = m.set_normal_mode()
 				return m, nil
 			}
-			m.mode = mode
 			pos := *m.Cursor
 			m.Selected[pos] = true
+			*m.harpoon = Harpoon{min: pos, max: pos}
 		case "esc":
 			m = m.set_normal_mode()
 		}
