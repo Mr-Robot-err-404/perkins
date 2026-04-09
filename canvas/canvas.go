@@ -26,7 +26,7 @@ type Harpoon struct {
 	start core.Pos
 }
 type Selector struct {
-	mirror int
+	mirror_axis int
 }
 type CropMsg struct{ Grid Grid }
 
@@ -152,7 +152,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			*m.harpoon = Harpoon{min: pos, max: pos, start: pos}
 
 		case "tab":
-			m.selector.mirror = m.toggle_mirror_axis()
+			m.selector.mirror_axis = m.toggle_mirror_axis()
 
 			switch m.Mode {
 			case VISUAL_BLOCK:

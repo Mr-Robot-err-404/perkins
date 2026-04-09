@@ -11,7 +11,7 @@ func (m Model) toggle_mode(mode int) int {
 	return mode
 }
 func (m Model) toggle_mirror_axis() int {
-	switch m.selector.mirror {
+	switch m.selector.mirror_axis {
 	case X_AXIS:
 		return Y_AXIS
 	case Y_AXIS:
@@ -22,7 +22,7 @@ func (m Model) toggle_mirror_axis() int {
 }
 
 func (m Model) init_cropping_block() {
-	switch m.selector.mirror {
+	switch m.selector.mirror_axis {
 	case Y_AXIS:
 		m.Cursor.Col = 0
 		*m.harpoon = Harpoon{
@@ -62,9 +62,9 @@ func mirror_harpoon(harpoon *Harpoon, axis int, w, h int) Harpoon {
 func (m Model) crop_canvas() Grid {
 	grid := make(Grid, len(m.Grid))
 	w, h := len(m.Grid[0]), len(m.Grid)
-	mirror := mirror_harpoon(m.harpoon, m.selector.mirror, w, h)
+	mirror := mirror_harpoon(m.harpoon, m.selector.mirror_axis, w, h)
 
-	switch m.selector.mirror {
+	switch m.selector.mirror_axis {
 	case Y_AXIS:
 		start := m.harpoon.max.Col + 1
 		end := mirror.min.Col
@@ -124,7 +124,7 @@ func (m Model) expand_selection() {
 	case VISUAL_BLOCK:
 		m.harpoon.selection(pos)
 	case CROP_MODE:
-		m.harpoon.crop(pos, m.selector.mirror)
+		m.harpoon.crop(pos, m.selector.mirror_axis)
 	}
 	clear(m.Selected)
 
@@ -134,14 +134,14 @@ func (m Model) expand_selection() {
 			m.Selected[pos] = slt
 		}
 	}
-	if m.selector.mirror == MIRROR_DISABLE {
+	if m.selector.mirror_axis == MIRROR_DISABLE {
 		return
 	}
 	mirror := make(core.Selected, len(m.Selected))
 	w, h := len(m.Grid[0]), len(m.Grid)
 
 	for pos := range m.Selected {
-		p := mirror_pos(pos, m.selector.mirror, w, h)
+		p := mirror_pos(pos, m.selector.mirror_axis, w, h)
 		mirror[p] = slt
 	}
 	for pos := range mirror {
@@ -155,11 +155,11 @@ func (m Model) update_cursor(pos core.Pos) {
 }
 
 func (m Model) set_mirror_axis(axis int) {
-	if m.selector.mirror == axis {
-		m.selector.mirror = MIRROR_DISABLE
+	if m.selector.mirror_axis == axis {
+		m.selector.mirror_axis = MIRROR_DISABLE
 		return
 	}
-	m.selector.mirror = axis
+	m.selector.mirror_axis = axis
 }
 
 func (m Model) Reset_to_normal() Model {

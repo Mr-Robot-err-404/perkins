@@ -6,13 +6,11 @@ David Abraham would approve
 -> simple undo & redo path
 -> mouse actions
 -> save edited file
--> crop canvas with empty sides
 -> help menu
 
 --------------------------------------------
 TUI quality of life
 --------------------------------------------
--> crop mode
 -> jump height set to half canvas height
 -> number jumps
 -> vim niceties :: w, yank
