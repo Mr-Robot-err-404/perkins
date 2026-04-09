@@ -10,6 +10,36 @@ func (m Model) toggle_mode(mode int) int {
 	}
 	return mode
 }
+func (m Model) toggle_mirror_axis() int {
+	switch m.selector.mirror {
+	case X_AXIS:
+		return Y_AXIS
+	case Y_AXIS:
+		return X_AXIS
+	default:
+		return MIRROR_DISABLE
+	}
+}
+
+func (m Model) init_cropping_block() {
+	switch m.selector.mirror {
+	case Y_AXIS:
+		m.Cursor.Col = 0
+		*m.harpoon = Harpoon{
+			min:   core.Pos{Col: 0, Row: 0},
+			max:   core.Pos{Col: 0, Row: len(m.Grid)},
+			start: *m.Cursor,
+		}
+	case X_AXIS:
+		m.Cursor.Row = 0
+		*m.harpoon = Harpoon{
+			min:   core.Pos{Row: 0, Col: 0},
+			max:   core.Pos{Row: 0, Col: len(m.Grid[0])},
+			start: *m.Cursor,
+		}
+	}
+}
+
 func mirror_pos(pos core.Pos, axis int, w, h int) core.Pos {
 	switch axis {
 	case Y_AXIS:
@@ -49,8 +79,14 @@ func (m Model) crop_canvas() Grid {
 			}
 			grid[row] = current
 		}
-
 	case X_AXIS:
+		start := m.harpoon.max.Row + 1
+		end := mirror.min.Row
+
+		for row := start; row < end; row++ {
+			idx := row - start
+			grid[idx] = m.Grid[row]
+		}
 	}
 	return grid
 }
@@ -119,9 +155,6 @@ func (m Model) update_cursor(pos core.Pos) {
 }
 
 func (m Model) set_mirror_axis(axis int) {
-	if m.Mode == NORMAL_MODE {
-		return
-	}
 	if m.selector.mirror == axis {
 		m.selector.mirror = MIRROR_DISABLE
 		return

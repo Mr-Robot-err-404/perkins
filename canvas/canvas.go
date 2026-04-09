@@ -136,13 +136,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				m.Reset_to_normal()
 				return m, nil
 			}
-			m.Cursor.Col = 0
-			*m.harpoon = Harpoon{
-				min:   core.Pos{Col: 0, Row: 0},
-				max:   core.Pos{Col: 0, Row: len(m.Grid)},
-				start: *m.Cursor,
-			}
 			m.set_mirror_axis(Y_AXIS)
+			m.init_cropping_block()
 			m.expand_selection()
 
 		case "v", "ctrl+v":
@@ -156,12 +151,31 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			m.Selected[pos] = core.Highlight
 			*m.harpoon = Harpoon{min: pos, max: pos, start: pos}
 
+		case "tab":
+			m.selector.mirror = m.toggle_mirror_axis()
+
+			switch m.Mode {
+			case VISUAL_BLOCK:
+				m.expand_selection()
+			case CROP_MODE:
+				m.init_cropping_block()
+				m.expand_selection()
+			}
+
 		case "=":
-			m.set_mirror_axis(X_AXIS)
-			m.expand_selection()
+			switch m.Mode {
+			case VISUAL_BLOCK:
+				m.set_mirror_axis(X_AXIS)
+				m.expand_selection()
+			case CROP_MODE:
+			}
 		case "|":
-			m.set_mirror_axis(Y_AXIS)
-			m.expand_selection()
+			switch m.Mode {
+			case VISUAL_BLOCK:
+				m.set_mirror_axis(Y_AXIS)
+				m.expand_selection()
+			case CROP_MODE:
+			}
 
 		case "esc":
 			m.Mode = NORMAL_MODE
