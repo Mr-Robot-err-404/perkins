@@ -30,21 +30,20 @@ func mirror_harpoon(harpoon *Harpoon, axis int, w, h int) Harpoon {
 }
 
 func (m Model) crop_canvas() Grid {
-	w := len(m.Grid[0])
-	// mirror := mirror_harpoon(m.harpoon, m.selector.mirror, w, h)
-
 	grid := make(Grid, len(m.Grid))
+	w, h := len(m.Grid[0]), len(m.Grid)
+	mirror := mirror_harpoon(m.harpoon, m.selector.mirror, w, h)
 
 	switch m.selector.mirror {
 	case Y_AXIS:
 		start := m.harpoon.max.Col + 1
-		size := w - start
-		// end := mirror.min.Col
+		end := mirror.min.Col
+		size := end - start
 
 		for row := range m.Grid {
 			current := make([]rune, size)
 
-			for col := start; col < w; col++ {
+			for col := start; col < end; col++ {
 				idx := col - start
 				current[idx] = m.Grid[row][col]
 			}
@@ -63,11 +62,19 @@ func (m Model) selection_type() int {
 	return core.Highlight
 }
 
-func (h *Harpoon) update_to(pos core.Pos) {
+func (h *Harpoon) selection(pos core.Pos) {
 	h.min.Row = min(h.start.Row, pos.Row)
 	h.min.Col = min(h.start.Col, pos.Col)
 	h.max.Row = max(h.start.Row, pos.Row)
 	h.max.Col = max(h.start.Col, pos.Col)
+}
+func (h *Harpoon) crop(pos core.Pos, axis int) {
+	switch axis {
+	case X_AXIS:
+		h.max.Row = pos.Row
+	case Y_AXIS:
+		h.max.Col = pos.Col
+	}
 }
 
 func (m Model) expand_selection() {
@@ -76,9 +83,15 @@ func (m Model) expand_selection() {
 	}
 	slt := m.selection_type()
 	pos := *m.Cursor
-	m.harpoon.update_to(pos)
 
+	switch m.Mode {
+	case VISUAL_BLOCK:
+		m.harpoon.selection(pos)
+	case CROP_MODE:
+		m.harpoon.crop(pos, m.selector.mirror)
+	}
 	clear(m.Selected)
+
 	for row := m.harpoon.min.Row; row <= m.harpoon.max.Row; row++ {
 		for col := m.harpoon.min.Col; col <= m.harpoon.max.Col; col++ {
 			pos := core.Pos{Row: row, Col: col}
