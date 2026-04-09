@@ -63,20 +63,24 @@ func (m Model) selection_type() int {
 	return core.Highlight
 }
 
+func (h *Harpoon) update_to(pos core.Pos) {
+	h.min.Row = min(h.start.Row, pos.Row)
+	h.min.Col = min(h.start.Col, pos.Col)
+	h.max.Row = max(h.start.Row, pos.Row)
+	h.max.Col = max(h.start.Col, pos.Col)
+}
+
 func (m Model) expand_selection() {
 	if m.Mode == NORMAL_MODE {
 		return
 	}
 	slt := m.selection_type()
 	pos := *m.Cursor
-	min_row := min(m.harpoon.min.Row, pos.Row)
-	min_col := min(m.harpoon.min.Col, pos.Col)
-	max_row := max(m.harpoon.max.Row, pos.Row)
-	max_col := max(m.harpoon.max.Col, pos.Col)
+	m.harpoon.update_to(pos)
 
 	clear(m.Selected)
-	for row := min_row; row <= max_row; row++ {
-		for col := min_col; col <= max_col; col++ {
+	for row := m.harpoon.min.Row; row <= m.harpoon.max.Row; row++ {
+		for col := m.harpoon.min.Col; col <= m.harpoon.max.Col; col++ {
 			pos := core.Pos{Row: row, Col: col}
 			m.Selected[pos] = slt
 		}

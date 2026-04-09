@@ -21,8 +21,9 @@ type Model struct {
 	selector    *Selector
 }
 type Harpoon struct {
-	min core.Pos
-	max core.Pos
+	min   core.Pos
+	max   core.Pos
+	start core.Pos
 }
 type Selector struct {
 	mirror int
@@ -49,6 +50,7 @@ const (
 	JUMP_UP   string = "ctrl+u"
 	CENTER    string = "t"
 	CONFIRM   string = "ctrl+y"
+	CROP      string = "c"
 )
 
 func New(width, height int, grid Grid, selected core.Selected) Model {
@@ -127,8 +129,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			return m, func() tea.Msg {
 				return CropMsg{Grid: grid}
 			}
-
-		case "c":
+		case CROP:
 			m.Mode = m.toggle_mode(CROP_MODE)
 
 			if m.Mode == NORMAL_MODE {
@@ -137,8 +138,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			}
 			m.Cursor.Col = 0
 			*m.harpoon = Harpoon{
-				min: core.Pos{Col: 0, Row: 0},
-				max: core.Pos{Col: 0, Row: len(m.Grid)},
+				min:   core.Pos{Col: 0, Row: 0},
+				max:   core.Pos{Col: 0, Row: len(m.Grid)},
+				start: *m.Cursor,
 			}
 			m.set_mirror_axis(Y_AXIS)
 			m.expand_selection()
@@ -152,7 +154,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			}
 			pos := *m.Cursor
 			m.Selected[pos] = core.Highlight
-			*m.harpoon = Harpoon{min: pos, max: pos}
+			*m.harpoon = Harpoon{min: pos, max: pos, start: pos}
 
 		case "=":
 			m.set_mirror_axis(X_AXIS)
