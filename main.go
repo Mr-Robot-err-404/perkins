@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"os"
 
@@ -12,6 +13,9 @@ import (
 )
 
 func main() {
+	dev := flag.Bool("dev", false, "dev mode")
+	flag.Parse()
+
 	b, err := os.ReadFile("ascii")
 
 	if err != nil {
@@ -23,7 +27,13 @@ func main() {
 	}
 	grid := parse_grid(b)
 
+	if *dev {
+		ascii := color_ascii_bytes(grid, 18, 56)
+		os.WriteFile("quick_brown_fox", ascii, 0644)
+		return
+	}
 	p := tea.NewProgram(newModel(grid), tea.WithAltScreen(), tea.WithMouseCellMotion())
+
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
