@@ -17,9 +17,10 @@ func grid_to_canvas(grid Grid, selected core.Selected, cursor core.Pos) string {
 				set_canvas_cell(&cv, theme.CursorAnsi, r)
 				continue
 			}
-			ok := selected[core.Pos{Row: row, Col: col}]
+			slt, ok := selected[core.Pos{Row: row, Col: col}]
 			if ok {
-				set_canvas_cell(&cv, theme.SelectionBG, r)
+				ansi := theme.Selection_Ansi(slt)
+				set_canvas_cell(&cv, ansi, r)
 				continue
 			}
 			cv.WriteRune(r)

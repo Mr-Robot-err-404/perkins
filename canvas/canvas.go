@@ -12,7 +12,7 @@ type Grid [][]rune
 type Model struct {
 	width       int
 	height      int
-	mode        int
+	Mode        int
 	Grid        Grid
 	Selected    core.Selected
 	harpoon     *Harpoon
@@ -27,15 +27,17 @@ type Harpoon struct {
 type Selector struct {
 	mirror int
 }
+type CropMsg struct{ Grid Grid }
 
 const (
 	NORMAL_MODE int = iota
 	VISUAL_BLOCK
+	CROP_MODE
 )
 const (
 	MIRROR_DISABLE int = iota
-	VERTICAL
-	HORIZONTAL
+	X_AXIS
+	Y_AXIS
 )
 
 const (
@@ -45,7 +47,8 @@ const (
 	VIM_UP    string = "k"
 	JUMP_DOWN string = "ctrl+d"
 	JUMP_UP   string = "ctrl+u"
-	CENTER    string = "c"
+	CENTER    string = "t"
+	CONFIRM   string = "ctrl+y"
 )
 
 func New(width, height int, grid Grid, selected core.Selected) Model {
@@ -115,27 +118,52 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				Row: m.Cursor.Row,
 				Col: 0,
 			})
+		case CONFIRM:
+			if m.Mode != CROP_MODE {
+				return m, nil
+			}
+			grid := m.crop_canvas()
+
+			return m, func() tea.Msg {
+				return CropMsg{Grid: grid}
+			}
+
+		case "c":
+			m.Mode = m.toggle_mode(CROP_MODE)
+
+			if m.Mode == NORMAL_MODE {
+				m.Reset_to_normal()
+				return m, nil
+			}
+			m.Cursor.Col = 0
+			*m.harpoon = Harpoon{
+				min: core.Pos{Col: 0, Row: 0},
+				max: core.Pos{Col: 0, Row: len(m.Grid)},
+			}
+			m.set_mirror_axis(Y_AXIS)
+			m.expand_selection()
 
 		case "v", "ctrl+v":
-			m.mode = m.toggle_mode(VISUAL_BLOCK)
+			m.Mode = m.toggle_mode(VISUAL_BLOCK)
 
-			if m.mode == NORMAL_MODE {
-				m.reset_to_normal()
+			if m.Mode == NORMAL_MODE {
+				m.Reset_to_normal()
 				return m, nil
 			}
 			pos := *m.Cursor
-			m.Selected[pos] = true
+			m.Selected[pos] = core.Highlight
 			*m.harpoon = Harpoon{min: pos, max: pos}
+
 		case "=":
-			m.set_mirror_axis(VERTICAL)
+			m.set_mirror_axis(X_AXIS)
 			m.expand_selection()
 		case "|":
-			m.set_mirror_axis(HORIZONTAL)
+			m.set_mirror_axis(Y_AXIS)
 			m.expand_selection()
 
 		case "esc":
-			m.mode = NORMAL_MODE
-			m.reset_to_normal()
+			m.Mode = NORMAL_MODE
+			m.Reset_to_normal()
 		}
 	}
 	return m, nil

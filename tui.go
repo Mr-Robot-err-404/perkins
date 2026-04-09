@@ -58,6 +58,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.panel = m.panel.Resize(PANEL_WIDTH, m.height)
 		return m, nil
 
+	case canvas.CropMsg:
+		m.grid = msg.Grid
+		m.canvas.Grid = msg.Grid
+		m.canvas.Mode = canvas.NORMAL_MODE
+		m.canvas.Reset_to_normal()
+
 	case panel.FlipMsg:
 		pos := m.canvas.Cursor
 		r := m.grid[pos.Row][pos.Col]

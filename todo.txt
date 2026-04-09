@@ -12,7 +12,9 @@ David Abraham would approve
 --------------------------------------------
 TUI quality of life
 --------------------------------------------
+-> crop mode
 -> jump height set to half canvas height
 -> number jumps
 -> vim niceties :: w, yank
 -> handle large ascii files
+-> rather than 2 mirror keybinds, use 1 and calculate axis based on rows & cols
