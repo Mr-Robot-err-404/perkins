@@ -7,13 +7,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type Grid [][]rune
-
 type Model struct {
 	width       int
 	height      int
 	Mode        int
-	Grid        Grid
+	Grid        core.Grid
 	Selected    core.Selected
 	harpoon     *Harpoon
 	prev_cursor *core.Pos
@@ -28,7 +26,7 @@ type Harpoon struct {
 type Selector struct {
 	mirror_axis int
 }
-type CropMsg struct{ Grid Grid }
+type CropMsg struct{ Grid core.Grid }
 
 const (
 	NORMAL_MODE int = iota
@@ -53,7 +51,7 @@ const (
 	CROP      string = "c"
 )
 
-func New(width, height int, grid Grid, selected core.Selected) Model {
+func New(width, height int, grid core.Grid, selected core.Selected) Model {
 	return Model{
 		width:       width,
 		height:      height,
@@ -103,7 +101,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				Row: 0,
 			})
 		case CENTER:
-			m.update_cursor(find_center(m.Grid))
+			m.update_cursor(core.Find_Center(m.Grid))
 
 		case "G":
 			m.update_cursor(core.Pos{

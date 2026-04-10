@@ -7,7 +7,7 @@ import (
 	"github.com/Mr-Robot-err-404/perkins/theme"
 )
 
-func grid_to_canvas(grid Grid, selected core.Selected, cursor core.Pos) string {
+func grid_to_canvas(grid core.Grid, selected core.Selected, cursor core.Pos) string {
 	cv := strings.Builder{}
 	cv.WriteString(theme.CanvasBG)
 
@@ -39,11 +39,4 @@ func set_canvas_cell(cv *strings.Builder, ansi string, r rune) {
 	cv.WriteRune(r)
 	cv.WriteString(theme.Reset)
 	cv.WriteString(theme.CanvasBG)
-}
-
-func find_center(grid Grid) core.Pos {
-	return core.Pos{
-		Row: len(grid) / 2,
-		Col: (len(grid[0]) / 2) - 1,
-	}
 }

@@ -13,7 +13,7 @@ type model struct {
 	height   int
 	panel    panel.Model
 	canvas   canvas.Model
-	grid     canvas.Grid
+	grid     core.Grid
 	selected core.Selected
 }
 
@@ -31,7 +31,7 @@ func (m model) apply_action(action int) {
 		}
 	}
 }
-func set_grid_cell(pos core.Pos, grid canvas.Grid, value rune) {
+func set_grid_cell(pos core.Pos, grid core.Grid, value rune) {
 	r := grid[pos.Row][pos.Col]
 	if !core.Is_Braille(r) {
 		return
@@ -102,7 +102,7 @@ func (m model) get_cell() rune {
 	return m.grid[m.canvas.Cursor.Row][m.canvas.Cursor.Col]
 }
 
-func newModel(grid canvas.Grid) model {
+func newModel(grid core.Grid) model {
 	selected := make(core.Selected)
 	m := model{
 		canvas:   canvas.New(0, 0, grid, selected),

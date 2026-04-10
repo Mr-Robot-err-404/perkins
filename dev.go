@@ -3,11 +3,11 @@ package main
 import (
 	"bytes"
 
-	"github.com/Mr-Robot-err-404/perkins/canvas"
+	"github.com/Mr-Robot-err-404/perkins/core"
 	"github.com/Mr-Robot-err-404/perkins/theme"
 )
 
-func color_ascii_bytes(grid canvas.Grid, start_col int, end_col int) []byte {
+func color_ascii_bytes(grid core.Grid, start_col int, end_col int) []byte {
 	cv := bytes.Buffer{}
 
 	for row, line := range grid {

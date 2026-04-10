@@ -17,3 +17,4 @@ TUI quality of life
 -> handle large ascii files
 -> rather than 2 mirror keybinds, use 1 and calculate axis based on rows & cols
 -> panics after cropping
+-> magnifier mismatch after cropping

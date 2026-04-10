@@ -5,6 +5,7 @@ type Pos struct {
 	Col int
 }
 type Selected map[Pos]int
+type Grid [][]rune
 
 const (
 	Highlight int = iota + 1
@@ -52,4 +53,10 @@ func Flip(b byte, bit byte) byte {
 
 func Is_Braille(r rune) bool {
 	return r >= Base && r <= Full
+}
+func Find_Center(grid Grid) Pos {
+	return Pos{
+		Row: len(grid) / 2,
+		Col: (len(grid[0]) / 2) - 1,
+	}
 }

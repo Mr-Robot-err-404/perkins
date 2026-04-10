@@ -59,8 +59,8 @@ func mirror_harpoon(harpoon *Harpoon, axis int, w, h int) Harpoon {
 	}
 }
 
-func (m Model) crop_canvas() Grid {
-	grid := make(Grid, len(m.Grid))
+func (m Model) crop_canvas() core.Grid {
+	grid := make(core.Grid, len(m.Grid))
 	w, h := len(m.Grid[0]), len(m.Grid)
 	mirror := mirror_harpoon(m.harpoon, m.selector.mirror_axis, w, h)
 
