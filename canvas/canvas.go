@@ -148,8 +148,24 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				return m, nil
 			}
 			pos := *m.Cursor
-			m.Selected[pos] = core.Highlight
 			*m.harpoon = Harpoon{min: pos, max: pos, start: pos}
+			m.expand_selection()
+
+		case "V":
+			m.Mode = m.toggle_mode(VISUAL_BLOCK)
+
+			if m.Mode == NORMAL_MODE {
+				m.Reset_to_normal()
+				return m, nil
+			}
+			pos := *m.Cursor
+			*m.harpoon = Harpoon{
+				start: core.Pos{Row: pos.Row, Col: 0},
+				min:   core.Pos{Row: pos.Row, Col: 0},
+				max:   core.Pos{Row: pos.Row, Col: len(m.Grid[pos.Row]) - 1},
+			}
+			*m.Cursor = m.harpoon.max
+			m.expand_selection()
 
 		case "tab":
 			m.selector.mirror_axis = m.toggle_mirror_axis()
