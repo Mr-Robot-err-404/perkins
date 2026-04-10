@@ -16,3 +16,4 @@ TUI quality of life
 -> vim niceties :: w, yank
 -> handle large ascii files
 -> rather than 2 mirror keybinds, use 1 and calculate axis based on rows & cols
+-> panics after cropping

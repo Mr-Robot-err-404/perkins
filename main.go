@@ -16,12 +16,18 @@ func main() {
 	dev := flag.Bool("dev", false, "dev mode")
 	flag.Parse()
 
-	b, err := os.ReadFile("ascii")
+	if flag.NArg() != 1 {
+		fmt.Fprintf(os.Stderr, "Usage: %s [--dev] <file>\n", os.Args[0])
+		os.Exit(1)
+	}
+	filePath := flag.Arg(0)
+	b, err := os.ReadFile(filePath)
 
 	if err != nil {
 		panic(err.Error())
 	}
 	err = debug.Init()
+
 	if err != nil {
 		panic(err.Error())
 	}
