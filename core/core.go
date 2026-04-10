@@ -4,8 +4,13 @@ type Pos struct {
 	Row int
 	Col int
 }
+type Cell struct {
+	Value rune
+	Ansi  string
+}
+
 type Selected map[Pos]int
-type Grid [][]rune
+type Grid [][]Cell
 
 const (
 	Highlight int = iota + 1

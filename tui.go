@@ -32,11 +32,11 @@ func (m model) apply_action(action int) {
 	}
 }
 func set_grid_cell(pos core.Pos, grid core.Grid, value rune) {
-	r := grid[pos.Row][pos.Col]
-	if !core.Is_Braille(r) {
+	cell := grid[pos.Row][pos.Col]
+	if !core.Is_Braille(cell.Value) {
 		return
 	}
-	grid[pos.Row][pos.Col] = value
+	grid[pos.Row][pos.Col].Value = value
 }
 
 func (m model) Init() tea.Cmd {
@@ -66,14 +66,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case panel.FlipMsg:
 		pos := m.canvas.Cursor
-		r := m.grid[pos.Row][pos.Col]
+		cell := m.grid[pos.Row][pos.Col]
 
-		if !core.Is_Braille(r) {
+		if !core.Is_Braille(cell.Value) {
 			return m, nil
 		}
-		b := core.Bitmap(r)
+		b := core.Bitmap(cell.Value)
 		b = core.Flip(b, msg.Bit)
-		m.grid[pos.Row][pos.Col] = core.Bitmap_To_Braille(b)
+		m.grid[pos.Row][pos.Col].Value = core.Bitmap_To_Braille(b)
 
 	case panel.ActionMsg:
 		m.apply_action(msg.Action)
@@ -99,7 +99,7 @@ func (m model) View() string {
 }
 
 func (m model) get_cell() rune {
-	return m.grid[m.canvas.Cursor.Row][m.canvas.Cursor.Col]
+	return m.grid[m.canvas.Cursor.Row][m.canvas.Cursor.Col].Value
 }
 
 func newModel(grid core.Grid) model {

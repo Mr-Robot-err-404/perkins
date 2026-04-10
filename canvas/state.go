@@ -71,7 +71,7 @@ func (m Model) crop_canvas() core.Grid {
 		size := end - start
 
 		for row := range m.Grid {
-			current := make([]rune, size)
+			current := make([]core.Cell, size)
 
 			for col := start; col < end; col++ {
 				idx := col - start

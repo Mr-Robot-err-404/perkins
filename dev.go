@@ -11,14 +11,14 @@ func color_ascii_bytes(grid core.Grid, start_col int, end_col int) []byte {
 	cv := bytes.Buffer{}
 
 	for row, line := range grid {
-		for col, r := range line {
+		for col, cell := range line {
 			if col == start_col {
 				cv.WriteString(theme.BrownBG)
 			}
 			if col == end_col {
 				cv.WriteString(theme.Reset)
 			}
-			cv.WriteRune(r)
+			cv.WriteRune(cell.Value)
 		}
 		if row < len(grid)-1 {
 			cv.WriteByte('\n')

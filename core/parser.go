@@ -12,6 +12,10 @@ const (
 	OpenCsi string = "\x1b["
 )
 
+// TODO:
+// ansi -> grid
+// grid -> ansi
+
 func Parse_Ansi(data []byte) []byte {
 	var buf bytes.Buffer
 
@@ -80,10 +84,15 @@ func Parse_Grid(b []byte) Grid {
 		if len(line) == 0 {
 			continue
 		}
-		r := []rune(string(line))
-		size := width - len(r)
-		pad(&r, size)
-		grid = append(grid, r)
+		values := []rune(string(line))
+		size := width - len(values)
+		pad(&values, size)
+
+		cells := []Cell{}
+		for _, v := range values {
+			cells = append(cells, Cell{Value: v})
+		}
+		grid = append(grid, cells)
 	}
 	return grid
 }

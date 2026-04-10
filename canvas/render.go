@@ -12,18 +12,18 @@ func grid_to_canvas(grid core.Grid, selected core.Selected, cursor core.Pos) str
 	cv.WriteString(theme.CanvasBG)
 
 	for row, line := range grid {
-		for col, r := range line {
+		for col, cell := range line {
 			if row == cursor.Row && col == cursor.Col {
-				set_canvas_cell(&cv, theme.CursorAnsi, r)
+				set_canvas_cell(&cv, theme.CursorAnsi, cell.Value)
 				continue
 			}
 			slt, ok := selected[core.Pos{Row: row, Col: col}]
 			if ok {
 				ansi := theme.Selection_Ansi(slt)
-				set_canvas_cell(&cv, ansi, r)
+				set_canvas_cell(&cv, ansi, cell.Value)
 				continue
 			}
-			cv.WriteRune(r)
+			cv.WriteRune(cell.Value)
 		}
 		if row < len(grid)-1 {
 			cv.WriteString("\n")
