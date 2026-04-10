@@ -32,8 +32,8 @@ func main() {
 	grid := core.Parse_Grid(b)
 
 	if *dev {
-		ascii := color_ascii_bytes(grid, 18, 56)
-		os.WriteFile("quick_brown_fox", ascii, 0644)
+		ansi := core.Parse_Ansi(b)
+		os.Stdout.Write(ansi)
 		return
 	}
 	p := tea.NewProgram(newModel(grid), tea.WithAltScreen(), tea.WithMouseCellMotion())
