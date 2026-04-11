@@ -13,17 +13,16 @@ const (
 )
 
 func Parse_Ansi(data []byte) Grid {
-	var buf bytes.Buffer
-
 	m := make(map[Pos]Cell)
 	row, col := 0, 0
 
+	var buf bytes.Buffer
 	p := ansi.GetParser()
 
 	p.SetHandler(ansi.Handler{
 		Print: func(r rune) {
-			pos := Pos{Row: row, Col: col}
-			m[pos] = Cell{Value: r}
+			set_cell_value(m, row, col, r)
+			set_cell_ansi(m, row, col, buf.String())
 			col++
 		},
 		Execute: func(b byte) {
@@ -33,14 +32,16 @@ func Parse_Ansi(data []byte) Grid {
 			}
 		},
 		HandleEsc: func(cmd ansi.Cmd) {
-			buf.WriteString(Esc)
-
-			if cmd.Intermediate() != 0 {
-				buf.WriteByte(cmd.Intermediate())
-			}
-			buf.WriteByte(cmd.Final())
+			buf.Reset()
 		},
 		HandleCsi: func(cmd ansi.Cmd, params ansi.Params) {
+			buf.Reset()
+
+			if cmd.Final() == 'm' {
+				if len(params) == 0 || params[0] == 0 {
+					return
+				}
+			}
 			buf.WriteString(OpenCsi)
 
 			if cmd.Prefix() != 0 {
@@ -70,8 +71,8 @@ func Parse_Ansi(data []byte) Grid {
 	for row := range height {
 		for col := range width {
 			pos := Pos{Row: row, Col: col}
-
 			cell, ok := m[pos]
+
 			if !ok {
 				grid[row][col] = Cell{Value: Base}
 				continue
@@ -83,6 +84,18 @@ func Parse_Ansi(data []byte) Grid {
 		grid[pos.Row][pos.Col] = cell
 	}
 	return grid
+}
+
+func set_cell_ansi(m map[Pos]Cell, row int, col int, ansi string) {
+	pos := Pos{Row: row, Col: col}
+	cell := m[pos]
+	m[pos] = Cell{Value: cell.Value, Ansi: ansi}
+}
+
+func set_cell_value(m map[Pos]Cell, row int, col int, value rune) {
+	pos := Pos{Row: row, Col: col}
+	cell := m[pos]
+	m[pos] = Cell{Value: value, Ansi: cell.Ansi}
 }
 
 func grid_dimensions(m map[Pos]Cell) (int, int) {
