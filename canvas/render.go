@@ -12,10 +12,11 @@ func Grid_To_Canvas(grid core.Grid, selected core.Selected, pos core.Pos) string
 	cv.WriteString(theme.CanvasBG)
 
 	prev := core.Cell{}
+	width := len(grid[0])
 
 	for row, line := range grid {
 		for col, cell := range line {
-			transform_cell(&cv, row, col, pos, &prev, cell, selected)
+			transform_cell(&cv, row, col, pos, &prev, cell, selected, width)
 		}
 		if row < len(grid)-1 {
 			cv.WriteString("\n")
@@ -33,6 +34,7 @@ func transform_cell(
 	prev *core.Cell,
 	cell core.Cell,
 	selected core.Selected,
+	width int,
 ) {
 	defer func() {
 		*prev = cell
@@ -48,26 +50,38 @@ func transform_cell(
 		set_canvas_cell(cv, ansi, cell.Value)
 		return
 	}
+	prev_pos := prev_position(row, col, width)
 	switch len(cell.Ansi) {
 	case 0:
-		if len(prev.Ansi) > 0 || is_prev_highlighted(selected, row, col, pos) {
+		if len(prev.Ansi) > 0 || is_prev_highlighted(selected, pos, prev_pos) {
 			set_ansi(cv, theme.CanvasBG)
 		}
 		cv.WriteRune(cell.Value)
 
 	default:
-		if prev.Ansi != cell.Ansi || is_prev_highlighted(selected, row, col, pos) {
+		if prev.Ansi != cell.Ansi || is_prev_highlighted(selected, pos, prev_pos) {
 			set_ansi(cv, cell.Ansi)
 		}
 		cv.WriteRune(cell.Value)
 	}
 }
 
-func is_prev_highlighted(selected core.Selected, row int, col int, cursor core.Pos) bool {
-	col = max(0, col-1)
-	pos := core.Pos{Row: row, Col: col}
-	_, ok := selected[pos]
-	return ok || (cursor.Col == col && cursor.Row == row)
+func is_prev_highlighted(selected core.Selected, cursor core.Pos, prev core.Pos) bool {
+	if cursor.Col == prev.Col && cursor.Row == prev.Row {
+		return true
+	}
+	_, ok := selected[prev]
+	return ok
+}
+
+func prev_position(row int, col int, width int) core.Pos {
+	if col > 0 {
+		return core.Pos{Row: row, Col: col - 1}
+	}
+	if row == 0 {
+		return core.Pos{Row: 0, Col: 0}
+	}
+	return core.Pos{Row: row - 1, Col: width - 1}
 }
 
 func set_ansi(cv *strings.Builder, ansi string) {
