@@ -67,6 +67,18 @@ func Parse_Ansi(data []byte) Grid {
 	for i := range grid {
 		grid[i] = make([]Cell, width)
 	}
+	for row := range height {
+		for col := range width {
+			pos := Pos{Row: row, Col: col}
+
+			cell, ok := m[pos]
+			if !ok {
+				grid[row][col] = Cell{Value: Base}
+				continue
+			}
+			grid[row][col] = cell
+		}
+	}
 	for pos, cell := range m {
 		grid[pos.Row][pos.Col] = cell
 	}
@@ -96,44 +108,4 @@ func write_separator(buf *bytes.Buffer, hasMore bool) {
 		return
 	}
 	buf.WriteByte(';')
-}
-
-func Parse_Grid(b []byte) Grid {
-	grid := Grid{}
-	width := 0
-
-	for line := range bytes.SplitSeq(b, []byte("\n")) {
-		trim(&line)
-		if len(line) == 0 {
-			continue
-		}
-		r := []rune(string(line))
-		width = max(width, len(r))
-	}
-	for line := range bytes.SplitSeq(b, []byte("\n")) {
-		trim(&line)
-		if len(line) == 0 {
-			continue
-		}
-		values := []rune(string(line))
-		size := width - len(values)
-		pad(&values, size)
-
-		cells := []Cell{}
-		for _, v := range values {
-			cells = append(cells, Cell{Value: v})
-		}
-		grid = append(grid, cells)
-	}
-	return grid
-}
-
-func trim(b *[]byte) {
-	*b = bytes.TrimSuffix(*b, []byte(" "))
-}
-
-func pad(r *[]rune, size int) {
-	for range size {
-		*r = append(*r, Base)
-	}
 }
