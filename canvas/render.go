@@ -7,7 +7,7 @@ import (
 	"github.com/Mr-Robot-err-404/perkins/theme"
 )
 
-func grid_to_canvas(grid core.Grid, selected core.Selected, cursor core.Pos) string {
+func Grid_To_Canvas(grid core.Grid, selected core.Selected, cursor core.Pos) string {
 	cv := strings.Builder{}
 	cv.WriteString(theme.CanvasBG)
 

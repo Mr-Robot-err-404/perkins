@@ -206,7 +206,7 @@ func (m Model) View() string {
 		Background(theme.SumiInk1).
 		AlignHorizontal(lipgloss.Center).
 		AlignVertical(lipgloss.Center).
-		Render(grid_to_canvas(m.Grid, m.Selected, *m.Cursor))
+		Render(Grid_To_Canvas(m.Grid, m.Selected, *m.Cursor))
 }
 
 func (m Model) Resize(width, height int) Model {

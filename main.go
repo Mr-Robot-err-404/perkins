@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Mr-Robot-err-404/perkins/canvas"
 	"github.com/Mr-Robot-err-404/perkins/core"
 	"github.com/Mr-Robot-err-404/perkins/debug"
 	tea "github.com/charmbracelet/bubbletea"
@@ -29,11 +30,12 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	grid := core.Parse_Grid(b)
+	grid := core.Parse_Ansi(b)
 
 	if *dev {
-		ansi := core.Parse_Ansi(b)
-		os.Stdout.Write(ansi)
+		grid := core.Parse_Ansi(b)
+		ansi := canvas.Grid_To_Canvas(grid, core.Selected{}, core.Pos{})
+		os.Stdout.WriteString(ansi)
 		return
 	}
 	p := tea.NewProgram(newModel(grid), tea.WithAltScreen(), tea.WithMouseCellMotion())

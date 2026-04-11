@@ -12,21 +12,25 @@ const (
 	OpenCsi string = "\x1b["
 )
 
-// TODO:
-// ansi -> grid
-// grid -> ansi
-
-func Parse_Ansi(data []byte) []byte {
+func Parse_Ansi(data []byte) Grid {
 	var buf bytes.Buffer
+
+	m := make(map[Pos]Cell)
+	row, col := 0, 0
 
 	p := ansi.GetParser()
 
 	p.SetHandler(ansi.Handler{
 		Print: func(r rune) {
-			buf.WriteRune(r)
+			pos := Pos{Row: row, Col: col}
+			m[pos] = Cell{Value: r}
+			col++
 		},
 		Execute: func(b byte) {
-			buf.WriteByte(b)
+			if b == '\n' {
+				row++
+				col = 0
+			}
 		},
 		HandleEsc: func(cmd ansi.Cmd) {
 			buf.WriteString(Esc)
@@ -56,7 +60,34 @@ func Parse_Ansi(data []byte) []byte {
 		},
 	})
 	p.Parse(data)
-	return buf.Bytes()
+
+	width, height := grid_dimensions(m)
+	grid := make(Grid, height)
+
+	for i := range grid {
+		grid[i] = make([]Cell, width)
+	}
+	for pos, cell := range m {
+		grid[pos.Row][pos.Col] = cell
+	}
+	return grid
+}
+
+func grid_dimensions(m map[Pos]Cell) (int, int) {
+	width, height := 0, 0
+
+	for pos := range m {
+		w := pos.Col + 1
+		h := pos.Row + 1
+
+		if w > width {
+			width = w
+		}
+		if h > height {
+			height = h
+		}
+	}
+	return width, height
 }
 
 func write_separator(buf *bytes.Buffer, hasMore bool) {
