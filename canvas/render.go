@@ -51,19 +51,25 @@ func transform_cell(
 		return
 	}
 	prev_pos := prev_position(row, col, width)
-	switch len(cell.Ansi) {
-	case 0:
-		if len(prev.Ansi) > 0 || is_prev_highlighted(selected, pos, prev_pos) {
+
+	if len(cell.Fg) == 0 && len(cell.Bg) == 0 {
+		if has_ansi_changed(*prev, cell) || is_prev_highlighted(selected, pos, prev_pos) {
 			set_ansi(cv, theme.CanvasBG)
 		}
 		cv.WriteRune(cell.Value)
-
-	default:
-		if prev.Ansi != cell.Ansi || is_prev_highlighted(selected, pos, prev_pos) {
-			set_ansi(cv, cell.Ansi)
-		}
-		cv.WriteRune(cell.Value)
+		return
 	}
+	if has_ansi_changed(*prev, cell) || is_prev_highlighted(selected, pos, prev_pos) {
+		set_ansi(cv, core.Construct(cell.Fg, cell.Bg))
+	}
+	cv.WriteRune(cell.Value)
+}
+
+func has_ansi_changed(prev core.Cell, current core.Cell) bool {
+	if prev.Fg != current.Fg {
+		return true
+	}
+	return prev.Bg != current.Bg
 }
 
 func is_prev_highlighted(selected core.Selected, cursor core.Pos, prev core.Pos) bool {

@@ -1,7 +1,6 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> parse existing colors
 -> color palette
 -> simple undo & redo path
 -> mouse actions

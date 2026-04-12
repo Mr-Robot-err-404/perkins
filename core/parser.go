@@ -3,6 +3,7 @@ package core
 import (
 	"bytes"
 	"fmt"
+	"slices"
 
 	"github.com/charmbracelet/x/ansi"
 )
@@ -11,18 +12,32 @@ const (
 	Esc     string = "\x1b"
 	OpenCsi string = "\x1b["
 )
+const (
+	FG int = iota
+	BG
+)
+
+var (
+	FG_sequence = []int{30, 31, 32, 33, 34, 35, 36, 37, 39, 90, 91, 92, 93, 94, 95, 96, 97}
+	BG_sequence = []int{40, 41, 42, 43, 44, 45, 46, 47, 49, 100, 101, 102, 103, 104, 105, 106, 107}
+)
 
 func Parse_Ansi(data []byte) Grid {
 	m := make(map[Pos]Cell)
 	row, col := 0, 0
 
-	var buf bytes.Buffer
+	var fg bytes.Buffer
+	var bg bytes.Buffer
 	p := ansi.GetParser()
 
 	p.SetHandler(ansi.Handler{
 		Print: func(r rune) {
-			set_cell_value(m, row, col, r)
-			set_cell_ansi(m, row, col, buf.String())
+			cell, pos := get_cell(m, row, col)
+			cell.Value = r
+			cell.Bg = bg.String()
+			cell.Fg = fg.String()
+
+			m[pos] = cell
 			col++
 		},
 		Execute: func(b byte) {
@@ -32,32 +47,26 @@ func Parse_Ansi(data []byte) Grid {
 			}
 		},
 		HandleEsc: func(cmd ansi.Cmd) {
-			buf.Reset()
+			reset_buffers(&fg, &bg)
 		},
 		HandleCsi: func(cmd ansi.Cmd, params ansi.Params) {
-			buf.Reset()
+			reset_buffers(&fg, &bg)
 
 			if cmd.Final() == 'm' {
 				if len(params) == 0 || params[0] == 0 {
 					return
 				}
 			}
-			buf.WriteString(OpenCsi)
-
-			if cmd.Prefix() != 0 {
-				buf.WriteByte(cmd.Prefix())
-			}
+			seq := FG
 			params.ForEach(0, func(i, param int, hasMore bool) {
-				fmt.Fprintf(&buf, "%d", param)
+				check_sequence(param, &seq)
+				buf := derive_buffer(seq, &fg, &bg)
 
+				fmt.Fprintf(buf, "%d", param)
 				if i < len(params)-1 {
-					write_separator(&buf, hasMore)
+					write_separator(buf, hasMore)
 				}
 			})
-			if cmd.Intermediate() != 0 {
-				buf.WriteByte(cmd.Intermediate())
-			}
-			buf.WriteByte(cmd.Final())
 		},
 	})
 	p.Parse(data)
@@ -86,16 +95,36 @@ func Parse_Ansi(data []byte) Grid {
 	return grid
 }
 
-func set_cell_ansi(m map[Pos]Cell, row int, col int, ansi string) {
-	pos := Pos{Row: row, Col: col}
-	cell := m[pos]
-	m[pos] = Cell{Value: cell.Value, Ansi: ansi}
+func Construct(fg string, bg string) string {
+	return OpenCsi + fg + bg + "m"
 }
 
-func set_cell_value(m map[Pos]Cell, row int, col int, value rune) {
+func check_sequence(param int, seq *int) {
+	if slices.Contains(FG_sequence, param) {
+		*seq = FG
+		return
+	}
+	if slices.Contains(BG_sequence, param) {
+		*seq = BG
+	}
+}
+
+func reset_buffers(fg *bytes.Buffer, bg *bytes.Buffer) {
+	fg.Reset()
+	bg.Reset()
+}
+
+func derive_buffer(seq int, fg *bytes.Buffer, bg *bytes.Buffer) *bytes.Buffer {
+	if seq == BG {
+		return bg
+	}
+	return fg
+}
+
+func get_cell(m map[Pos]Cell, row int, col int) (Cell, Pos) {
 	pos := Pos{Row: row, Col: col}
 	cell := m[pos]
-	m[pos] = Cell{Value: value, Ansi: cell.Ansi}
+	return cell, pos
 }
 
 func grid_dimensions(m map[Pos]Cell) (int, int) {

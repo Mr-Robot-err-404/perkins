@@ -6,7 +6,8 @@ type Pos struct {
 }
 type Cell struct {
 	Value rune
-	Ansi  string
+	Bg    string
+	Fg    string
 }
 
 type Selected map[Pos]int
