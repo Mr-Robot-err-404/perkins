@@ -73,19 +73,30 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	divider := lipgloss.NewStyle().Height(3).Render()
+	content := lipgloss.JoinVertical(lipgloss.Left, m.magnify(), divider, render_palette(theme.Kanagawa.Foreground))
 	return lipgloss.NewStyle().
 		Width(m.width).
 		Height(m.height).
 		Background(theme.SumiInk3).
 		AlignHorizontal(lipgloss.Center).
 		AlignVertical(lipgloss.Center).
-		Render(m.magnify())
+		Render(content)
+}
+
+func title(s string, padding int) string {
+	return lipgloss.NewStyle().
+		Background(theme.SumiInk3).
+		Foreground(theme.WaveBlue).
+		PaddingBottom(1).
+		PaddingRight(padding).
+		Render(s)
 }
 
 func (m Model) magnify() string {
 	r := m.Cell()
 	bits := magnifier(r)
-	return render_magnifier(bits)
+	return lipgloss.JoinVertical(lipgloss.Left, title("Magnifier", 5), render_magnifier(bits))
 }
 
 func (m Model) Resize(width, height int) Model {

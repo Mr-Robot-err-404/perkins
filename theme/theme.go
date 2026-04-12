@@ -12,6 +12,7 @@ const (
 	Cursor     = lipgloss.Color("#C8C093")
 	SamuraiRed = lipgloss.Color("#C34043")
 	Brown      = lipgloss.Color("#49443C")
+	WaveBlue   = lipgloss.Color("#7E9CD8")
 )
 
 const (
