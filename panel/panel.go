@@ -1,15 +1,20 @@
 package panel
 
 import (
+	"github.com/Mr-Robot-err-404/perkins/core"
 	"github.com/Mr-Robot-err-404/perkins/theme"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
 type Model struct {
-	width  int
-	height int
-	Cell   func() rune
+	width   int
+	height  int
+	palette Palette
+	Cell    func() rune
+}
+type Palette struct {
+	Pos core.Pos
 }
 type FlipMsg struct{ Bit byte }
 type ActionMsg struct{ Action int }
@@ -20,6 +25,13 @@ type Padding struct {
 	Bottom int
 	Left   int
 }
+
+const (
+	PALETTE_RIGHT string = "L"
+	PALETTE_LEFT  string = "H"
+	PALETTE_TOP   string = "K"
+	PALETTE_DOWN  string = "J"
+)
 
 const (
 	FILL_ACTION int = iota + 1
@@ -54,6 +66,15 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
+		case PALETTE_TOP:
+			m.palette.Pos.Row = dec(m.palette.Pos.Row, 0)
+		case PALETTE_RIGHT:
+			m.palette.Pos.Col = inc(m.palette.Pos.Col, 1)
+		case PALETTE_DOWN:
+			m.palette.Pos.Row = inc(m.palette.Pos.Row, 3)
+		case PALETTE_LEFT:
+			m.palette.Pos.Col = dec(m.palette.Pos.Col, 0)
+
 		case "1", "q":
 			return m, FlipBit(0)
 		case "2", "w":
@@ -81,7 +102,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	divider := lipgloss.NewStyle().Height(3).Render()
-	content := lipgloss.JoinVertical(lipgloss.Left, m.magnify(), divider, render_palette(theme.Kanagawa.Foreground))
+	content := lipgloss.JoinVertical(lipgloss.Left,
+		m.magnify(),
+		divider,
+		render_palette(theme.Kanagawa.Foreground, m.palette.Pos),
+	)
 	return lipgloss.NewStyle().
 		Width(m.width).
 		Height(m.height).
@@ -110,4 +135,17 @@ func (m Model) Resize(width, height int) Model {
 	m.width = width
 	m.height = height
 	return m
+}
+
+func inc(n int, cap int) int {
+	if n >= cap {
+		return cap
+	}
+	return n + 1
+}
+func dec(n int, floor int) int {
+	if n <= floor {
+		return floor
+	}
+	return n - 1
 }
