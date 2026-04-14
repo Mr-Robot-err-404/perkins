@@ -31,6 +31,12 @@ func (m model) apply_action(action int) {
 		}
 	}
 }
+func (m model) apply_colours(msg panel.ColorMsg) {
+	for pos := range m.selected {
+		m.grid[pos.Row][pos.Col].Fg = msg.Color.Ansi
+	}
+}
+
 func set_grid_cell(pos core.Pos, grid core.Grid, value rune) {
 	cell := grid[pos.Row][pos.Col]
 	if !core.Is_Braille(cell.Value) {
@@ -77,6 +83,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case panel.ActionMsg:
 		m.apply_action(msg.Action)
+
+	case panel.ColorMsg:
+		m.apply_colours(msg)
 	}
 
 	var cmds []tea.Cmd

@@ -14,10 +14,15 @@ type Model struct {
 	Cell    func() rune
 }
 type Palette struct {
-	Pos core.Pos
+	Pos   core.Pos
+	Layer int
 }
 type FlipMsg struct{ Bit byte }
 type ActionMsg struct{ Action int }
+type ColorMsg = struct {
+	Layer int
+	Color theme.Color
+}
 
 type Padding struct {
 	Top    int
@@ -31,11 +36,16 @@ const (
 	PALETTE_LEFT  string = "H"
 	PALETTE_TOP   string = "K"
 	PALETTE_DOWN  string = "J"
+	APPLY_COLOR   string = " "
 )
 
 const (
 	FILL_ACTION int = iota + 1
 	CLEAR_ACTION
+)
+const (
+	FOREGROUND_LAYER int = iota
+	BACKGROUND_LAYER int = iota
 )
 
 func New(width, height int, get func() rune) Model {
@@ -48,6 +58,12 @@ func (m Model) Init() tea.Cmd {
 func FlipBit(b byte) tea.Cmd {
 	return func() tea.Msg {
 		return FlipMsg{Bit: b}
+	}
+}
+
+func ApplyColor(layer int, color theme.Color) tea.Cmd {
+	return func() tea.Msg {
+		return ColorMsg{Layer: layer, Color: color}
 	}
 }
 
@@ -75,6 +91,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		case PALETTE_LEFT:
 			m.palette.Pos.Col = dec(m.palette.Pos.Col, 0)
 
+		case APPLY_COLOR:
+			return m, ApplyColor(m.palette.Layer, get_color(m.palette.Pos, theme.Kanagawa.Foreground))
+
 		case "1", "q":
 			return m, FlipBit(0)
 		case "2", "w":
@@ -91,6 +110,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			return m, FlipBit(5)
 		case "8", "p":
 			return m, FlipBit(7)
+
 		case "x":
 			return m, Clear()
 		case "f":

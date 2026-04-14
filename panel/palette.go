@@ -30,6 +30,11 @@ var pos_to_idx = map[core.Pos]int{
 	{Row: 3, Col: 1}: 7,
 }
 
+func get_color(pos core.Pos, colors [8]theme.Color) theme.Color {
+	idx := pos_to_idx[pos]
+	return colors[idx]
+}
+
 func divider_cell(s *strings.Builder, r rune) {
 	for range 3 {
 		append_ascii(s, r)
