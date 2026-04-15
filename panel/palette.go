@@ -116,6 +116,13 @@ func square() lipgloss.Style {
 		Height(3)
 }
 
+func layer_state(layer int) string {
+	if layer == FOREGROUND_LAYER {
+		return notification("Foreground", 16, theme.RoninYellow, theme.SumiInk1)
+	}
+	return notification("Background", 16, theme.WaveBlue, theme.SumiInk1)
+}
+
 func column(offset int, color [8]theme.Color, selected int, column int) []string {
 	items := []string{}
 
@@ -129,12 +136,12 @@ func column(offset int, color [8]theme.Color, selected int, column int) []string
 	return items
 }
 
-func render_palette(color [8]theme.Color, pos core.Pos) string {
-	selected := pos_to_idx[pos]
+func render_palette(color [8]theme.Color, palette Palette) string {
+	selected := pos_to_idx[palette.Pos]
 	left := lipgloss.JoinVertical(lipgloss.Left, column(0, color, selected, 0)...)
 	right := lipgloss.JoinVertical(lipgloss.Left, column(4, color, selected, 1)...)
 
-	palette := lipgloss.JoinHorizontal(lipgloss.Bottom,
+	content := lipgloss.JoinHorizontal(lipgloss.Bottom,
 		left_divider(selected, 0),
 		left,
 		right_divider(selected, 0),
@@ -142,5 +149,28 @@ func render_palette(color [8]theme.Color, pos core.Pos) string {
 		right,
 		right_divider(selected, 4),
 	)
-	return lipgloss.JoinVertical(lipgloss.Left, title(" Colour palette", Padding{}), palette)
+	return lipgloss.JoinVertical(lipgloss.Left, layer_state(palette.Layer), content)
+}
+
+func notification(s string, w int, fg lipgloss.Color, bg lipgloss.Color) string {
+	bar := lipgloss.NewStyle().Foreground(fg).Background(bg)
+	l := strings.Repeat(string(LeftBar)+"\n", 3)
+	r := strings.Repeat(string(RightBar)+"\n", 3)
+
+	leftBar := bar.Height(3).Render(strings.TrimSuffix(l, "\n"))
+	rightBar := bar.Height(3).Render(strings.TrimSuffix(r, "\n"))
+
+	empty := lipgloss.NewStyle().
+		Background(bg).
+		Width(w - 2).
+		Height(1).
+		Render("")
+	msg := lipgloss.NewStyle().
+		Background(bg).
+		Foreground(fg).
+		Width(w - 2).
+		AlignHorizontal(lipgloss.Center).
+		Render(s)
+	center := lipgloss.JoinVertical(lipgloss.Left, empty, msg, empty)
+	return lipgloss.JoinHorizontal(lipgloss.Top, leftBar, center, rightBar)
 }

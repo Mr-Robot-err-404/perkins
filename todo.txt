@@ -6,6 +6,7 @@ David Abraham would approve
 -> mouse actions
 -> save edited file
 -> help menu
+-> themes
 
 --------------------------------------------
 TUI quality of life

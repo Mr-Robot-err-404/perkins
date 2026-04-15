@@ -86,6 +86,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case panel.ColorMsg:
 		m.apply_colours(msg)
+		m.canvas.Mode = canvas.NORMAL_MODE
+		m.canvas.Reset_to_normal()
 	}
 
 	var cmds []tea.Cmd

@@ -125,7 +125,7 @@ func (m Model) View() string {
 	content := lipgloss.JoinVertical(lipgloss.Left,
 		m.magnify(),
 		divider,
-		render_palette(theme.Kanagawa.Foreground, m.palette.Pos),
+		render_palette(theme.Kanagawa.Foreground, m.palette),
 	)
 	return lipgloss.NewStyle().
 		Width(m.width).
@@ -148,7 +148,7 @@ func title(s string, padding Padding) string {
 func (m Model) magnify() string {
 	r := m.Cell()
 	bits := magnifier(r)
-	return lipgloss.JoinVertical(lipgloss.Left, title("Magnifier", Padding{Right: 5, Bottom: 1}), render_magnifier(bits))
+	return lipgloss.JoinVertical(lipgloss.Left, title("Magnifier", Padding{Right: 7, Bottom: 1}), render_magnifier(bits))
 }
 
 func (m Model) Resize(width, height int) Model {
