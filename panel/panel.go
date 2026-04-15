@@ -14,8 +14,9 @@ type Model struct {
 	Cell    func() rune
 }
 type Palette struct {
-	Pos   core.Pos
-	Layer int
+	Layer  int
+	fg_pos *core.Pos
+	bg_pos *core.Pos
 }
 type FlipMsg struct{ Bit byte }
 type ActionMsg struct{ Action int }
@@ -37,6 +38,7 @@ const (
 	PALETTE_TOP   string = "K"
 	PALETTE_DOWN  string = "J"
 	APPLY_COLOR   string = " "
+	SWITCH_LAYER  string = "N"
 )
 
 const (
@@ -49,7 +51,12 @@ const (
 )
 
 func New(width, height int, get func() rune) Model {
-	return Model{width: width, height: height, Cell: get}
+	return Model{
+		width:   width,
+		height:  height,
+		Cell:    get,
+		palette: Palette{fg_pos: &core.Pos{}, bg_pos: &core.Pos{}},
+	}
 }
 
 func (m Model) Init() tea.Cmd {
@@ -83,16 +90,25 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case PALETTE_TOP:
-			m.palette.Pos.Row = dec(m.palette.Pos.Row, 0)
+			pos := m.palette.get_palette_pos()
+			pos.Row = dec(pos.Row, 0)
 		case PALETTE_RIGHT:
-			m.palette.Pos.Col = inc(m.palette.Pos.Col, 1)
+			pos := m.palette.get_palette_pos()
+			pos.Col = inc(pos.Col, 1)
 		case PALETTE_DOWN:
-			m.palette.Pos.Row = inc(m.palette.Pos.Row, 3)
+			pos := m.palette.get_palette_pos()
+			pos.Row = inc(pos.Row, 3)
 		case PALETTE_LEFT:
-			m.palette.Pos.Col = dec(m.palette.Pos.Col, 0)
+			pos := m.palette.get_palette_pos()
+			pos.Col = dec(pos.Col, 0)
+
+		case SWITCH_LAYER:
+			m.palette.Layer = m.toggle_layer()
 
 		case APPLY_COLOR:
-			return m, ApplyColor(m.palette.Layer, get_color(m.palette.Pos, theme.Kanagawa.Foreground))
+			pos := m.palette.get_palette_pos()
+			colors := m.palette.get_color_palette()
+			return m, ApplyColor(m.palette.Layer, get_color(*pos, colors))
 
 		case "1", "q":
 			return m, FlipBit(0)
@@ -125,7 +141,7 @@ func (m Model) View() string {
 	content := lipgloss.JoinVertical(lipgloss.Left,
 		m.magnify(),
 		divider,
-		render_palette(theme.Kanagawa.Foreground, m.palette),
+		m.palette.render_palette(),
 	)
 	return lipgloss.NewStyle().
 		Width(m.width).
@@ -144,6 +160,12 @@ func title(s string, padding Padding) string {
 		PaddingRight(padding.Right).
 		Render(s)
 }
+func (m Model) toggle_layer() int {
+	if m.palette.Layer == FOREGROUND_LAYER {
+		return BACKGROUND_LAYER
+	}
+	return FOREGROUND_LAYER
+}
 
 func (m Model) magnify() string {
 	r := m.Cell()
@@ -155,6 +177,13 @@ func (m Model) Resize(width, height int) Model {
 	m.width = width
 	m.height = height
 	return m
+}
+
+func (p *Palette) get_palette_pos() *core.Pos {
+	if p.Layer == FOREGROUND_LAYER {
+		return p.fg_pos
+	}
+	return p.bg_pos
 }
 
 func inc(n int, cap int) int {

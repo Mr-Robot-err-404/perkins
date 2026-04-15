@@ -96,7 +96,13 @@ func Parse_Ansi(data []byte) Grid {
 }
 
 func Construct(fg string, bg string) string {
-	return OpenCsi + fg + bg + "m"
+	if len(fg) == 0 {
+		return OpenCsi + bg + "m"
+	}
+	if len(bg) == 0 {
+		return OpenCsi + fg + "m"
+	}
+	return OpenCsi + fg + ";" + bg + "m"
 }
 
 func check_sequence(param int, seq *int) {

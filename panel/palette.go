@@ -35,6 +35,13 @@ func get_color(pos core.Pos, colors [8]theme.Color) theme.Color {
 	return colors[idx]
 }
 
+func (p *Palette) get_color_palette() [8]theme.Color {
+	if p.Layer == FOREGROUND_LAYER {
+		return theme.Kanagawa.Foreground
+	}
+	return theme.Kanagawa.Background
+}
+
 func divider_cell(s *strings.Builder, r rune) {
 	for range 3 {
 		append_ascii(s, r)
@@ -46,7 +53,8 @@ func append_ascii(s *strings.Builder, r rune) {
 	s.WriteString("\n")
 }
 
-func left_divider(idx int, offset int) string {
+func (p *Palette) left_divider(idx int, offset int) string {
+	fg := p.get_highlight()
 	s := strings.Builder{}
 
 	for i := offset; i < 4+offset; i++ {
@@ -61,11 +69,12 @@ func left_divider(idx int, offset int) string {
 	}
 	return lipgloss.NewStyle().
 		Background(theme.SumiInk3).
-		Foreground(theme.RoninYellow).
+		Foreground(fg).
 		Render(strings.TrimSuffix(s.String(), "\n"))
 }
 
-func right_divider(idx int, offset int) string {
+func (p *Palette) right_divider(idx int, offset int) string {
+	fg := p.get_highlight()
 	s := strings.Builder{}
 
 	for i := offset; i < 4+offset; i++ {
@@ -80,13 +89,20 @@ func right_divider(idx int, offset int) string {
 	}
 	return lipgloss.NewStyle().
 		Background(theme.SumiInk3).
-		Foreground(theme.RoninYellow).
+		Foreground(fg).
 		Render(strings.TrimSuffix(s.String(), "\n"))
 }
+func (p *Palette) get_highlight() lipgloss.Color {
+	if p.Layer == FOREGROUND_LAYER {
+		return theme.RoninYellow
+	}
+	return theme.WaveBlue
+}
 
-func x_gap(idx int, selected int, column int) string {
+func (p *Palette) x_gap(idx int, selected int, column int) string {
+	fg := p.get_highlight()
 	s := strings.Builder{}
-	style := lipgloss.NewStyle().Background(theme.SumiInk3).Foreground(theme.RoninYellow)
+	style := lipgloss.NewStyle().Background(theme.SumiInk3).Foreground(fg)
 
 	r := x_gap_rune(idx, selected, column)
 	for range 6 {
@@ -123,33 +139,36 @@ func layer_state(layer int) string {
 	return notification("Background", 16, theme.WaveBlue, theme.SumiInk1)
 }
 
-func column(offset int, color [8]theme.Color, selected int, column int) []string {
+func (p *Palette) column(offset int, color [8]theme.Color, selected int, column int) []string {
 	items := []string{}
 
 	for i := offset; i < 4+offset; i++ {
 		items = append(items,
-			x_gap(i, selected, column),
+			p.x_gap(i, selected, column),
 			square().Background(color[i].Display).Render(),
 		)
 	}
-	items = append(items, x_gap(offset+4, selected, column))
+	items = append(items, p.x_gap(offset+4, selected, column))
 	return items
 }
 
-func render_palette(color [8]theme.Color, palette Palette) string {
-	selected := pos_to_idx[palette.Pos]
-	left := lipgloss.JoinVertical(lipgloss.Left, column(0, color, selected, 0)...)
-	right := lipgloss.JoinVertical(lipgloss.Left, column(4, color, selected, 1)...)
+func (p *Palette) render_palette() string {
+	color := p.get_color_palette()
+	pos := p.get_palette_pos()
+	selected := pos_to_idx[*pos]
+
+	left := lipgloss.JoinVertical(lipgloss.Left, p.column(0, color, selected, 0)...)
+	right := lipgloss.JoinVertical(lipgloss.Left, p.column(4, color, selected, 1)...)
 
 	content := lipgloss.JoinHorizontal(lipgloss.Bottom,
-		left_divider(selected, 0),
+		p.left_divider(selected, 0),
 		left,
-		right_divider(selected, 0),
-		left_divider(selected, 4),
+		p.right_divider(selected, 0),
+		p.left_divider(selected, 4),
 		right,
-		right_divider(selected, 4),
+		p.right_divider(selected, 4),
 	)
-	return lipgloss.JoinVertical(lipgloss.Left, layer_state(palette.Layer), content)
+	return lipgloss.JoinVertical(lipgloss.Left, layer_state(p.Layer), content)
 }
 
 func notification(s string, w int, fg lipgloss.Color, bg lipgloss.Color) string {

@@ -33,7 +33,12 @@ func (m model) apply_action(action int) {
 }
 func (m model) apply_colours(msg panel.ColorMsg) {
 	for pos := range m.selected {
-		m.grid[pos.Row][pos.Col].Fg = msg.Color.Ansi
+		switch msg.Layer {
+		case panel.FOREGROUND_LAYER:
+			m.grid[pos.Row][pos.Col].Fg = msg.Color.Ansi
+		case panel.BACKGROUND_LAYER:
+			m.grid[pos.Row][pos.Col].Bg = msg.Color.Ansi
+		}
 	}
 }
 
