@@ -1,11 +1,11 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> color palette
 -> simple undo & redo path
 -> mouse actions
 -> save edited file
 -> help menu
+-> extend color palette to multiple pages
 -> themes
 
 --------------------------------------------
@@ -19,3 +19,4 @@ TUI quality of life
 -> panics after cropping
 -> magnifier mismatch after cropping
 -> theme selector
+-> flipping many cells

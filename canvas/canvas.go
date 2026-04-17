@@ -27,6 +27,8 @@ type Selector struct {
 	mirror_axis int
 }
 type CropMsg struct{ Grid core.Grid }
+type UndoMsg struct{}
+type RedoMsg struct{}
 
 const (
 	NORMAL_MODE int = iota
@@ -49,6 +51,8 @@ const (
 	CENTER    string = "t"
 	CONFIRM   string = "ctrl+y"
 	CROP      string = "c"
+	UNDO      string = "u"
+	REDO      string = "ctrl+r"
 )
 
 func New(width, height int, grid core.Grid, selected core.Selected) Model {
@@ -64,6 +68,12 @@ func New(width, height int, grid core.Grid, selected core.Selected) Model {
 	}
 }
 
+func emit[T any](msg T) tea.Cmd {
+	return func() tea.Msg {
+		return msg
+	}
+}
+
 func (m Model) Init() tea.Cmd {
 	return nil
 }
@@ -72,6 +82,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
+		case UNDO:
+			return m, emit(UndoMsg{})
+		case REDO:
+			return m, emit(RedoMsg{})
+
 		case VIM_LEFT:
 			m.update_cursor(core.Pos{Row: m.Cursor.Row, Col: max(0, m.Cursor.Col-1)})
 		case VIM_RIGHT:
@@ -123,10 +138,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				return m, nil
 			}
 			grid := m.crop_canvas()
+			return m, emit(CropMsg{Grid: grid})
 
-			return m, func() tea.Msg {
-				return CropMsg{Grid: grid}
-			}
 		case CROP:
 			m.Mode = m.toggle_mode(CROP_MODE)
 

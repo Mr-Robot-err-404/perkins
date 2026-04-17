@@ -15,6 +15,7 @@ type model struct {
 	canvas   canvas.Model
 	grid     core.Grid
 	selected core.Selected
+	history  *core.History
 }
 
 const PANEL_WIDTH int = 42
@@ -57,7 +58,8 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		if msg.String() == "ctrl+c" {
+		switch msg.String() {
+		case "ctrl+c":
 			return m, tea.Quit
 		}
 	case tea.WindowSizeMsg:
@@ -87,14 +89,25 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.grid[pos.Row][pos.Col].Value = core.Bitmap_To_Braille(b)
 
 	case panel.ActionMsg:
+		from := core.MakeSnapshot(m.grid, m.selected)
 		m.apply_action(msg.Action)
+		to := core.MakeSnapshot(m.grid, m.selected)
+
+		m.history.Branch(from, to)
 
 	case panel.ColorMsg:
 		m.apply_colours(msg)
 		m.canvas.Mode = canvas.NORMAL_MODE
 		m.canvas.Reset_to_normal()
-	}
 
+	case canvas.UndoMsg:
+		m.history.Undo(m.grid)
+		return m, nil
+
+	case canvas.RedoMsg:
+		m.history.Redo(m.grid)
+		return m, nil
+	}
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
 
@@ -124,6 +137,7 @@ func newModel(grid core.Grid) model {
 		canvas:   canvas.New(0, 0, grid, selected),
 		grid:     grid,
 		selected: selected,
+		history:  core.MakeHistory(),
 	}
 	m.panel = panel.New(PANEL_WIDTH, 0, m.get_cell)
 	return m

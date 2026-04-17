@@ -3,8 +3,6 @@ package debug
 import (
 	"log"
 	"os"
-
-	"github.com/Mr-Robot-err-404/perkins/core"
 )
 
 const logfile = "debug.log"
@@ -18,10 +16,6 @@ func Init() error {
 	}
 	logger = log.New(f, "", log.Ltime|log.Lshortfile)
 	return nil
-}
-
-func Pos(pos core.Pos) {
-	Logf("%d:%d\n", pos.Row, pos.Col)
 }
 
 func Log(msg string) {
