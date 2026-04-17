@@ -92,11 +92,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		from := core.MakeSnapshot(m.grid, m.selected)
 		m.apply_action(msg.Action)
 		to := core.MakeSnapshot(m.grid, m.selected)
-
 		m.history.Branch(from, to)
 
 	case panel.ColorMsg:
+		from := core.MakeSnapshot(m.grid, m.selected)
 		m.apply_colours(msg)
+		to := core.MakeSnapshot(m.grid, m.selected)
+		m.history.Branch(from, to)
+
 		m.canvas.Mode = canvas.NORMAL_MODE
 		m.canvas.Reset_to_normal()
 
