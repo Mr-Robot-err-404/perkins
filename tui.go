@@ -78,15 +78,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.canvas.Reset_to_normal()
 
 	case panel.FlipMsg:
-		pos := m.canvas.Cursor
+		pos := *m.canvas.Cursor
 		cell := m.grid[pos.Row][pos.Col]
+		filter := core.Filter_Cells(m.grid, cell, m.selected)
 
-		if !core.Is_Braille(cell.Value) {
-			return m, nil
+		from := core.MakeSnapshot(m.grid, m.selected)
+		for p := range filter {
+			core.Flip_Cell(m.grid, p, msg.Bit)
 		}
-		b := core.Bitmap(cell.Value)
-		b = core.Flip(b, msg.Bit)
-		m.grid[pos.Row][pos.Col].Value = core.Bitmap_To_Braille(b)
+		to := core.MakeSnapshot(m.grid, m.selected)
+		m.history.Branch(from, to)
 
 	case panel.ActionMsg:
 		from := core.MakeSnapshot(m.grid, m.selected)
@@ -136,6 +137,8 @@ func (m model) get_cell() rune {
 
 func newModel(grid core.Grid) model {
 	selected := make(core.Selected)
+	selected[core.Pos{Row: 0, Col: 0}] = core.Highlight
+
 	m := model{
 		canvas:   canvas.New(0, 0, grid, selected),
 		grid:     grid,

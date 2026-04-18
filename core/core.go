@@ -57,6 +57,31 @@ func Flip(b byte, bit byte) byte {
 	return b ^ (1 << bit)
 }
 
+func Flip_Cell(grid Grid, pos Pos, bit byte) {
+	cell := grid[pos.Row][pos.Col]
+
+	if !Is_Braille(cell.Value) {
+		return
+	}
+	b := Bitmap(cell.Value)
+	b = Flip(b, bit)
+	grid[pos.Row][pos.Col].Value = Bitmap_To_Braille(b)
+}
+
+func Filter_Cells(grid Grid, cell Cell, selected Selected) Selected {
+	filter := make(Selected)
+
+	for pos, value := range selected {
+		current := grid[pos.Row][pos.Col]
+
+		if current.Value != cell.Value {
+			continue
+		}
+		filter[pos] = value
+	}
+	return filter
+}
+
 func Is_Braille(r rune) bool {
 	return r >= Base && r <= Full
 }

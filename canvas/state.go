@@ -115,6 +115,8 @@ func (h *Harpoon) crop(pos core.Pos, axis int) {
 
 func (m Model) expand_selection() {
 	if m.Mode == NORMAL_MODE {
+		clear(m.Selected)
+		m.Selected[*m.Cursor] = core.Highlight
 		return
 	}
 	slt := m.selection_type()

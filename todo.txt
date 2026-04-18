@@ -19,4 +19,3 @@ TUI quality of life
 -> panics after cropping
 -> magnifier mismatch after cropping
 -> theme selector
--> flipping many cells
