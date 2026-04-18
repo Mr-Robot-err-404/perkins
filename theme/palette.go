@@ -27,7 +27,7 @@ const (
 	SumiInk3BG = "48;2;31;31;40"
 	WinterBlue = "48;2;43;61;86"
 	WaveBlue1  = "48;2;59;76;119"
-	Wisteria   = "48;2;151;124;178"
+	WisteriaBG = "48;2;151;124;178"
 	LotusPink  = "48;2;215;152;166"
 )
 

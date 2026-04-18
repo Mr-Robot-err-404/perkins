@@ -6,6 +6,7 @@ David Abraham would approve
 -> help menu
 -> extend color palette to multiple pages
 -> themes
+-> status bar updates
 
 --------------------------------------------
 TUI quality of life

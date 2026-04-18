@@ -8,12 +8,14 @@ import (
 const (
 	SumiInk0    = lipgloss.Color("#0D0C0C")
 	SumiInk1    = lipgloss.Color("#16161D")
+	SumiInk2    = lipgloss.Color("#2A2A37")
 	SumiInk3    = lipgloss.Color("#1F1F28")
 	Cursor      = lipgloss.Color("#C8C093")
 	SamuraiRed  = lipgloss.Color("#C34043")
 	Brown       = lipgloss.Color("#49443C")
 	WaveBlue    = lipgloss.Color("#7E9CD8")
 	RoninYellow = lipgloss.Color("#DCA561")
+	Wisteria    = lipgloss.Color("#957FB8")
 )
 
 const (

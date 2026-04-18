@@ -233,17 +233,20 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	content := lipgloss.JoinVertical(lipgloss.Left,
-		Grid_To_Canvas(m.Grid, m.Selected, *m.Cursor),
-		mode_indicator(m.Mode, len(m.Grid[0])),
-	)
-	return lipgloss.NewStyle().
+	grid_str := Grid_To_Canvas(m.Grid, m.Selected, *m.Cursor)
+	indicator := status_bar(m.Mode, m.width)
+
+	grid_h := len(m.Grid)
+	top_pad := (m.height - 1 - grid_h) / 2
+
+	centered := lipgloss.NewStyle().
 		Width(m.width).
-		Height(m.height).
+		Height(m.height - 1).
 		Background(theme.SumiInk1).
+		PaddingTop(top_pad).
 		AlignHorizontal(lipgloss.Center).
-		AlignVertical(lipgloss.Center).
-		Render(content)
+		Render(grid_str)
+	return lipgloss.JoinVertical(lipgloss.Left, centered, indicator)
 }
 
 func (m Model) Resize(width, height int) Model {
@@ -252,27 +255,27 @@ func (m Model) Resize(width, height int) Model {
 	return m
 }
 
-func mode_indicator(mode int, w int) string {
+func status_bar(mode int, w int) string {
 	var label string
 	var color lipgloss.Color
 
 	switch mode {
 	case VISUAL_BLOCK:
 		label = "VISUAL"
-		color = lipgloss.Color("#957FB8")
+		color = theme.Wisteria
 	case CROP_MODE:
 		label = "CROP"
-		color = lipgloss.Color("#C34043")
+		color = theme.SamuraiRed
 	default:
 		label = "NORMAL"
-		color = lipgloss.Color("#7E9CD8")
+		color = theme.WaveBlue
 	}
 	return lipgloss.NewStyle().
+		PaddingLeft(1).
 		Width(w).
-		MarginTop(1).
 		AlignHorizontal(lipgloss.Left).
 		Foreground(color).
-		Background(theme.SumiInk1).
+		Background(theme.SumiInk2).
 		Bold(true).
 		Render(label)
 }

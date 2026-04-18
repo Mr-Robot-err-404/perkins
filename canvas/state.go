@@ -9,7 +9,7 @@ func (m Model) mouse_to_grid(x, y int) (core.Pos, bool) {
 	y_offset := (m.height - len(m.Grid)) / 2
 	pos := core.Pos{
 		Col: x - x_offset,
-		Row: y - y_offset,
+		Row: y - y_offset + 1,
 	}
 	if core.Out_Of_Bounds(pos, m.Grid) {
 		return core.Pos{}, false
