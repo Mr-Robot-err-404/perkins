@@ -82,6 +82,8 @@ func (m Model) crop_canvas() core.Grid {
 	case X_AXIS:
 		start := m.harpoon.max.Row + 1
 		end := mirror.min.Row
+		size := end - start
+		grid = make(core.Grid, size)
 
 		for row := start; row < end; row++ {
 			idx := row - start

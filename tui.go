@@ -72,10 +72,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case canvas.CropMsg:
+		from := m.grid
 		m.grid = msg.Grid
+		to := m.grid
+		m.history.Branch(core.State{From_Grid: from, To_Grid: to})
+
 		m.canvas.Grid = msg.Grid
 		m.canvas.Mode = canvas.NORMAL_MODE
 		m.canvas.Reset_to_normal()
+		*m.canvas.Cursor = core.Pos{}
+		m.panel.Cell = m.get_cell
 
 	case panel.FlipMsg:
 		pos := *m.canvas.Cursor
@@ -87,29 +93,41 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			core.Flip_Cell(m.grid, p, msg.Bit)
 		}
 		to := core.MakeSnapshot(m.grid, m.selected)
-		m.history.Branch(from, to)
+		m.history.Branch(core.State{From: from, To: to})
 
 	case panel.ActionMsg:
 		from := core.MakeSnapshot(m.grid, m.selected)
 		m.apply_action(msg.Action)
 		to := core.MakeSnapshot(m.grid, m.selected)
-		m.history.Branch(from, to)
+		m.history.Branch(core.State{From: from, To: to})
 
 	case panel.ColorMsg:
 		from := core.MakeSnapshot(m.grid, m.selected)
 		m.apply_colours(msg)
 		to := core.MakeSnapshot(m.grid, m.selected)
-		m.history.Branch(from, to)
+		m.history.Branch(core.State{From: from, To: to})
 
 		m.canvas.Mode = canvas.NORMAL_MODE
 		m.canvas.Reset_to_normal()
 
 	case canvas.UndoMsg:
-		m.history.Undo(m.grid)
+		is_snapshot := m.history.Undo(&m.grid)
+		if !is_snapshot {
+			m.canvas.Grid = m.grid
+			m.panel.Cell = m.get_cell
+			clear(m.selected)
+			*m.canvas.Cursor = core.Pos{}
+		}
 		return m, nil
 
 	case canvas.RedoMsg:
-		m.history.Redo(m.grid)
+		is_snapshot := m.history.Redo(&m.grid)
+		if !is_snapshot {
+			m.canvas.Grid = m.grid
+			m.panel.Cell = m.get_cell
+			clear(m.selected)
+			*m.canvas.Cursor = core.Pos{}
+		}
 		return m, nil
 	}
 	var cmds []tea.Cmd
