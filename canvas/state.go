@@ -4,6 +4,19 @@ import (
 	"github.com/Mr-Robot-err-404/perkins/core"
 )
 
+func (m Model) mouse_to_grid(x, y int) (core.Pos, bool) {
+	x_offset := (m.width - len(m.Grid[0])) / 2
+	y_offset := (m.height - len(m.Grid)) / 2
+	pos := core.Pos{
+		Col: x - x_offset,
+		Row: y - y_offset,
+	}
+	if core.Out_Of_Bounds(pos, m.Grid) {
+		return core.Pos{}, false
+	}
+	return pos, true
+}
+
 func (m Model) toggle_mode(mode int) int {
 	if mode == m.Mode {
 		return NORMAL_MODE

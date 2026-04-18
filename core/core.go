@@ -82,6 +82,19 @@ func Filter_Cells(grid Grid, cell Cell, selected Selected) Selected {
 	return filter
 }
 
+func Out_Of_Bounds(pos Pos, grid Grid) bool {
+	if pos.Row < 0 || pos.Col < 0 {
+		return true
+	}
+	if len(grid) == 0 {
+		return true
+	}
+	if pos.Row >= len(grid) || pos.Col >= len(grid[0]) {
+		return true
+	}
+	return false
+}
+
 func Is_Braille(r rune) bool {
 	return r >= Base && r <= Full
 }

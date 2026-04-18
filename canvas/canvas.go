@@ -80,6 +80,26 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.MouseMsg:
+		pos, ok := m.mouse_to_grid(msg.X, msg.Y)
+		if !ok {
+			return m, nil
+		}
+		switch msg.Action {
+		case tea.MouseActionPress:
+			switch msg.Button {
+			case tea.MouseButtonLeft:
+				m.Mode = VISUAL_BLOCK
+				*m.harpoon = Harpoon{min: pos, max: pos, start: pos}
+				m.update_cursor(pos)
+			case tea.MouseButtonRight:
+			}
+		case tea.MouseActionMotion:
+			if msg.Button == tea.MouseButtonLeft {
+				m.update_cursor(pos)
+			}
+		}
+
 	case tea.KeyMsg:
 		switch msg.String() {
 		case UNDO:
@@ -213,17 +233,46 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	content := lipgloss.JoinVertical(lipgloss.Left,
+		Grid_To_Canvas(m.Grid, m.Selected, *m.Cursor),
+		mode_indicator(m.Mode, len(m.Grid[0])),
+	)
 	return lipgloss.NewStyle().
 		Width(m.width).
 		Height(m.height).
 		Background(theme.SumiInk1).
 		AlignHorizontal(lipgloss.Center).
 		AlignVertical(lipgloss.Center).
-		Render(Grid_To_Canvas(m.Grid, m.Selected, *m.Cursor))
+		Render(content)
 }
 
 func (m Model) Resize(width, height int) Model {
 	m.width = width
 	m.height = height
 	return m
+}
+
+func mode_indicator(mode int, w int) string {
+	var label string
+	var color lipgloss.Color
+
+	switch mode {
+	case VISUAL_BLOCK:
+		label = "VISUAL"
+		color = lipgloss.Color("#957FB8")
+	case CROP_MODE:
+		label = "CROP"
+		color = lipgloss.Color("#C34043")
+	default:
+		label = "NORMAL"
+		color = lipgloss.Color("#7E9CD8")
+	}
+	return lipgloss.NewStyle().
+		Width(w).
+		MarginTop(1).
+		AlignHorizontal(lipgloss.Left).
+		Foreground(color).
+		Background(theme.SumiInk1).
+		Bold(true).
+		Render(label)
 }
