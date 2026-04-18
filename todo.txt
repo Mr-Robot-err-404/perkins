@@ -19,3 +19,4 @@ TUI quality of life
 -> panics after cropping
 -> magnifier mismatch after cropping
 -> theme selector
+-> persist mirror toggling for visual mode

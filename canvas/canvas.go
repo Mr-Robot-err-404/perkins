@@ -89,13 +89,20 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		case tea.MouseActionPress:
 			switch msg.Button {
 			case tea.MouseButtonLeft:
-				m.Mode = VISUAL_BLOCK
-				*m.harpoon = Harpoon{min: pos, max: pos, start: pos}
+				if m.Mode == VISUAL_BLOCK {
+					m.Mode = NORMAL_MODE
+					m.Reset_to_normal()
+				}
 				m.update_cursor(pos)
 			case tea.MouseButtonRight:
 			}
 		case tea.MouseActionMotion:
 			if msg.Button == tea.MouseButtonLeft {
+				if m.Mode == NORMAL_MODE {
+					m.Mode = VISUAL_BLOCK
+					anchor := *m.Cursor
+					*m.harpoon = Harpoon{min: anchor, max: anchor, start: anchor}
+				}
 				m.update_cursor(pos)
 			}
 		}
