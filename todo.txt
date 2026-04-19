@@ -1,7 +1,6 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> mouse actions
 -> save edited file
 -> help menu
 -> extend color palette to multiple pages
@@ -15,8 +14,5 @@ TUI quality of life
 -> number jumps
 -> vim niceties :: w, yank
 -> handle large ascii files
--> rather than 2 mirror keybinds, use 1 and calculate axis based on rows & cols
--> panics after cropping
--> magnifier mismatch after cropping
 -> theme selector
 -> persist mirror toggling for visual mode

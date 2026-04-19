@@ -21,6 +21,7 @@ const (
 const (
 	CanvasBG     = "\x1b[48;2;22;22;29m"
 	CellBG       = "\x1b[48;2;13;12;12m"
+	MagnifierGap = "\x1b[48;2;42;42;55m"
 	PanelBG      = "\x1b[48;2;31;31;40m"
 	CursorAnsi   = "\x1b[48;2;200;192;147;38;2;13;12;12m"
 	SelectionBG  = "\x1b[48;2;90;90;110m"

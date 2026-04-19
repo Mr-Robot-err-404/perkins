@@ -8,13 +8,15 @@ import (
 )
 
 type Model struct {
-	palette  Palette
-	terminal Dimensions
-	panel    Dimensions
-	coords   Coords
-	toggle   map[core.Pos]bool
-	Cell     func() rune
-	Offset   func() int
+	palette   Palette
+	terminal  Dimensions
+	panel     Dimensions
+	coords    Coords
+	magnifier Coords
+	toggle    map[core.Pos]bool
+	Cell      func() rune
+	Offset    func() int
+	last_flip core.Pos
 }
 type Palette struct {
 	Layer  int
@@ -95,7 +97,6 @@ func Fill() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.MouseMsg:
-		// debug.Logf("%d:%d\n", msg.X, msg.Y)
 		mouse := core.Pos{Row: msg.Y, Col: msg.X}
 		pos := m.palette.get_palette_pos()
 
@@ -111,10 +112,24 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				if ok {
 					m.palette.Layer = m.toggle_layer()
 				}
+				pos, ok := m.magnifier[mouse]
+				if ok {
+					bit := core.Pos_map[pos]
+					return m, FlipBit(bit)
+				}
 			}
 		case tea.MouseActionMotion:
 			if msg.Button == tea.MouseButtonLeft {
+				bit_pos, ok := m.magnifier[mouse]
+				if !ok || m.last_flip == bit_pos {
+					return m, nil
+				}
+				m.last_flip = bit_pos
+				bit := core.Pos_map[bit_pos]
+				return m, FlipBit(bit)
 			}
+		case tea.MouseActionRelease:
+			m.last_flip = core.Pos{Col: -1, Row: -1}
 		}
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -166,8 +181,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	divider := lipgloss.NewStyle().Height(3).Render()
-	content := lipgloss.JoinVertical(lipgloss.Left,
+	divider := lipgloss.NewStyle().Height(DIVIDER_HEIGHT).Render()
+	content := lipgloss.JoinVertical(lipgloss.Center,
 		m.magnify(),
 		divider,
 		m.palette.render_palette(),
@@ -181,14 +196,6 @@ func (m Model) View() string {
 		Render(content)
 }
 
-func title(s string, padding Padding) string {
-	return lipgloss.NewStyle().
-		Background(theme.SumiInk3).
-		Foreground(theme.WaveBlue).
-		PaddingBottom(padding.Bottom).
-		PaddingRight(padding.Right).
-		Render(s)
-}
 func (m Model) toggle_layer() int {
 	if m.palette.Layer == FOREGROUND_LAYER {
 		return BACKGROUND_LAYER
@@ -199,7 +206,16 @@ func (m Model) toggle_layer() int {
 func (m Model) magnify() string {
 	r := m.Cell()
 	bits := magnifier(r)
-	return lipgloss.JoinVertical(lipgloss.Left, title("Magnifier", Padding{Right: 7, Bottom: 1}), render_magnifier(bits))
+	component := render_magnifier(bits)
+	content := lipgloss.NewStyle().
+		Background(theme.SumiInk2).
+		Padding(MAGNIFY_PADDING_Y, MAGNIFY_PADDING_X).
+		Render(component)
+	return lipgloss.NewStyle().
+		Width(PALETTE_WIDTH).
+		AlignHorizontal(lipgloss.Center).
+		Background(theme.SumiInk3).
+		Render(content)
 }
 
 func (m Model) Resize(panel Dimensions, terminal Dimensions) Model {
@@ -210,6 +226,10 @@ func (m Model) Resize(panel Dimensions, terminal Dimensions) Model {
 
 	offset = m.toggle_start()
 	m.toggle = toggle_coords(offset.Col, offset.Row)
+
+	offset = m.magnifier_start()
+	m.magnifier = magnifier_coords(offset.Col, offset.Row)
+
 	return m
 }
 

@@ -9,18 +9,50 @@ const (
 	SQUARE_HEIGHT int = 3
 	X_GAP         int = 2
 	Y_GAP         int = 1
+	BIT_WIDTH     int = 2
+	BIT_HEIGHT    int = 1
+	BIT_GAP       int = 1
 )
 const (
-	MAGNIFY_HEIGHT int = 6
-	DIVIDER_HEIGHT int = 3
-	TOGGLE_HEIGHT  int = 3
-	PALETTE_WIDTH  int = 16
-	BORDER_SIZE    int = 1
-	PALETTE_HEIGHT int = 17
-	CONTENT_HEIGHT int = MAGNIFY_HEIGHT + DIVIDER_HEIGHT + PALETTE_HEIGHT + TOGGLE_HEIGHT
+	MAGNIFY_HEIGHT    int = 6
+	MAGNIFY_WIDTH     int = 9
+	MAGNIFY_PADDING_X int = 2
+	MAGNIFY_PADDING_Y int = 1
+	DIVIDER_HEIGHT    int = 2
+	TOGGLE_HEIGHT     int = 3
+	PALETTE_WIDTH     int = 16
+	BORDER_SIZE       int = 1
+	PALETTE_HEIGHT    int = 17
+	CONTENT_HEIGHT    int = MAGNIFY_HEIGHT + DIVIDER_HEIGHT + PALETTE_HEIGHT + TOGGLE_HEIGHT
 )
 
 type Coords map[core.Pos]core.Pos
+
+func magnifier_coords(x_offset int, y_offset int) Coords {
+	coords := make(Coords)
+	x := x_offset
+
+	for col := range 2 {
+		y := y_offset
+
+		for row := range 4 {
+			square_pos := core.Pos{Row: row, Col: col}
+			map_bit_coords(x, y, coords, square_pos)
+			y += BIT_HEIGHT
+		}
+		x += BIT_WIDTH + BIT_GAP
+	}
+	return coords
+}
+
+func map_bit_coords(x int, y int, m Coords, pos core.Pos) {
+	for row := y; row < y+BIT_HEIGHT; row++ {
+		for col := x; col < x+BIT_WIDTH; col++ {
+			p := core.Pos{Row: row, Col: col}
+			m[p] = pos
+		}
+	}
+}
 
 func palette_coords(x_offset int, y_offset int) Coords {
 	m := make(Coords)
@@ -77,5 +109,12 @@ func (m Model) palette_start() core.Pos {
 func (m Model) toggle_start() core.Pos {
 	x, y := m.content_offset()
 	y += MAGNIFY_HEIGHT + DIVIDER_HEIGHT
+	return core.Pos{Row: y, Col: x}
+}
+func (m Model) magnifier_start() core.Pos {
+	x, y := m.content_offset()
+	x += (PALETTE_WIDTH - MAGNIFY_WIDTH) / 2
+	x += MAGNIFY_PADDING_X
+	y += MAGNIFY_PADDING_Y
 	return core.Pos{Row: y, Col: x}
 }

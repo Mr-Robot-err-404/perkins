@@ -18,7 +18,7 @@ func render_magnifier(bits Bits) string {
 
 	for i, current := range bits {
 		s.WriteString(derive_bit(current[0]))
-		s.WriteString(" ")
+		s.WriteString(theme.MagnifierGap + " " + theme.Reset)
 		s.WriteString(derive_bit(current[1]))
 		if i < len(bits)-1 {
 			s.WriteString("\n")
