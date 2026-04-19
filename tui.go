@@ -68,8 +68,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		canvas_width := max(0, m.width-PANEL_WIDTH)
 		m.canvas = m.canvas.Resize(canvas_width, m.height)
-		m.panel = m.panel.Resize(PANEL_WIDTH, m.height)
-		return m, nil
+		m.panel = m.panel.Resize(
+			panel.Dimensions{Width: PANEL_WIDTH, Height: m.height},
+			panel.Dimensions{Width: m.width, Height: m.height},
+		)
 
 	case canvas.CropMsg:
 		from := m.grid
@@ -163,6 +165,6 @@ func newModel(grid core.Grid) model {
 		selected: selected,
 		history:  core.MakeHistory(),
 	}
-	m.panel = panel.New(PANEL_WIDTH, 0, m.get_cell)
+	m.panel = panel.New(panel.Dimensions{Width: PANEL_WIDTH}, m.get_cell)
 	return m
 }

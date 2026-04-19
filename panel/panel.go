@@ -8,16 +8,23 @@ import (
 )
 
 type Model struct {
-	width   int
-	height  int
-	palette Palette
-	Cell    func() rune
+	palette  Palette
+	terminal Dimensions
+	panel    Dimensions
+	coords   Coords
+	Cell     func() rune
+	Offset   func() int
 }
 type Palette struct {
 	Layer  int
 	fg_pos *core.Pos
 	bg_pos *core.Pos
 }
+type Dimensions struct {
+	Width  int
+	Height int
+}
+
 type FlipMsg struct{ Bit byte }
 type ActionMsg struct{ Action int }
 type ColorMsg = struct {
@@ -50,10 +57,9 @@ const (
 	BACKGROUND_LAYER int = iota
 )
 
-func New(width, height int, get func() rune) Model {
+func New(dm Dimensions, get func() rune) Model {
 	return Model{
-		width:   width,
-		height:  height,
+		panel:   dm,
 		Cell:    get,
 		palette: Palette{fg_pos: &core.Pos{}, bg_pos: &core.Pos{}},
 	}
@@ -87,6 +93,24 @@ func Fill() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.MouseMsg:
+		// debug.Logf("%d:%d\n", msg.X, msg.Y)
+		mouse := core.Pos{Row: msg.Y, Col: msg.X}
+		pos := m.palette.get_palette_pos()
+
+		switch msg.Action {
+		case tea.MouseActionPress:
+			switch msg.Button {
+			case tea.MouseButtonLeft:
+				square, ok := m.coords[mouse]
+				if ok {
+					*pos = square
+				}
+			}
+		case tea.MouseActionMotion:
+			if msg.Button == tea.MouseButtonLeft {
+			}
+		}
 	case tea.KeyMsg:
 		switch msg.String() {
 		case PALETTE_TOP:
@@ -144,8 +168,8 @@ func (m Model) View() string {
 		m.palette.render_palette(),
 	)
 	return lipgloss.NewStyle().
-		Width(m.width).
-		Height(m.height).
+		Width(m.panel.Width).
+		Height(m.panel.Height).
 		Background(theme.SumiInk3).
 		AlignHorizontal(lipgloss.Center).
 		AlignVertical(lipgloss.Center).
@@ -173,9 +197,11 @@ func (m Model) magnify() string {
 	return lipgloss.JoinVertical(lipgloss.Left, title("Magnifier", Padding{Right: 7, Bottom: 1}), render_magnifier(bits))
 }
 
-func (m Model) Resize(width, height int) Model {
-	m.width = width
-	m.height = height
+func (m Model) Resize(panel Dimensions, terminal Dimensions) Model {
+	m.panel = panel
+	m.terminal = terminal
+	offset := m.palette_start()
+	m.coords = coordinates_to_idx(offset.Col, offset.Row)
 	return m
 }
 
