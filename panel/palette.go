@@ -134,9 +134,9 @@ func square() lipgloss.Style {
 
 func layer_state(layer int) string {
 	if layer == FOREGROUND_LAYER {
-		return notification("Foreground", 16, theme.RoninYellow, theme.SumiInk1)
+		return notification("Foreground", PALETTE_WIDTH, theme.RoninYellow, theme.SumiInk1)
 	}
-	return notification("Background", 16, theme.WaveBlue, theme.SumiInk1)
+	return notification("Background", PALETTE_WIDTH, theme.WaveBlue, theme.SumiInk1)
 }
 
 func (p *Palette) column(offset int, color [8]theme.Color, selected int, column int) []string {

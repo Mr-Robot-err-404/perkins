@@ -11,17 +11,18 @@ const (
 	Y_GAP         int = 1
 )
 const (
-	MAGNIFY_HEIGHT      int = 6
-	DIVIDER_HEIGHT      int = 3
-	LAYER_TOGGLE_HEIGHT int = 3
-	BORDER_SIZE         int = 1
-	PALETTE_HEIGHT      int = 20
-	CONTENT_HEIGHT      int = MAGNIFY_HEIGHT + DIVIDER_HEIGHT + PALETTE_HEIGHT
+	MAGNIFY_HEIGHT int = 6
+	DIVIDER_HEIGHT int = 3
+	TOGGLE_HEIGHT  int = 3
+	PALETTE_WIDTH  int = 16
+	BORDER_SIZE    int = 1
+	PALETTE_HEIGHT int = 17
+	CONTENT_HEIGHT int = MAGNIFY_HEIGHT + DIVIDER_HEIGHT + PALETTE_HEIGHT + TOGGLE_HEIGHT
 )
 
 type Coords map[core.Pos]core.Pos
 
-func coordinates_to_idx(x_offset int, y_offset int) Coords {
+func palette_coords(x_offset int, y_offset int) Coords {
 	m := make(Coords)
 	x := x_offset
 
@@ -47,13 +48,34 @@ func map_square_coords(x int, y int, m Coords, pos core.Pos) {
 	}
 }
 
-func (m Model) palette_start() core.Pos {
+func toggle_coords(x_offset int, y_offset int) map[core.Pos]bool {
+	m := make(map[core.Pos]bool)
+
+	for row := range TOGGLE_HEIGHT {
+		for col := range PALETTE_WIDTH {
+			pos := core.Pos{Row: row + y_offset, Col: col + x_offset}
+			m[pos] = true
+		}
+	}
+	return m
+}
+
+func (m Model) content_offset() (int, int) {
 	panel_x := m.terminal.Width - m.panel.Width
-	content_x := panel_x + (m.panel.Width-16)/2
-	x_offset := content_x + BORDER_SIZE
+	x := panel_x + (m.panel.Width-PALETTE_WIDTH)/2
+	y := (m.panel.Height - CONTENT_HEIGHT) / 2
+	return x, y
+}
 
-	content_y := (m.panel.Height - CONTENT_HEIGHT) / 2
-	y_offset := content_y + MAGNIFY_HEIGHT + DIVIDER_HEIGHT + LAYER_TOGGLE_HEIGHT + BORDER_SIZE
+func (m Model) palette_start() core.Pos {
+	x, y := m.content_offset()
+	x += BORDER_SIZE
+	y += MAGNIFY_HEIGHT + DIVIDER_HEIGHT + TOGGLE_HEIGHT + BORDER_SIZE
+	return core.Pos{Row: y, Col: x}
+}
 
-	return core.Pos{Col: x_offset, Row: y_offset}
+func (m Model) toggle_start() core.Pos {
+	x, y := m.content_offset()
+	y += MAGNIFY_HEIGHT + DIVIDER_HEIGHT
+	return core.Pos{Row: y, Col: x}
 }

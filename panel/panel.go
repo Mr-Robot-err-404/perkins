@@ -12,6 +12,7 @@ type Model struct {
 	terminal Dimensions
 	panel    Dimensions
 	coords   Coords
+	toggle   map[core.Pos]bool
 	Cell     func() rune
 	Offset   func() int
 }
@@ -105,6 +106,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				square, ok := m.coords[mouse]
 				if ok {
 					*pos = square
+				}
+				_, ok = m.toggle[mouse]
+				if ok {
+					m.palette.Layer = m.toggle_layer()
 				}
 			}
 		case tea.MouseActionMotion:
@@ -201,7 +206,10 @@ func (m Model) Resize(panel Dimensions, terminal Dimensions) Model {
 	m.panel = panel
 	m.terminal = terminal
 	offset := m.palette_start()
-	m.coords = coordinates_to_idx(offset.Col, offset.Row)
+	m.coords = palette_coords(offset.Col, offset.Row)
+
+	offset = m.toggle_start()
+	m.toggle = toggle_coords(offset.Col, offset.Row)
 	return m
 }
 
