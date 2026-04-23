@@ -17,6 +17,7 @@ type Model struct {
 	prev_cursor *core.Pos
 	Cursor      *core.Pos
 	selector    *Selector
+	cmd         *[]rune
 }
 type Harpoon struct {
 	min   core.Pos
@@ -34,6 +35,7 @@ const (
 	NORMAL_MODE int = iota
 	VISUAL_BLOCK
 	CROP_MODE
+	COMMAND_MODE
 )
 const (
 	MIRROR_DISABLE int = iota
@@ -61,10 +63,11 @@ func New(width, height int, grid core.Grid, selected core.Selected) Model {
 		height:      height,
 		Grid:        grid,
 		Selected:    selected,
-		Cursor:      &core.Pos{},
-		prev_cursor: &core.Pos{},
-		harpoon:     &Harpoon{},
-		selector:    &Selector{},
+		Cursor:      new(core.Pos),
+		prev_cursor: new(core.Pos),
+		harpoon:     new(Harpoon),
+		selector:    new(Selector),
+		cmd:         new([]rune),
 	}
 }
 
@@ -108,6 +111,22 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		}
 
 	case tea.KeyMsg:
+		if m.Mode == COMMAND_MODE {
+			switch msg.String() {
+			case "esc":
+				m.Mode = NORMAL_MODE
+				m.Reset_to_normal()
+			case "backspace":
+				r := *m.cmd
+				end := max(0, len(r)-1)
+				*m.cmd = r[0:end]
+			case " ":
+				*m.cmd = append(*m.cmd, ' ')
+			default:
+				*m.cmd = append(*m.cmd, msg.Runes...)
+			}
+			return m, nil
+		}
 		switch msg.String() {
 		case UNDO:
 			return m, emit(UndoMsg{})
@@ -234,14 +253,17 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		case "esc":
 			m.Mode = NORMAL_MODE
 			m.Reset_to_normal()
+		case ":":
+			m.Mode = COMMAND_MODE
 		}
 	}
+
 	return m, nil
 }
 
 func (m Model) View() string {
 	grid_str := Grid_To_Canvas(m.Grid, m.Selected, *m.Cursor)
-	indicator := status_bar(m.Mode, m.width)
+	indicator := status_bar(Status{mode: m.Mode, width: m.width, cmd: string(*m.cmd)})
 
 	grid_h := len(m.Grid)
 	top_pad := (m.height - 1 - grid_h) / 2
@@ -262,11 +284,37 @@ func (m Model) Resize(width, height int) Model {
 	return m
 }
 
-func status_bar(mode int, w int) string {
+type Status struct {
+	mode  int
+	width int
+	cmd   string
+}
+
+func status_label(color lipgloss.Color, label string) string {
+	return lipgloss.NewStyle().
+		Foreground(color).
+		Bold(true).
+		Render(label)
+}
+
+func status_bar(status Status) string {
 	var label string
 	var color lipgloss.Color
 
-	switch mode {
+	switch status.mode {
+	case COMMAND_MODE:
+		label := status_label(theme.RoninYellow, "COMMAND ")
+		cmd := lipgloss.NewStyle().
+			Background(theme.SumiInk2).
+			Bold(true).
+			Render(":" + status.cmd + "█")
+		return lipgloss.NewStyle().
+			Background(theme.SumiInk2).
+			PaddingLeft(1).
+			Width(status.width).
+			AlignHorizontal(lipgloss.Left).
+			Render(label + cmd)
+
 	case VISUAL_BLOCK:
 		label = "VISUAL"
 		color = theme.Wisteria
@@ -278,11 +326,9 @@ func status_bar(mode int, w int) string {
 		color = theme.WaveBlue
 	}
 	return lipgloss.NewStyle().
-		PaddingLeft(1).
-		Width(w).
-		AlignHorizontal(lipgloss.Left).
-		Foreground(color).
 		Background(theme.SumiInk2).
-		Bold(true).
-		Render(label)
+		PaddingLeft(1).
+		Width(status.width).
+		AlignHorizontal(lipgloss.Left).
+		Render(status_label(color, label))
 }

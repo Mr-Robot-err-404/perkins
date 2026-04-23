@@ -182,5 +182,6 @@ func (m Model) set_mirror_axis(axis int) {
 func (m Model) Reset_to_normal() {
 	*m.selector = Selector{}
 	*m.harpoon = Harpoon{}
+	*m.cmd = []rune{}
 	clear(m.Selected)
 }

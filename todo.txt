@@ -1,6 +1,7 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
+-> command mode
 -> save edited file
 -> help menu
 -> extend color palette to multiple pages
