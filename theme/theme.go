@@ -32,6 +32,50 @@ const (
 	Reset        = "\x1b[0m"
 )
 
+type Background struct {
+	Main      lipgloss.Color
+	Container lipgloss.Color
+	Selection lipgloss.Color
+	Border    lipgloss.Color
+	Notify    lipgloss.Color
+}
+type Foreground struct {
+	Command lipgloss.Color
+	Main    lipgloss.Color
+	Subtle  lipgloss.Color
+	Title   lipgloss.Color
+	Border  lipgloss.Color
+}
+
+type Theme struct {
+	Label string
+	Bg    Background
+	Fg    Foreground
+}
+
+func BgStyle(theme Theme) *Bg {
+	return &Bg{
+		Container: lipgloss.NewStyle().Background(theme.Bg.Container),
+		Base:      lipgloss.NewStyle().Background(theme.Bg.Main),
+		Border:    lipgloss.NewStyle().Background(theme.Bg.Border),
+		Selection: lipgloss.NewStyle().Background(theme.Bg.Selection),
+		Notify:    lipgloss.NewStyle().Background(theme.Bg.Notify),
+	}
+}
+
+type Bg struct {
+	Container lipgloss.Style
+	Base      lipgloss.Style
+	Border    lipgloss.Style
+	Selection lipgloss.Style
+	Notify    lipgloss.Style
+}
+
+type Get struct {
+	Theme func() *Theme
+	Bg    func() *Bg
+}
+
 func Selection_Ansi(slt int) string {
 	if slt == core.Crop {
 		return CropBG

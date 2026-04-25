@@ -1,6 +1,8 @@
 package canvas
 
 import (
+	"strings"
+
 	"github.com/Mr-Robot-err-404/perkins/core"
 	"github.com/Mr-Robot-err-404/perkins/theme"
 	tea "github.com/charmbracelet/bubbletea"
@@ -116,12 +118,27 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			case "esc":
 				m.Mode = NORMAL_MODE
 				m.Reset_to_normal()
+
 			case "backspace":
 				r := *m.cmd
 				end := max(0, len(r)-1)
 				*m.cmd = r[0:end]
 			case " ":
 				*m.cmd = append(*m.cmd, ' ')
+
+			case "enter":
+				cmd := strings.TrimSpace(string(*m.cmd))
+				switch cmd {
+				case "w", "write":
+				case "theme":
+				case "h", "help":
+				case "q", "quit":
+					return m, tea.Quit
+				default:
+				}
+				m.Mode = NORMAL_MODE
+				m.Reset_to_normal()
+
 			default:
 				*m.cmd = append(*m.cmd, msg.Runes...)
 			}

@@ -7,6 +7,7 @@ David Abraham would approve
 -> extend color palette to multiple pages
 -> themes
 -> status bar updates
+-> image :: braille conversion
 
 --------------------------------------------
 TUI quality of life
