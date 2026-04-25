@@ -62,7 +62,6 @@ func (m Modal) Update(msg tea.Msg) (Modal, tea.Cmd) {
 			return m, func() tea.Msg { return ModalSubmit{Cancel: true} }
 		case "enter":
 			v := m.Input.Value()
-			m.Input.SetValue("")
 			m.Active = false
 			return m, func() tea.Msg {
 				return ModalSubmit{Value: strings.TrimSpace(v), Id: m.Config.Id}

@@ -3,6 +3,7 @@ package canvas
 import (
 	"log"
 	"strings"
+	"time"
 
 	"github.com/Mr-Robot-err-404/perkins/component"
 	"github.com/Mr-Robot-err-404/perkins/core"
@@ -22,6 +23,7 @@ type Model struct {
 	Cursor      *core.Pos
 	selector    *Selector
 	cmd         *[]rune
+	message     *string
 	save_modal  component.Modal
 }
 type Harpoon struct {
@@ -39,6 +41,8 @@ type SaveMsg struct {
 	Path  string
 	Ascii []byte
 }
+type StatusMsg struct{ Status string }
+type Flush struct{}
 
 type ComponentModal interface {
 	IsActive() bool
@@ -89,6 +93,7 @@ func New(width, height int, grid core.Grid, selected core.Selected, file_path st
 		harpoon:     new(Harpoon),
 		selector:    new(Selector),
 		cmd:         new([]rune),
+		message:     new(string),
 		save_modal:  component.NewModal(SaveConfig, file_path),
 	}
 }
@@ -96,6 +101,19 @@ func New(width, height int, grid core.Grid, selected core.Selected, file_path st
 func emit[T any](msg T) tea.Cmd {
 	return func() tea.Msg {
 		return msg
+	}
+}
+
+func flush() tea.Cmd {
+	return func() tea.Msg {
+		time.Sleep(time.Second * 5)
+		return Flush{}
+	}
+}
+
+func Notify(message string) tea.Cmd {
+	return func() tea.Msg {
+		return StatusMsg{Status: message}
 	}
 }
 
@@ -116,6 +134,13 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		}
 		ascii := Grid_To_Canvas(m.Grid, core.Selected{}, core.Pos{Row: -1, Col: -1})
 		return m, emit(SaveMsg{Path: strings.TrimSpace(msg.Value), Ascii: []byte(ascii)})
+
+	case Flush:
+		*m.message = ""
+
+	case StatusMsg:
+		*m.message = msg.Status
+		return m, flush()
 
 	case tea.MouseMsg:
 		pos, ok := m.mouse_to_grid(msg.X, msg.Y)
@@ -312,7 +337,12 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	grid_str := Grid_To_Canvas(m.Grid, m.Selected, *m.Cursor)
-	indicator := status_bar(Status{mode: m.Mode, width: m.width, cmd: string(*m.cmd)})
+	indicator := status_bar(Status{
+		mode:    m.Mode,
+		width:   m.width,
+		cmd:     string(*m.cmd),
+		message: *m.message,
+	})
 
 	grid_h := len(m.Grid)
 	top_pad := (m.height - 1 - grid_h) / 2
@@ -348,9 +378,10 @@ func (m Model) Resize(width, height int) Model {
 }
 
 type Status struct {
-	mode  int
-	width int
-	cmd   string
+	mode    int
+	width   int
+	cmd     string
+	message string
 }
 
 func status_label(color lipgloss.Color, label string) string {
@@ -360,8 +391,13 @@ func status_label(color lipgloss.Color, label string) string {
 		Render(label)
 }
 
+func subtitle(s string) string {
+	return lipgloss.NewStyle().Foreground(theme.FujiGray).Render(s)
+}
+
 func status_bar(status Status) string {
 	var label string
+	var msg string
 	var color lipgloss.Color
 
 	switch status.mode {
@@ -386,6 +422,7 @@ func status_bar(status Status) string {
 		color = theme.SamuraiRed
 	default:
 		label = "NORMAL"
+		msg = status.message
 		color = theme.WaveBlue
 	}
 	return lipgloss.NewStyle().
@@ -393,5 +430,5 @@ func status_bar(status Status) string {
 		PaddingLeft(1).
 		Width(status.width).
 		AlignHorizontal(lipgloss.Left).
-		Render(status_label(color, label))
+		Render(lipgloss.JoinHorizontal(lipgloss.Bottom, status_label(color, label), subtitle(msg)))
 }

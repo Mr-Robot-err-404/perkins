@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -154,10 +155,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		err := os.WriteFile(path, msg.Ascii, 0644)
 
 		if err != nil {
-			debug.Logf("failed to save file: %s", err.Error())
-		} else {
-			debug.Logf("saved file to %s", path)
+			msg := fmt.Sprintf("Failed to save file: %s", err.Error())
+			debug.Log(msg)
+			return m, canvas.Notify(msg)
 		}
+		return m, canvas.Notify(fmt.Sprintf("Saved file to %s!", path))
 	}
 	var cmds []tea.Cmd
 	var cmd tea.Cmd

@@ -1,10 +1,6 @@
 package canvas
 
 import (
-	"os"
-	"path/filepath"
-	"strings"
-
 	"github.com/Mr-Robot-err-404/perkins/core"
 )
 
@@ -55,14 +51,6 @@ func (m Model) init_cropping_block() {
 			start: *m.Cursor,
 		}
 	}
-}
-
-func (m Model) save_ascii(path string, home string) error {
-	if strings.HasPrefix(path, "~/") {
-		path = filepath.Join(home, path[2:])
-	}
-	ascii := Grid_To_Canvas(m.Grid, core.Selected{}, core.Pos{Row: -1, Col: -1})
-	return os.WriteFile(path, []byte(ascii), 0644)
 }
 
 func mirror_pos(pos core.Pos, axis int, w, h int) core.Pos {
