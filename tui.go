@@ -1,8 +1,13 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/Mr-Robot-err-404/perkins/canvas"
 	"github.com/Mr-Robot-err-404/perkins/core"
+	"github.com/Mr-Robot-err-404/perkins/debug"
 	"github.com/Mr-Robot-err-404/perkins/panel"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -16,6 +21,11 @@ type model struct {
 	grid     core.Grid
 	selected core.Selected
 	history  *core.History
+	meta     meta
+}
+type meta struct {
+	home      string
+	file_path string
 }
 
 const PANEL_WIDTH int = 42
@@ -131,6 +141,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			*m.canvas.Cursor = core.Pos{}
 		}
 		return m, nil
+
+	case canvas.SaveMsg:
+		path := msg.Path
+
+		if strings.HasPrefix(msg.Path, "~/") {
+			path = filepath.Join(m.meta.home, path[2:])
+		}
+		if strings.HasPrefix(msg.Path, "$HOME/") {
+			path = filepath.Join(m.meta.home, path[6:])
+		}
+		err := os.WriteFile(path, msg.Ascii, 0644)
+
+		if err != nil {
+			debug.Logf("failed to save file: %s", err.Error())
+		} else {
+			debug.Logf("saved file to %s", path)
+		}
 	}
 	var cmds []tea.Cmd
 	var cmd tea.Cmd
@@ -155,15 +182,16 @@ func (m model) get_cell() rune {
 	return m.grid[m.canvas.Cursor.Row][m.canvas.Cursor.Col].Value
 }
 
-func newModel(grid core.Grid) model {
+func newModel(grid core.Grid, meta meta) model {
 	selected := make(core.Selected)
 	selected[core.Pos{Row: 0, Col: 0}] = core.Highlight
 
 	m := model{
-		canvas:   canvas.New(0, 0, grid, selected),
+		canvas:   canvas.New(0, 0, grid, selected, meta.file_path),
 		grid:     grid,
 		selected: selected,
 		history:  core.MakeHistory(),
+		meta:     meta,
 	}
 	m.panel = panel.New(panel.Dimensions{Width: PANEL_WIDTH}, m.get_cell)
 	return m

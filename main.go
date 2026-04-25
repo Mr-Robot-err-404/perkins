@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/Mr-Robot-err-404/perkins/canvas"
 	"github.com/Mr-Robot-err-404/perkins/core"
@@ -19,17 +21,32 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [--dev] <file>\n", os.Args[0])
 		os.Exit(1)
 	}
-	filePath := flag.Arg(0)
-	b, err := os.ReadFile(filePath)
+	file_path := flag.Arg(0)
+	b, err := os.ReadFile(file_path)
 
 	if err != nil {
 		panic(err.Error())
 	}
+
 	err = debug.Init()
 
 	if err != nil {
 		panic(err.Error())
 	}
+	home, err := os.UserHomeDir()
+
+	if err != nil {
+		panic(err.Error())
+	}
+	abs, err := filepath.Abs(file_path)
+	if err != nil {
+		panic(err)
+	}
+	if strings.HasPrefix(abs, home) {
+		offset := len(home) + 1
+		abs = "~/" + abs[offset:]
+	}
+	meta := meta{home: home, file_path: abs}
 	grid := core.Parse_Ansi(b)
 
 	if *dev {
@@ -38,7 +55,7 @@ func main() {
 		os.Stdout.WriteString(ansi)
 		return
 	}
-	p := tea.NewProgram(newModel(grid), tea.WithAltScreen(), tea.WithMouseCellMotion())
+	p := tea.NewProgram(newModel(grid, meta), tea.WithAltScreen(), tea.WithMouseCellMotion())
 
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

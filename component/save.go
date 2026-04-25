@@ -81,20 +81,19 @@ func (m Modal) View() string {
 		PaddingLeft(m.Config.XPadding).
 		Width(m.Config.Width)
 
-	inputBg := lipgloss.NewStyle().Background(theme.SumiInk2).Padding(1, 1, 1, 1)
+	inputBg := lipgloss.NewStyle().Background(theme.SumiInk3).Padding(1, 1, 1, 1)
 	input := inputBg.Render(m.Input.View())
 
 	title := containerBg.Width(m.Config.Width - 2).Foreground(theme.RoninYellow).PaddingBottom(1).Render(m.Config.Title)
 	content := lipgloss.JoinVertical(lipgloss.Left, title, input, " ", m.infoList())
 	return box.Render(content)
 }
-func NewModal(config ModalConfig) Modal {
+func NewModal(config ModalConfig, initial string) Modal {
 	in := textinput.New()
-	in.Placeholder = config.Placeholder
-	in.Width = config.Width - 4
+	in.Width = config.Width - 5
+	in.SetValue(initial)
 	in.Prompt = config.Prompt
-	in.TextStyle = lipgloss.NewStyle().Background(theme.SumiInk2).Foreground(theme.Cursor)
-	in.PlaceholderStyle = lipgloss.NewStyle().Background(theme.SumiInk2).Foreground(theme.FujiGray)
+	in.TextStyle = lipgloss.NewStyle().Background(theme.SumiInk3).Foreground(theme.Cursor)
 
 	if config.CharLimit > 0 {
 		in.CharLimit = config.CharLimit

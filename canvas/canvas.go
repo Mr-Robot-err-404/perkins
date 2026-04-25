@@ -35,6 +35,10 @@ type Selector struct {
 type CropMsg struct{ Grid core.Grid }
 type UndoMsg struct{}
 type RedoMsg struct{}
+type SaveMsg struct {
+	Path  string
+	Ascii []byte
+}
 
 type ComponentModal interface {
 	IsActive() bool
@@ -74,7 +78,7 @@ var SaveConfig = component.ModalConfig{
 	XPadding:    1,
 }
 
-func New(width, height int, grid core.Grid, selected core.Selected) Model {
+func New(width, height int, grid core.Grid, selected core.Selected, file_path string) Model {
 	return Model{
 		width:       width,
 		height:      height,
@@ -85,7 +89,7 @@ func New(width, height int, grid core.Grid, selected core.Selected) Model {
 		harpoon:     new(Harpoon),
 		selector:    new(Selector),
 		cmd:         new([]rune),
-		save_modal:  component.NewModal(SaveConfig),
+		save_modal:  component.NewModal(SaveConfig, file_path),
 	}
 }
 
@@ -107,7 +111,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	}
 	switch msg := msg.(type) {
 	case component.ModalSubmit:
-		// path := msg.Value
+		if msg.Cancel {
+			return m, nil
+		}
+		ascii := Grid_To_Canvas(m.Grid, core.Selected{}, core.Pos{Row: -1, Col: -1})
+		return m, emit(SaveMsg{Path: strings.TrimSpace(msg.Value), Ascii: []byte(ascii)})
 
 	case tea.MouseMsg:
 		pos, ok := m.mouse_to_grid(msg.X, msg.Y)
