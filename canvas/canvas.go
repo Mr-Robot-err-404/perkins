@@ -1,8 +1,10 @@
 package canvas
 
 import (
+	"log"
 	"strings"
 
+	"github.com/Mr-Robot-err-404/perkins/component"
 	"github.com/Mr-Robot-err-404/perkins/core"
 	"github.com/Mr-Robot-err-404/perkins/theme"
 	tea "github.com/charmbracelet/bubbletea"
@@ -20,6 +22,7 @@ type Model struct {
 	Cursor      *core.Pos
 	selector    *Selector
 	cmd         *[]rune
+	save_modal  component.Modal
 }
 type Harpoon struct {
 	min   core.Pos
@@ -32,6 +35,11 @@ type Selector struct {
 type CropMsg struct{ Grid core.Grid }
 type UndoMsg struct{}
 type RedoMsg struct{}
+
+type ComponentModal interface {
+	IsActive() bool
+	View() string
+}
 
 const (
 	NORMAL_MODE int = iota
@@ -59,6 +67,13 @@ const (
 	REDO      string = "ctrl+r"
 )
 
+var SaveConfig = component.ModalConfig{
+	Width:       60,
+	Title:       "Write to file",
+	Placeholder: "~/pixel.art",
+	XPadding:    1,
+}
+
 func New(width, height int, grid core.Grid, selected core.Selected) Model {
 	return Model{
 		width:       width,
@@ -70,6 +85,7 @@ func New(width, height int, grid core.Grid, selected core.Selected) Model {
 		harpoon:     new(Harpoon),
 		selector:    new(Selector),
 		cmd:         new([]rune),
+		save_modal:  component.NewModal(SaveConfig),
 	}
 }
 
@@ -84,7 +100,15 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	if m.save_modal.Active {
+		var cmd tea.Cmd
+		m.save_modal, cmd = m.save_modal.Update(msg)
+		return m, cmd
+	}
 	switch msg := msg.(type) {
+	case component.ModalSubmit:
+		// path := msg.Value
+
 	case tea.MouseMsg:
 		pos, ok := m.mouse_to_grid(msg.X, msg.Y)
 		if !ok {
@@ -130,6 +154,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				cmd := strings.TrimSpace(string(*m.cmd))
 				switch cmd {
 				case "w", "write":
+					m.save_modal.Active = true
 				case "theme":
 				case "h", "help":
 				case "q", "quit":
@@ -274,7 +299,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			m.Mode = COMMAND_MODE
 		}
 	}
-
 	return m, nil
 }
 
@@ -292,6 +316,20 @@ func (m Model) View() string {
 		PaddingTop(top_pad).
 		AlignHorizontal(lipgloss.Center).
 		Render(grid_str)
+
+	modals := []ComponentModal{m.save_modal}
+
+	for _, current := range modals {
+		if !current.IsActive() {
+			continue
+		}
+		overlay, err := component.OverlayCenter(centered, current.View(), true)
+		if err != nil {
+			log.Printf("Failed to overlay: %s", err.Error())
+			return centered
+		}
+		return lipgloss.JoinVertical(lipgloss.Left, overlay, indicator)
+	}
 	return lipgloss.JoinVertical(lipgloss.Left, centered, indicator)
 }
 

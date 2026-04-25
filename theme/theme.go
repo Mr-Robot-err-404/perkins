@@ -10,6 +10,7 @@ const (
 	SumiInk1    = lipgloss.Color("#16161D")
 	SumiInk2    = lipgloss.Color("#2A2A37")
 	SumiInk3    = lipgloss.Color("#1F1F28")
+	FujiGray    = lipgloss.Color("#717C9C")
 	Cursor      = lipgloss.Color("#C8C093")
 	SamuraiRed  = lipgloss.Color("#C34043")
 	Brown       = lipgloss.Color("#49443C")
@@ -31,50 +32,6 @@ const (
 	WaveBlueBG   = "\x1b[48;2;72;118;214m"
 	Reset        = "\x1b[0m"
 )
-
-type Background struct {
-	Main      lipgloss.Color
-	Container lipgloss.Color
-	Selection lipgloss.Color
-	Border    lipgloss.Color
-	Notify    lipgloss.Color
-}
-type Foreground struct {
-	Command lipgloss.Color
-	Main    lipgloss.Color
-	Subtle  lipgloss.Color
-	Title   lipgloss.Color
-	Border  lipgloss.Color
-}
-
-type Theme struct {
-	Label string
-	Bg    Background
-	Fg    Foreground
-}
-
-func BgStyle(theme Theme) *Bg {
-	return &Bg{
-		Container: lipgloss.NewStyle().Background(theme.Bg.Container),
-		Base:      lipgloss.NewStyle().Background(theme.Bg.Main),
-		Border:    lipgloss.NewStyle().Background(theme.Bg.Border),
-		Selection: lipgloss.NewStyle().Background(theme.Bg.Selection),
-		Notify:    lipgloss.NewStyle().Background(theme.Bg.Notify),
-	}
-}
-
-type Bg struct {
-	Container lipgloss.Style
-	Base      lipgloss.Style
-	Border    lipgloss.Style
-	Selection lipgloss.Style
-	Notify    lipgloss.Style
-}
-
-type Get struct {
-	Theme func() *Theme
-	Bg    func() *Bg
-}
 
 func Selection_Ansi(slt int) string {
 	if slt == core.Crop {

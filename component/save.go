@@ -19,49 +19,40 @@ type ModalConfig struct {
 	CharLimit   int
 	Id          int
 }
-
 type ModalSubmit struct {
 	Value  string
 	Cancel bool
 	Id     int
 }
-
 type Modal struct {
 	Active bool
 	Config ModalConfig
 	Input  textinput.Model
-	Get    theme.Get
 }
+
+var containerBg = lipgloss.NewStyle().Background(theme.SumiInk0)
 
 func (m Modal) IsActive() bool {
 	return m.Active
 }
-
 func (m Modal) info(key string, action string) string {
-	theme := m.Get.Theme()
-	bg := m.Get.Bg()
-
-	primary := bg.Container.Foreground(theme.Fg.Title).PaddingRight(1).Render(key)
-	secondary := bg.Container.Foreground(theme.Fg.Subtle).PaddingRight(2).Render(action)
+	primary := containerBg.Foreground(theme.Cursor).PaddingRight(1).Render(key)
+	secondary := containerBg.Foreground(theme.FujiGray).Render(action)
 	return lipgloss.JoinHorizontal(lipgloss.Bottom, primary, secondary)
 }
 
 func (m Modal) infoList() string {
-	theme := m.Get.Theme()
-	bg := m.Get.Bg()
-
 	s := m.info("enter", "save")
 	t := m.info("esc", "cancel")
-	return bg.Container.
-		PaddingTop(1).
+	bg := theme.SumiInk0
+	return containerBg.
 		Render(JustifyBetween(Justify{
 			Left:  s,
 			Right: t,
-			Width: m.Config.Width,
-			Bg:    &theme.Bg.Container,
+			Width: m.Config.Width - 2,
+			Bg:    &bg,
 		}))
 }
-
 func (m Modal) Update(msg tea.Msg) (Modal, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -73,7 +64,6 @@ func (m Modal) Update(msg tea.Msg) (Modal, tea.Cmd) {
 			v := m.Input.Value()
 			m.Input.SetValue("")
 			m.Active = false
-
 			return m, func() tea.Msg {
 				return ModalSubmit{Value: strings.TrimSpace(v), Id: m.Config.Id}
 			}
@@ -83,40 +73,33 @@ func (m Modal) Update(msg tea.Msg) (Modal, tea.Cmd) {
 	m.Input, cmd = m.Input.Update(msg)
 	return m, cmd
 }
-
 func (m Modal) View() string {
-	theme := m.Get.Theme()
-	bg := m.Get.Bg()
-
-	box := bg.Container.
+	box := containerBg.
 		Border(lipgloss.NormalBorder()).
-		BorderForeground(theme.Fg.Main).
-		BorderBackground(theme.Bg.Container).
-		Padding(0, m.Config.XPadding).
+		BorderForeground(theme.Cursor).
+		BorderBackground(theme.SumiInk0).
+		PaddingLeft(m.Config.XPadding).
 		Width(m.Config.Width)
 
-	title := bg.Container.Foreground(theme.Fg.Title).PaddingBottom(1).Render(m.Config.Title)
-	content := lipgloss.JoinVertical(lipgloss.Left, title, m.Input.View(), m.infoList())
+	inputBg := lipgloss.NewStyle().Background(theme.SumiInk2).Padding(1, 1, 1, 1)
+	input := inputBg.Render(m.Input.View())
 
+	title := containerBg.Width(m.Config.Width - 2).Foreground(theme.RoninYellow).PaddingBottom(1).Render(m.Config.Title)
+	content := lipgloss.JoinVertical(lipgloss.Left, title, input, " ", m.infoList())
 	return box.Render(content)
 }
-
-func NewModal(config ModalConfig, get theme.Get) Modal {
-	theme := get.Theme()
-	bg := get.Bg()
-
+func NewModal(config ModalConfig) Modal {
 	in := textinput.New()
 	in.Placeholder = config.Placeholder
-	in.Width = config.Width - 5
+	in.Width = config.Width - 4
 	in.Prompt = config.Prompt
-	in.TextStyle = bg.Container.Foreground(theme.Fg.Main)
-	in.PlaceholderStyle = bg.Container.Foreground(theme.Fg.Subtle)
+	in.TextStyle = lipgloss.NewStyle().Background(theme.SumiInk2).Foreground(theme.Cursor)
+	in.PlaceholderStyle = lipgloss.NewStyle().Background(theme.SumiInk2).Foreground(theme.FujiGray)
 
 	if config.CharLimit > 0 {
 		in.CharLimit = config.CharLimit
 	}
 	in.Cursor.SetMode(cursor.CursorStatic)
 	in.Focus()
-
-	return Modal{Config: config, Input: in, Get: get}
+	return Modal{Config: config, Input: in}
 }
