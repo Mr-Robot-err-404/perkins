@@ -33,7 +33,7 @@ func (m Model) toggle_mirror() {
 }
 
 func (m Model) toggle_mirror_axis() int {
-	if m.mirror.enabled {
+	if !m.mirror.enabled {
 		return m.mirror.axis
 	}
 	if m.mirror.axis == X_AXIS {

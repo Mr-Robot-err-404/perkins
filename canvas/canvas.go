@@ -326,22 +326,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				m.init_cropping_block()
 				m.expand_selection()
 			}
-
-		case "=":
-			switch m.Mode {
-			case VISUAL_BLOCK:
-				m.set_mirror_axis(X_AXIS)
-				m.expand_selection()
-			case CROP_MODE:
-			}
-		case "|":
-			switch m.Mode {
-			case VISUAL_BLOCK:
-				m.set_mirror_axis(Y_AXIS)
-				m.expand_selection()
-			case CROP_MODE:
-			}
-
 		case "esc":
 			m.Mode = NORMAL_MODE
 			m.Reset_to_normal()
@@ -359,6 +343,8 @@ func (m Model) View() string {
 		width:   m.width,
 		cmd:     string(*m.cmd),
 		message: *m.message,
+		mirror:  m.mirror.enabled,
+		axis:    m.mirror.axis,
 	})
 
 	grid_h := len(m.Grid)
@@ -399,6 +385,8 @@ type Status struct {
 	width   int
 	cmd     string
 	message string
+	mirror  bool
+	axis    int
 }
 
 func status_label(color lipgloss.Color, label string) string {
@@ -409,7 +397,11 @@ func status_label(color lipgloss.Color, label string) string {
 }
 
 func subtitle(s string) string {
-	return lipgloss.NewStyle().Foreground(theme.FujiGray).Render(s)
+	return lipgloss.NewStyle().
+		PaddingLeft(1).
+		Foreground(theme.FujiGray).
+		Background(theme.SumiInk2).
+		Render(s)
 }
 
 func status_bar(status Status) string {
@@ -445,10 +437,22 @@ func status_bar(status Status) string {
 		msg = status.message
 		color = theme.WaveBlue
 	}
+	var indicators []string
+	indicators = append(indicators, status_label(color, label))
+
+	if status.mirror {
+		axis_label := "Y_AXIS"
+		if status.axis == X_AXIS {
+			axis_label = "X_AXIS"
+		}
+		indicators = append(indicators, subtitle("MIRROR::"+axis_label))
+	}
+	indicators = append(indicators, subtitle(msg))
+
 	return lipgloss.NewStyle().
 		Background(theme.SumiInk2).
 		PaddingLeft(1).
 		Width(status.width).
 		AlignHorizontal(lipgloss.Left).
-		Render(lipgloss.JoinHorizontal(lipgloss.Bottom, status_label(color, label), subtitle(msg)))
+		Render(lipgloss.JoinHorizontal(lipgloss.Bottom, indicators...))
 }

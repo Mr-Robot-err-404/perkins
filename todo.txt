@@ -1,7 +1,6 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> PICK mode
 -> help menu
 -> extend color palette to multiple pages
 -> themes
@@ -16,5 +15,4 @@ TUI quality of life
 -> vim niceties :: w, yank
 -> handle large ascii files
 -> theme selector
--> persist mirror toggling for visual mode
 -> off-by-one mouse offset
