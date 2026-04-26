@@ -97,6 +97,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.panel.Cell = m.get_cell
 
 	case panel.FlipMsg:
+		if m.canvas.Mode == canvas.CROP_MODE {
+			return m, nil
+		}
 		pos := *m.canvas.Cursor
 		cell := m.grid[pos.Row][pos.Col]
 		filter := core.Filter_Cells(m.grid, cell, m.selected)

@@ -21,9 +21,10 @@ type Model struct {
 	harpoon     *Harpoon
 	prev_cursor *core.Pos
 	Cursor      *core.Pos
-	selector    *Selector
 	cmd         *[]rune
 	message     *string
+	mirror      *Mirror
+	v_mirror    *Mirror
 	save_modal  component.Modal
 }
 type Harpoon struct {
@@ -31,8 +32,9 @@ type Harpoon struct {
 	max   core.Pos
 	start core.Pos
 }
-type Selector struct {
-	mirror_axis int
+type Mirror struct {
+	enabled bool
+	axis    int
 }
 type CropMsg struct{ Grid core.Grid }
 type UndoMsg struct{}
@@ -54,11 +56,11 @@ const (
 	VISUAL_BLOCK
 	CROP_MODE
 	COMMAND_MODE
+	DRAW_MODE
 )
 const (
-	MIRROR_DISABLE int = iota
+	Y_AXIS int = iota
 	X_AXIS
-	Y_AXIS
 )
 
 const (
@@ -91,9 +93,9 @@ func New(width, height int, grid core.Grid, selected core.Selected, file_path st
 		Cursor:      new(core.Pos),
 		prev_cursor: new(core.Pos),
 		harpoon:     new(Harpoon),
-		selector:    new(Selector),
 		cmd:         new([]rune),
 		message:     new(string),
+		mirror:      new(Mirror),
 		save_modal:  component.NewModal(SaveConfig, file_path),
 	}
 }
@@ -268,6 +270,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				m.Reset_to_normal()
 				return m, nil
 			}
+			m.mirror.enabled = true
 			m.set_mirror_axis(Y_AXIS)
 			m.init_cropping_block()
 			m.expand_selection()
@@ -299,11 +302,21 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			*m.Cursor = m.harpoon.max
 			m.expand_selection()
 
+		case "d":
+			m.Mode = m.toggle_mode(DRAW_MODE)
+
+			if m.Mode == NORMAL_MODE {
+				m.Reset_to_normal()
+				return m, nil
+			}
+		case "m":
+			m.toggle_mirror()
+
 		case "tab":
-			m.selector.mirror_axis = m.toggle_mirror_axis()
+			m.mirror.axis = m.toggle_mirror_axis()
 
 			switch m.Mode {
-			case VISUAL_BLOCK:
+			case VISUAL_BLOCK, DRAW_MODE:
 				m.expand_selection()
 			case CROP_MODE:
 				m.init_cropping_block()
@@ -420,6 +433,9 @@ func status_bar(status Status) string {
 	case CROP_MODE:
 		label = "CROP"
 		color = theme.SamuraiRed
+	case DRAW_MODE:
+		label = "DRAW"
+		color = theme.Wisteria
 	default:
 		label = "NORMAL"
 		msg = status.message
