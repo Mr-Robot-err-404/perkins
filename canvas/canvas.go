@@ -18,6 +18,7 @@ type Model struct {
 	Mode        int
 	Grid        core.Grid
 	Selected    core.Selected
+	Draw        core.Selected
 	harpoon     *Harpoon
 	prev_cursor *core.Pos
 	Cursor      *core.Pos
@@ -90,6 +91,7 @@ func New(width, height int, grid core.Grid, selected core.Selected, file_path st
 		height:      height,
 		Grid:        grid,
 		Selected:    selected,
+		Draw:        make(core.Selected),
 		Cursor:      new(core.Pos),
 		prev_cursor: new(core.Pos),
 		harpoon:     new(Harpoon),
@@ -309,6 +311,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				m.Reset_to_normal()
 				return m, nil
 			}
+			m.Draw[*m.Cursor] = core.Highlight
+
 		case "m":
 			m.toggle_mirror()
 

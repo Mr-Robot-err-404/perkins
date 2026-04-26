@@ -146,11 +146,17 @@ func (m Model) expand_selection() {
 		return
 
 	case DRAW_MODE:
-		m.Selected[*m.Cursor] = core.Highlight
+		clear(m.Selected)
+		m.Draw[*m.Cursor] = core.Highlight
 
-		if m.mirror.enabled {
-			pos := mirror_pos(*m.Cursor, m.mirror.axis, w, h)
+		for pos := range m.Draw {
 			m.Selected[pos] = core.Highlight
+
+			if !m.mirror.enabled {
+				continue
+			}
+			mirror := mirror_pos(pos, m.mirror.axis, w, h)
+			m.Selected[mirror] = core.Highlight
 		}
 		return
 	}
@@ -199,4 +205,5 @@ func (m Model) Reset_to_normal() {
 	*m.harpoon = Harpoon{}
 	*m.cmd = []rune{}
 	clear(m.Selected)
+	clear(m.Draw)
 }
