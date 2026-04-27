@@ -1,5 +1,7 @@
 package core
 
+import "image"
+
 func Image_To_Grid(buf [][]float64, width int, height int) Grid {
 	dm := Dimensions{
 		Width:  width * 2,
@@ -19,8 +21,26 @@ func Image_To_Grid(buf [][]float64, width int, height int) Grid {
 	return grid
 }
 
+func image_to_buffer(img image.Image) [][]float64 {
+	bounds := img.Bounds()
+	width, height := bounds.Max.X, bounds.Max.Y
+
+	buf := make([][]float64, height)
+
+	for y := range height {
+		current := make([]float64, width)
+
+		for x := range width {
+			r, g, b, _ := img.At(x, y).RGBA()
+			current[x] = luminance(r, g, b)
+		}
+		buf[y] = current
+	}
+	return buf
+}
+
 func luminance(r, g, b uint32) float64 {
-	return float64(299*r+587*g+114*b) / 1000.0 / 256.0
+	return float64(r>>8+g>>8+b>>8) / 3.0
 }
 
 func is_pixel_on(buf [][]float64, src Pos) bool {

@@ -14,23 +14,12 @@ var Neighbors = map[Coords]float64{
 }
 
 func Floyd_Steinberg(img image.Image) [][]float64 {
-	bounds := img.Bounds()
-	width, height := bounds.Max.X, bounds.Max.Y
-
+	buf := image_to_buffer(img)
 	visited := map[Coords]bool{}
-	buf := make([][]float64, height)
+	bounds := img.Bounds()
 
-	for y := range height {
-		current := make([]float64, width)
-
-		for x := range width {
-			r, g, b, _ := img.At(x, y).RGBA()
-			current[x] = luminance(r, g, b)
-		}
-		buf[y] = current
-	}
-	for y := range height {
-		for x := range width {
+	for y := range bounds.Max.Y {
+		for x := range bounds.Max.X {
 			coords := Coords{X: x, Y: y}
 			visited[coords] = true
 
@@ -40,6 +29,10 @@ func Floyd_Steinberg(img image.Image) [][]float64 {
 		}
 	}
 	return buf
+}
+
+func Dither_Ye_NOT(img image.Image) [][]float64 {
+	return image_to_buffer(img)
 }
 
 func diffuse(current Coords, buf [][]float64, visited map[Coords]bool, diff float64, bounds image.Rectangle) {
@@ -64,9 +57,9 @@ func quantize(m [][]float64, coords Coords) (float64, float64) {
 	lum := m[coords.Y][coords.X]
 
 	if lum < Threshold {
-		return 0, (-1 * lum)
+		return 0, lum
 	}
-	return 255, 255 - lum
+	return 255, lum - 255
 }
 
 func out_of_image_bounds(bounds image.Rectangle, x, y int) bool {
