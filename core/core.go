@@ -4,10 +4,18 @@ type Pos struct {
 	Row int
 	Col int
 }
+type Coords struct {
+	X int
+	Y int
+}
 type Cell struct {
 	Value rune
 	Bg    string
 	Fg    string
+}
+type Dimensions struct {
+	Width  int
+	Height int
 }
 
 type Selected map[Pos]int

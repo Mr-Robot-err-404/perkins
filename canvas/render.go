@@ -7,9 +7,8 @@ import (
 	"github.com/Mr-Robot-err-404/perkins/theme"
 )
 
-func Grid_To_Canvas(grid core.Grid, selected core.Selected, pos core.Pos) string {
+func Grid_To_Canvas(grid core.Grid, selected core.Selected, pos core.Pos, wrap bool) string {
 	cv := strings.Builder{}
-	cv.WriteString(theme.CanvasBG)
 
 	prev := core.Cell{}
 	width := len(grid[0])
@@ -22,8 +21,14 @@ func Grid_To_Canvas(grid core.Grid, selected core.Selected, pos core.Pos) string
 			cv.WriteString("\n")
 		}
 	}
-	cv.WriteString(theme.Reset)
+	if wrap {
+		return wrap_theme(cv.String())
+	}
 	return cv.String()
+}
+
+func wrap_theme(ansi string) string {
+	return theme.CanvasBG + ansi + theme.Reset
 }
 
 func transform_cell(

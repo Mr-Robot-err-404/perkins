@@ -1,11 +1,11 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
+-> image :: braille conversion
 -> help menu
 -> extend color palette to multiple pages
 -> themes
 -> status bar updates
--> image :: braille conversion
 
 --------------------------------------------
 TUI quality of life

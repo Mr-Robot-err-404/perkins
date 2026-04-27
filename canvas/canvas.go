@@ -136,7 +136,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		if msg.Cancel {
 			return m, nil
 		}
-		ascii := Grid_To_Canvas(m.Grid, core.Selected{}, core.Pos{Row: -1, Col: -1})
+		ascii := Grid_To_Canvas(m.Grid, core.Selected{}, core.Pos{Row: -1, Col: -1}, false)
 		return m, emit(SaveMsg{Path: strings.TrimSpace(msg.Value), Ascii: []byte(ascii)})
 
 	case Flush:
@@ -337,7 +337,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	grid_str := Grid_To_Canvas(m.Grid, m.Selected, *m.Cursor)
+	grid_str := Grid_To_Canvas(m.Grid, m.Selected, *m.Cursor, true)
 	indicator := status_bar(Status{
 		mode:    m.Mode,
 		width:   m.width,

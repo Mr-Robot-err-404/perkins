@@ -1,8 +1,10 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,51 +16,61 @@ import (
 )
 
 func main() {
-	dev := flag.Bool("dev", false, "dev mode")
-	flag.Parse()
-
-	if flag.NArg() != 1 {
-		fmt.Fprintf(os.Stderr, "Usage: %s [--dev] <file>\n", os.Args[0])
+	if len(os.Args) != 3 {
+		fmt.Fprintf(os.Stderr, "Usage: %s <convert|edit> <file>\n", os.Args[0])
 		os.Exit(1)
 	}
-	file_path := flag.Arg(0)
-	b, err := os.ReadFile(file_path)
+	cmd := os.Args[1]
+	file_path := os.Args[2]
 
+	err := debug.Init()
 	if err != nil {
 		panic(err.Error())
 	}
 
-	err = debug.Init()
+	switch cmd {
+	case "convert":
+		f, err := os.Open(file_path)
+		if err != nil {
+			panic(err.Error())
+		}
+		defer f.Close()
+		img, _, err := image.Decode(f)
+		if err != nil {
+			panic(err.Error())
+		}
+		buf := core.Floyd_Steinberg(img)
+		grid := core.Image_To_Grid(buf, 80, 40)
+		ansi := canvas.Grid_To_Canvas(grid, core.Selected{}, core.Pos{Row: -1, Col: -1}, false)
+		os.WriteFile("converted", []byte(ansi), 0644)
 
-	if err != nil {
-		panic(err.Error())
-	}
-	home, err := os.UserHomeDir()
-
-	if err != nil {
-		panic(err.Error())
-	}
-	abs, err := filepath.Abs(file_path)
-	if err != nil {
-		panic(err)
-	}
-	if strings.HasPrefix(abs, home) {
-		offset := len(home) + 1
-		abs = "~/" + abs[offset:]
-	}
-	meta := meta{home: home, file_path: abs}
-	grid := core.Parse_Ansi(b)
-
-	if *dev {
+	case "edit":
+		home, err := os.UserHomeDir()
+		if err != nil {
+			panic(err.Error())
+		}
+		abs, err := filepath.Abs(file_path)
+		if err != nil {
+			panic(err)
+		}
+		if strings.HasPrefix(abs, home) {
+			offset := len(home) + 1
+			abs = "~/" + abs[offset:]
+		}
+		b, err := os.ReadFile(file_path)
+		if err != nil {
+			panic(err.Error())
+		}
 		grid := core.Parse_Ansi(b)
-		ansi := canvas.Grid_To_Canvas(grid, core.Selected{}, core.Pos{})
-		os.Stdout.WriteString(ansi)
-		return
-	}
-	p := tea.NewProgram(newModel(grid, meta), tea.WithAltScreen(), tea.WithMouseCellMotion())
+		meta := meta{home: home, file_path: abs}
+		p := tea.NewProgram(newModel(grid, meta), tea.WithAltScreen(), tea.WithMouseCellMotion())
+		if _, err := p.Run(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
 
-	if _, err := p.Run(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown command %q. Usage: %s <convert|edit> <file>\n", cmd, os.Args[0])
 		os.Exit(1)
 	}
 }
