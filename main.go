@@ -17,7 +17,7 @@ import (
 
 func main() {
 	if len(os.Args) != 3 {
-		fmt.Fprintf(os.Stderr, "Usage: %s <convert|edit> <file>\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: perkins <convert|edit> <file>\n")
 		os.Exit(1)
 	}
 	cmd := os.Args[1]
@@ -68,6 +68,27 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
+
+	case "dev":
+		f, err := os.Open(file_path)
+
+		if err != nil {
+			panic(err.Error())
+		}
+		defer f.Close()
+
+		img, _, err := image.Decode(f)
+		if err != nil {
+			panic(err.Error())
+		}
+		buf := core.Floyd_Steinberg(img)
+		gray := core.Buffer_to_image(buf)
+		err = core.SaveJPG(gray, "dithered.jpg")
+
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("done")
 
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command %q. Usage: %s <convert|edit> <file>\n", cmd, os.Args[0])

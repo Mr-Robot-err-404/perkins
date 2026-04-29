@@ -1,8 +1,18 @@
 package core
 
-import "image"
+import (
+	"image"
+
+	"github.com/Mr-Robot-err-404/perkins/debug"
+)
 
 func Image_To_Grid(buf [][]float64, width int, height int) Grid {
+	imgH, imgW := len(buf), len(buf[0])
+	dotW, dotH := width*2, height*4
+	debug.Logf("image=%dx%d canvas=%dx%d (dots=%dx%d) ratio=%.2fx%.2f",
+		imgW, imgH, width, height, dotW, dotH,
+		float64(imgW)/float64(dotW), float64(imgH)/float64(dotH),
+	)
 	dm := Dimensions{
 		Width:  width * 2,
 		Height: height * 4,
@@ -40,7 +50,8 @@ func image_to_buffer(img image.Image) [][]float64 {
 }
 
 func luminance(r, g, b uint32) float64 {
-	return float64(r>>8+g>>8+b>>8) / 3.0
+	n := (r >> 8) + (g >> 8) + (b >> 8)
+	return float64(n) / 3.0
 }
 
 func is_pixel_on(buf [][]float64, src Pos) bool {

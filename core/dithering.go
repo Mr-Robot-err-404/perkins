@@ -2,6 +2,9 @@ package core
 
 import (
 	"image"
+	"image/color"
+	"image/jpeg"
+	"os"
 )
 
 const Threshold float64 = 128
@@ -29,6 +32,28 @@ func Floyd_Steinberg(img image.Image) [][]float64 {
 		}
 	}
 	return buf
+}
+
+func Buffer_to_image(buf [][]float64) image.Image {
+	bounds := image.Rectangle{Min: image.Pt(0, 0), Max: image.Pt(len(buf[0]), len(buf))}
+	img := image.NewGray(bounds)
+
+	for y := range len(buf) {
+		for x := range len(buf[y]) {
+			n := buf[y][x]
+			img.Set(x, y, color.Gray{Y: uint8(n)})
+		}
+	}
+	return img
+}
+
+func SaveJPG(img image.Image, path string) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	return jpeg.Encode(f, img, &jpeg.Options{Quality: 100})
 }
 
 func Dither_Ye_NOT(img image.Image) [][]float64 {
