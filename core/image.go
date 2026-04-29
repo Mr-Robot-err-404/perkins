@@ -2,21 +2,15 @@ package core
 
 import (
 	"image"
-
-	"github.com/Mr-Robot-err-404/perkins/debug"
 )
 
-func Image_To_Grid(buf [][]float64, width int, height int) Grid {
-	imgH, imgW := len(buf), len(buf[0])
-	dotW, dotH := width*2, height*4
-	debug.Logf("image=%dx%d canvas=%dx%d (dots=%dx%d) ratio=%.2fx%.2f",
-		imgW, imgH, width, height, dotW, dotH,
-		float64(imgW)/float64(dotW), float64(imgH)/float64(dotH),
-	)
+func Image_To_Grid(buf [][]float64, width int) Grid {
 	dm := Dimensions{
 		Width:  width * 2,
-		Height: height * 4,
+		Height: width * 4,
 	}
+	height := width / 2
+
 	grid := make(Grid, height)
 
 	for row := range height {
@@ -29,6 +23,53 @@ func Image_To_Grid(buf [][]float64, width int, height int) Grid {
 		}
 	}
 	return grid
+}
+
+type Cluster struct {
+	On  int
+	Off int
+}
+
+func image_to_grid(bounds image.Rectangle, buf [][]float64, width int) {
+	grouping := map[Coords]*Cluster{}
+
+	dm := Dimensions{
+		Width:  width,
+		Height: width * 2,
+	}
+	ratio_x := bounds.Max.X / dm.Width
+	ratio_y := bounds.Max.Y / dm.Height
+
+	y := 0
+	for row := range buf {
+		x := 0
+		for col := range buf[row] {
+			pixel := uint8(buf[row][col])
+			point := Coords{X: x, Y: y}
+			cluster, ok := grouping[point]
+
+			if !ok {
+				cluster = &Cluster{}
+				grouping[point] = cluster
+			}
+			update_cluster(pixel, cluster)
+
+			if (col+1)%ratio_x == 0 {
+				x++
+			}
+		}
+		if (row+1)%ratio_y == 0 {
+			y++
+		}
+	}
+}
+
+func update_cluster(pixel uint8, cluster *Cluster) {
+	if pixel == 0 {
+		cluster.Off++
+		return
+	}
+	cluster.On++
 }
 
 func image_to_buffer(img image.Image) [][]float64 {
