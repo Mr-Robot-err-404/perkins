@@ -30,27 +30,27 @@ type Cluster struct {
 	Off int
 }
 
-func image_to_grid(bounds image.Rectangle, buf [][]float64, width int) {
-	grouping := map[Coords]*Cluster{}
+func Image_To_Grid_2(buf [][]float64, canvas Dimensions) Grid {
+	points := map[Coords]*Cluster{}
+	braille := map[Coords]byte{}
 
-	dm := Dimensions{
-		Width:  width,
-		Height: width * 2,
-	}
-	ratio_x := bounds.Max.X / dm.Width
-	ratio_y := bounds.Max.Y / dm.Height
+	grid := make(Grid, canvas.Height)
+	dm := Dimensions{Width: canvas.Width * 2, Height: canvas.Height * 4}
+
+	ratio_x := len(buf[0]) / dm.Width
+	ratio_y := len(buf) / dm.Height
 
 	y := 0
 	for row := range buf {
 		x := 0
 		for col := range buf[row] {
 			pixel := uint8(buf[row][col])
-			point := Coords{X: x, Y: y}
-			cluster, ok := grouping[point]
+			p := Coords{X: x, Y: y}
+			cluster, ok := points[p]
 
 			if !ok {
 				cluster = &Cluster{}
-				grouping[point] = cluster
+				points[p] = cluster
 			}
 			update_cluster(pixel, cluster)
 
@@ -62,14 +62,36 @@ func image_to_grid(bounds image.Rectangle, buf [][]float64, width int) {
 			y++
 		}
 	}
+	for coords, cluster := range points {
+		cell := Coords{
+			X: coords.X / 2,
+			Y: coords.Y / 4,
+		}
+		bit := Coords_map[Coords{
+			X: coords.X % 2,
+			Y: coords.Y % 4,
+		}]
+		if cluster.On >= cluster.Off {
+			braille[cell] |= 1 << bit
+		}
+	}
+	for row := range canvas.Height {
+		grid[row] = make([]Cell, canvas.Width)
+
+		for col := range canvas.Width {
+			b := braille[Coords{X: col, Y: row}]
+			grid[row][col] = Cell{Value: Bitmap_To_Braille(b)}
+		}
+	}
+	return grid
 }
 
 func update_cluster(pixel uint8, cluster *Cluster) {
 	if pixel == 0 {
-		cluster.Off++
+		cluster.On++
 		return
 	}
-	cluster.On++
+	cluster.Off++
 }
 
 func image_to_buffer(img image.Image) [][]float64 {

@@ -31,6 +31,17 @@ const (
 	Full rune = 0x28FF
 )
 
+var Coords_map = map[Coords]byte{
+	{X: 0, Y: 0}: 0,
+	{X: 0, Y: 1}: 1,
+	{X: 0, Y: 2}: 2,
+	{X: 0, Y: 3}: 6,
+	{X: 1, Y: 0}: 3,
+	{X: 1, Y: 1}: 4,
+	{X: 1, Y: 2}: 5,
+	{X: 1, Y: 3}: 7,
+}
+
 var Pos_map = map[Pos]byte{
 	{Col: 0, Row: 0}: 0,
 	{Col: 0, Row: 1}: 1,

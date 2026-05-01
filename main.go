@@ -40,7 +40,7 @@ func main() {
 			panic(err.Error())
 		}
 		buf := core.Floyd_Steinberg(img)
-		grid := core.Image_To_Grid(buf, 80, 40)
+		grid := core.Image_To_Grid_2(buf, core.Dimensions{Width: 102, Height: 51})
 		ansi := canvas.Grid_To_Canvas(grid, core.Selected{}, core.Pos{Row: -1, Col: -1}, false)
 		os.WriteFile("converted", []byte(ansi), 0644)
 
