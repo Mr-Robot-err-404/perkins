@@ -338,13 +338,13 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	grid_str := Grid_To_Canvas(m.Grid, m.Selected, *m.Cursor, true)
-	indicator := status_bar(Status{
-		mode:    m.Mode,
-		width:   m.width,
-		cmd:     string(*m.cmd),
-		message: *m.message,
-		mirror:  m.mirror.enabled,
-		axis:    m.mirror.axis,
+	indicator := Status_Bar(Status{
+		Mode:    m.Mode,
+		Width:   m.width,
+		Cmd:     string(*m.cmd),
+		Message: *m.message,
+		Mirror:  m.mirror.enabled,
+		Axis:    m.mirror.axis,
 	})
 
 	grid_h := len(m.Grid)
@@ -381,12 +381,12 @@ func (m Model) Resize(width, height int) Model {
 }
 
 type Status struct {
-	mode    int
-	width   int
-	cmd     string
-	message string
-	mirror  bool
-	axis    int
+	Mode    int
+	Width   int
+	Cmd     string
+	Message string
+	Mirror  bool
+	Axis    int
 }
 
 func status_label(color lipgloss.Color, label string) string {
@@ -404,22 +404,22 @@ func subtitle(s string) string {
 		Render(s)
 }
 
-func status_bar(status Status) string {
+func Status_Bar(status Status) string {
 	var label string
 	var msg string
 	var color lipgloss.Color
 
-	switch status.mode {
+	switch status.Mode {
 	case COMMAND_MODE:
 		label := status_label(theme.RoninYellow, "COMMAND ")
 		cmd := lipgloss.NewStyle().
 			Background(theme.SumiInk2).
 			Bold(true).
-			Render(":" + status.cmd + "█")
+			Render(":" + status.Cmd + "█")
 		return lipgloss.NewStyle().
 			Background(theme.SumiInk2).
 			PaddingLeft(1).
-			Width(status.width).
+			Width(status.Width).
 			AlignHorizontal(lipgloss.Left).
 			Render(label + cmd)
 
@@ -434,15 +434,15 @@ func status_bar(status Status) string {
 		color = theme.Wisteria
 	default:
 		label = "NORMAL"
-		msg = status.message
+		msg = status.Message
 		color = theme.WaveBlue
 	}
 	var indicators []string
 	indicators = append(indicators, status_label(color, label))
 
-	if status.mirror {
+	if status.Mirror {
 		axis_label := "Y_AXIS"
-		if status.axis == X_AXIS {
+		if status.Axis == X_AXIS {
 			axis_label = "X_AXIS"
 		}
 		indicators = append(indicators, subtitle("MIRROR::"+axis_label))
@@ -452,7 +452,7 @@ func status_bar(status Status) string {
 	return lipgloss.NewStyle().
 		Background(theme.SumiInk2).
 		PaddingLeft(1).
-		Width(status.width).
+		Width(status.Width).
 		AlignHorizontal(lipgloss.Left).
 		Render(lipgloss.JoinHorizontal(lipgloss.Bottom, indicators...))
 }

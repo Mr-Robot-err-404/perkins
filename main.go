@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Mr-Robot-err-404/perkins/canvas"
 	"github.com/Mr-Robot-err-404/perkins/core"
 	"github.com/Mr-Robot-err-404/perkins/debug"
+	"github.com/Mr-Robot-err-404/perkins/scaling"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -42,10 +42,12 @@ func main() {
 		size := core.Dimensions{Width: 102, Height: 51}
 		resized := core.Scale_Down(img, size)
 		buf := core.Floyd_Steinberg(resized)
-
 		grid := core.Image_To_Grid(buf, size)
-		ansi := canvas.Grid_To_Canvas(grid, core.Selected{}, core.Pos{Row: -1, Col: -1}, false)
-		os.WriteFile("converted", []byte(ansi), 0644)
+
+		if err := scaling.Run(grid); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
 
 	case "edit":
 		home, err := os.UserHomeDir()
@@ -84,7 +86,7 @@ func main() {
 		if err != nil {
 			panic(err.Error())
 		}
-		target := core.Scale_Down(img, core.Dimensions{Width: 102, Height: 102})
+		target := core.Scale_Down(img, core.Dimensions{Width: 102, Height: 51})
 
 		err = core.SaveJPG(target, "resized.jpg")
 		if err != nil {
