@@ -39,8 +39,11 @@ func main() {
 		if err != nil {
 			panic(err.Error())
 		}
-		buf := core.Floyd_Steinberg(img)
-		grid := core.Image_To_Grid_2(buf, core.Dimensions{Width: 102, Height: 51})
+		size := core.Dimensions{Width: 102, Height: 51}
+		resized := core.Scale_Down(img, size)
+		buf := core.Floyd_Steinberg(resized)
+
+		grid := core.Image_To_Grid(buf, size)
 		ansi := canvas.Grid_To_Canvas(grid, core.Selected{}, core.Pos{Row: -1, Col: -1}, false)
 		os.WriteFile("converted", []byte(ansi), 0644)
 
@@ -81,14 +84,13 @@ func main() {
 		if err != nil {
 			panic(err.Error())
 		}
-		buf := core.Floyd_Steinberg(img)
-		gray := core.Buffer_to_image(buf)
-		err = core.SaveJPG(gray, "dithered.jpg")
+		target := core.Scale_Down(img, core.Dimensions{Width: 102, Height: 102})
 
+		err = core.SaveJPG(target, "resized.jpg")
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println("done")
+		fmt.Println("resized image")
 
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command %q. Usage: %s <convert|edit> <file>\n", cmd, os.Args[0])
