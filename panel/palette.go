@@ -3,6 +3,7 @@ package panel
 import (
 	"strings"
 
+	"github.com/Mr-Robot-err-404/perkins/component"
 	"github.com/Mr-Robot-err-404/perkins/core"
 	"github.com/Mr-Robot-err-404/perkins/theme"
 	"github.com/charmbracelet/lipgloss"
@@ -134,9 +135,9 @@ func square() lipgloss.Style {
 
 func layer_state(layer int) string {
 	if layer == FOREGROUND_LAYER {
-		return notification("Foreground", PALETTE_WIDTH, theme.RoninYellow, theme.SumiInk1)
+		return component.Notification("Foreground", PALETTE_WIDTH, theme.RoninYellow, theme.SumiInk1)
 	}
-	return notification("Background", PALETTE_WIDTH, theme.WaveBlue, theme.SumiInk1)
+	return component.Notification("Background", PALETTE_WIDTH, theme.WaveBlue, theme.SumiInk1)
 }
 
 func (p *Palette) column(offset int, color [8]theme.Color, selected int, column int) []string {
@@ -169,27 +170,4 @@ func (p *Palette) render_palette() string {
 		p.right_divider(selected, 4),
 	)
 	return lipgloss.JoinVertical(lipgloss.Left, layer_state(p.Layer), content)
-}
-
-func notification(s string, w int, fg lipgloss.Color, bg lipgloss.Color) string {
-	bar := lipgloss.NewStyle().Foreground(fg).Background(bg)
-	l := strings.Repeat(string(LeftBar)+"\n", 3)
-	r := strings.Repeat(string(RightBar)+"\n", 3)
-
-	leftBar := bar.Height(3).Render(strings.TrimSuffix(l, "\n"))
-	rightBar := bar.Height(3).Render(strings.TrimSuffix(r, "\n"))
-
-	empty := lipgloss.NewStyle().
-		Background(bg).
-		Width(w - 2).
-		Height(1).
-		Render("")
-	msg := lipgloss.NewStyle().
-		Background(bg).
-		Foreground(fg).
-		Width(w - 2).
-		AlignHorizontal(lipgloss.Center).
-		Render(s)
-	center := lipgloss.JoinVertical(lipgloss.Left, empty, msg, empty)
-	return lipgloss.JoinHorizontal(lipgloss.Top, leftBar, center, rightBar)
 }

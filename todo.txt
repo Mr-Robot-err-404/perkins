@@ -1,7 +1,8 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> image :: braille conversion
+-> scaling tui
+-> transition from scaling -> editing
 -> help menu
 -> extend color palette to multiple pages
 -> themes
