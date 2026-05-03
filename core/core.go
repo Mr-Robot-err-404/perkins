@@ -101,6 +101,24 @@ func Filter_Cells(grid Grid, cell Cell, selected Selected) Selected {
 	return filter
 }
 
+func Window(dm Dimensions, grid Grid) (Pos, Pos) {
+	midpoint := Find_Center(grid)
+	dx := dm.Width / 2
+	dy := dm.Height / 2
+
+	start := Pos{
+		Row: max(0, midpoint.Row-dy),
+		Col: max(0, midpoint.Col-dx),
+	}
+	end := Pos{
+		Row: max(dm.Height-1, midpoint.Row+dy),
+		Col: max(dm.Width-1, midpoint.Col+dx),
+	}
+	end.Row = min(len(grid), end.Row)
+	end.Col = min(len(grid[0]), end.Col)
+	return start, end
+}
+
 func Out_Of_Bounds(pos Pos, grid Grid) bool {
 	if pos.Row < 0 || pos.Col < 0 {
 		return true

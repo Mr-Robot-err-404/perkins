@@ -4,6 +4,12 @@ import (
 	"image"
 )
 
+func Image_To_Ascii(img image.Image, size Dimensions) Grid {
+	resized := Scale_Down(img, size)
+	buf := Floyd_Steinberg(resized)
+	return Image_To_Grid(buf, size)
+}
+
 func Scale_Down(src image.Image, canvas Dimensions) image.Image {
 	dm := Dimensions{Width: canvas.Width * 2, Height: canvas.Height * 4}
 	bounds := image.Rectangle{Min: image.Pt(0, 0), Max: image.Pt(dm.Width, dm.Height)}

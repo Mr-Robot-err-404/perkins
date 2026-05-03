@@ -36,15 +36,13 @@ func main() {
 		}
 		defer f.Close()
 		img, _, err := image.Decode(f)
+
 		if err != nil {
 			panic(err.Error())
 		}
 		size := core.Dimensions{Width: 102, Height: 51}
-		resized := core.Scale_Down(img, size)
-		buf := core.Floyd_Steinberg(resized)
-		grid := core.Image_To_Grid(buf, size)
 
-		if err := scaling.Run(grid); err != nil {
+		if err := scaling.Run(img, size); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}

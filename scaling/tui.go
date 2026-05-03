@@ -1,6 +1,8 @@
 package scaling
 
 import (
+	"image"
+
 	"github.com/Mr-Robot-err-404/perkins/canvas"
 	"github.com/Mr-Robot-err-404/perkins/core"
 	"github.com/Mr-Robot-err-404/perkins/theme"
@@ -11,15 +13,13 @@ import (
 type Model struct {
 	width  int
 	height int
-	ascii  string
 	mode   int
+	grid   core.Grid
 	cmd    []rune
 }
 
-func New(ascii string) Model {
-	return Model{
-		ascii: ascii,
-	}
+func New(img image.Image, size core.Dimensions) Model {
+	return Model{grid: core.Image_To_Ascii(img, size)}
 }
 
 func (m Model) Init() tea.Cmd {
@@ -80,21 +80,22 @@ func (m Model) View() string {
 		Width: m.width,
 		Cmd:   string(m.cmd),
 	})
+	grid := window(m.grid, core.Dimensions{Width: m.width, Height: m.height - 1})
+	ascii := canvas.Grid_To_Canvas(grid, core.Selected{}, core.Pos{Row: -1, Col: -1}, false)
+
 	content := lipgloss.NewStyle().
 		Width(m.width).
-		Height(m.height-1).
+		Height(m.height - 1).
 		Background(theme.SumiInk1).
 		AlignHorizontal(lipgloss.Center).
 		AlignVertical(lipgloss.Center).
-		Padding(1, 2).
-		Render(m.ascii)
+		Render(ascii)
 
 	return lipgloss.JoinVertical(lipgloss.Left, content, indicator)
 }
 
-func Run(grid core.Grid) error {
-	ascii := canvas.Grid_To_Canvas(grid, core.Selected{}, core.Pos{Row: -1, Col: -1}, false)
-	p := tea.NewProgram(New(ascii), tea.WithAltScreen())
+func Run(img image.Image, size core.Dimensions) error {
+	p := tea.NewProgram(New(img, size), tea.WithAltScreen())
 	_, err := p.Run()
 	return err
 }

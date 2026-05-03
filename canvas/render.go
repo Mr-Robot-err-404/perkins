@@ -9,7 +9,6 @@ import (
 
 func Grid_To_Canvas(grid core.Grid, selected core.Selected, pos core.Pos, wrap bool) string {
 	cv := strings.Builder{}
-
 	prev := core.Cell{}
 	width := len(grid[0])
 
