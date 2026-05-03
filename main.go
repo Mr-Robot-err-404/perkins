@@ -63,6 +63,7 @@ func main() {
 			os.Exit(1)
 		}
 		grid := <-ch
+		meta.file_path = strings.TrimSuffix(meta.file_path, file_path)
 		p := tea.NewProgram(newModel(grid, meta), tea.WithAltScreen(), tea.WithMouseCellMotion())
 
 		if _, err := p.Run(); err != nil {

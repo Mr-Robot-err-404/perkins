@@ -337,7 +337,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	grid_str := Grid_To_Canvas(m.Grid, m.Selected, *m.Cursor, true)
+	dm := core.Dimensions{Width: m.width, Height: m.height - 1}
+	ascii := Canvas_Window(m.Grid, m.Selected, *m.Cursor, dm, core.Find_Center(m.Grid))
+
 	indicator := Status_Bar(Status{
 		Mode:    m.Mode,
 		Width:   m.width,
@@ -356,7 +358,7 @@ func (m Model) View() string {
 		Background(theme.SumiInk1).
 		PaddingTop(top_pad).
 		AlignHorizontal(lipgloss.Center).
-		Render(grid_str)
+		Render(ascii)
 
 	modals := []ComponentModal{m.save_modal}
 

@@ -101,8 +101,7 @@ func Filter_Cells(grid Grid, cell Cell, selected Selected) Selected {
 	return filter
 }
 
-func Window(dm Dimensions, grid Grid) (Pos, Pos) {
-	midpoint := Find_Center(grid)
+func Window(dm Dimensions, grid Grid, midpoint Pos) (Pos, Pos) {
 	dx := dm.Width / 2
 	dy := dm.Height / 2
 

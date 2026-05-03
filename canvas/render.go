@@ -7,6 +7,24 @@ import (
 	"github.com/Mr-Robot-err-404/perkins/theme"
 )
 
+func Canvas_Window(grid core.Grid, selected core.Selected, pos core.Pos, dm core.Dimensions, midpoint core.Pos) string {
+	cv := strings.Builder{}
+	prev := core.Cell{}
+	width := len(grid[0])
+	start, end := core.Window(dm, grid, midpoint)
+
+	for row := start.Row; row < end.Row; row++ {
+		for col := start.Col; col < end.Col; col++ {
+			cell := grid[row][col]
+			transform_cell(&cv, row, col, pos, &prev, cell, selected, width)
+		}
+		if row < end.Row-1 {
+			cv.WriteString("\n")
+		}
+	}
+	return cv.String()
+}
+
 func Grid_To_Canvas(grid core.Grid, selected core.Selected, pos core.Pos, wrap bool) string {
 	cv := strings.Builder{}
 	prev := core.Cell{}
