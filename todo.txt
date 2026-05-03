@@ -14,4 +14,3 @@ TUI quality of life
 -> vim niceties :: w, yank
 -> theme selector
 -> off-by-one mouse offset
--> cropping panic with windowing applied

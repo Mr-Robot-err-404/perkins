@@ -193,7 +193,7 @@ func (m Model) expand_selection() {
 func (m Model) update_cursor(pos core.Pos) {
 	*m.prev_cursor = *m.Cursor
 	*m.Cursor = pos
-	update_window(m.window, pos)
+	update_window(m.Window, pos)
 	m.expand_selection()
 }
 
@@ -230,4 +230,10 @@ func (m Model) Reset_to_normal() {
 	*m.cmd = []rune{}
 	clear(m.Selected)
 	clear(m.Draw)
+}
+
+func (m Model) Reset_Window(grid core.Grid) {
+	midpoint := core.Find_Center(grid)
+	*m.Window = core.Get_Window(core.Dimensions{Width: m.width, Height: m.height - 1}, grid, midpoint)
+	*m.Cursor = midpoint
 }

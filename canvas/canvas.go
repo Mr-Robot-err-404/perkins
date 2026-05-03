@@ -19,10 +19,10 @@ type Model struct {
 	Grid        core.Grid
 	Selected    core.Selected
 	Draw        core.Selected
-	window      *core.Window
 	harpoon     *Harpoon
 	prev_cursor *core.Pos
 	Cursor      *core.Pos
+	Window      *core.Window
 	cmd         *[]rune
 	message     *string
 	mirror      *Mirror
@@ -100,7 +100,7 @@ func New(width, height int, grid core.Grid, selected core.Selected, file_path st
 		cmd:         new([]rune),
 		message:     new(string),
 		mirror:      new(Mirror),
-		window:      &window,
+		Window:      &window,
 		Cursor:      &midpoint,
 		save_modal:  component.NewModal(SaveConfig, file_path),
 	}
@@ -280,6 +280,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			m.set_mirror_axis(Y_AXIS)
 			m.init_cropping_block()
 			m.expand_selection()
+			update_window(m.Window, *m.Cursor)
 
 		case "v", "ctrl+v":
 			m.Mode = m.toggle_mode(VISUAL_BLOCK)
@@ -341,7 +342,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	ascii := Canvas_Window(m.Grid, m.Selected, *m.Cursor, m.window)
+	ascii := Canvas_Window(m.Grid, m.Selected, *m.Cursor, m.Window)
 
 	indicator := Status_Bar(Status{
 		Mode:    m.Mode,
@@ -381,7 +382,7 @@ func (m Model) View() string {
 func (m Model) Resize(width, height int) Model {
 	m.width = width
 	m.height = height
-	*m.window = core.Get_Window(core.Dimensions{Width: width, Height: height}, m.Grid, core.Find_Center(m.Grid))
+	*m.Window = core.Get_Window(core.Dimensions{Width: width, Height: height}, m.Grid, core.Find_Center(m.Grid))
 	return m
 }
 

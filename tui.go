@@ -93,7 +93,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.canvas.Grid = msg.Grid
 		m.canvas.Mode = canvas.NORMAL_MODE
 		m.canvas.Reset_to_normal()
-		*m.canvas.Cursor = core.Pos{}
+		m.canvas.Reset_Window(msg.Grid)
+
 		m.panel.Cell = m.get_cell
 
 	case panel.FlipMsg:
@@ -130,9 +131,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		is_snapshot := m.history.Undo(&m.grid)
 		if !is_snapshot {
 			m.canvas.Grid = m.grid
+			m.canvas.Reset_Window(m.grid)
 			m.panel.Cell = m.get_cell
 			clear(m.selected)
-			*m.canvas.Cursor = core.Pos{}
 		}
 		return m, nil
 
@@ -140,9 +141,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		is_snapshot := m.history.Redo(&m.grid)
 		if !is_snapshot {
 			m.canvas.Grid = m.grid
+			m.canvas.Reset_Window(m.grid)
 			m.panel.Cell = m.get_cell
 			clear(m.selected)
-			*m.canvas.Cursor = core.Pos{}
 		}
 		return m, nil
 
