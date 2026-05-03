@@ -1,8 +1,7 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> scaling tui
--> transition from scaling -> editing
+-> windowing in editor
 -> help menu
 -> extend color palette to multiple pages
 -> themes
@@ -14,6 +13,5 @@ TUI quality of life
 -> jump height set to half canvas height
 -> number jumps
 -> vim niceties :: w, yank
--> handle large ascii files
 -> theme selector
 -> off-by-one mouse offset

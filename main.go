@@ -27,6 +27,21 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+	home, err := os.UserHomeDir()
+
+	if err != nil {
+		panic(err.Error())
+	}
+	abs, err := filepath.Abs(file_path)
+
+	if err != nil {
+		panic(err)
+	}
+	if strings.HasPrefix(abs, home) {
+		offset := len(home) + 1
+		abs = "~/" + abs[offset:]
+	}
+	meta := meta{home: home, file_path: abs}
 
 	switch cmd {
 	case "convert":
@@ -41,32 +56,29 @@ func main() {
 			panic(err.Error())
 		}
 		size := core.Dimensions{Width: 102, Height: 51}
+		ch := make(chan core.Grid, 1)
 
-		if err := scaling.Run(img, size); err != nil {
+		if err := scaling.Run(img, size, ch); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		grid := <-ch
+		p := tea.NewProgram(newModel(grid, meta), tea.WithAltScreen(), tea.WithMouseCellMotion())
+
+		if _, err := p.Run(); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 
 	case "edit":
-		home, err := os.UserHomeDir()
-		if err != nil {
-			panic(err.Error())
-		}
-		abs, err := filepath.Abs(file_path)
-		if err != nil {
-			panic(err)
-		}
-		if strings.HasPrefix(abs, home) {
-			offset := len(home) + 1
-			abs = "~/" + abs[offset:]
-		}
 		b, err := os.ReadFile(file_path)
+
 		if err != nil {
 			panic(err.Error())
 		}
 		grid := core.Parse_Ansi(b)
-		meta := meta{home: home, file_path: abs}
 		p := tea.NewProgram(newModel(grid, meta), tea.WithAltScreen(), tea.WithMouseCellMotion())
+
 		if _, err := p.Run(); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)

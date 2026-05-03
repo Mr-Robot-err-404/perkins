@@ -11,13 +11,13 @@ const (
 	LeftBar  rune = 0x258F
 )
 
-func Notification(content string, w int, fg lipgloss.Color, bg lipgloss.Color) string {
+func Notification(content string, w int, h int, fg lipgloss.Color, bg lipgloss.Color) string {
 	bar := lipgloss.NewStyle().Foreground(fg).Background(bg)
-	l := strings.Repeat(string(LeftBar)+"\n", 3)
-	r := strings.Repeat(string(RightBar)+"\n", 3)
+	l := strings.Repeat(string(LeftBar)+"\n", h)
+	r := strings.Repeat(string(RightBar)+"\n", h)
 
-	leftBar := bar.Height(3).Render(strings.TrimSuffix(l, "\n"))
-	rightBar := bar.Height(3).Render(strings.TrimSuffix(r, "\n"))
+	leftBar := bar.Height(h).Render(strings.TrimSuffix(l, "\n"))
+	rightBar := bar.Height(h).Render(strings.TrimSuffix(r, "\n"))
 
 	empty := lipgloss.NewStyle().
 		Background(bg).

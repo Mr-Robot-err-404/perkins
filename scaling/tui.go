@@ -2,9 +2,12 @@ package scaling
 
 import (
 	"image"
+	"strings"
 
 	"github.com/Mr-Robot-err-404/perkins/canvas"
+	"github.com/Mr-Robot-err-404/perkins/component"
 	"github.com/Mr-Robot-err-404/perkins/core"
+	"github.com/Mr-Robot-err-404/perkins/debug"
 	"github.com/Mr-Robot-err-404/perkins/theme"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -19,14 +22,16 @@ type Model struct {
 	factor float64
 	img    image.Image
 	cmd    []rune
+	ch     chan<- core.Grid
 }
 
-func New(img image.Image, size core.Dimensions) Model {
+func New(img image.Image, size core.Dimensions, ch chan<- core.Grid) Model {
 	return Model{
 		grid:   core.Image_To_Ascii(img, size),
 		base:   size,
 		img:    img,
 		factor: 1.0,
+		ch:     ch,
 	}
 }
 
@@ -84,6 +89,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case ":":
 			m.mode = canvas.COMMAND_MODE
+		case "enter":
+			m.ch <- m.grid
+			return m, tea.Quit
 		}
 	}
 	return m, nil
@@ -108,12 +116,46 @@ func (m Model) View() string {
 		AlignHorizontal(lipgloss.Center).
 		AlignVertical(lipgloss.Center).
 		Render(ascii)
+	screen := lipgloss.JoinVertical(lipgloss.Left, content, indicator)
+	overlay, err := component.Overlay(screen, menu(), 1, 2, true)
 
-	return lipgloss.JoinVertical(lipgloss.Left, content, indicator)
+	if err != nil {
+		debug.Logf("overlay failed: %s", err.Error())
+		return screen
+	}
+	return overlay
 }
 
-func Run(img image.Image, size core.Dimensions) error {
-	p := tea.NewProgram(New(img, size), tea.WithAltScreen())
+func menu() string {
+	list := lipgloss.JoinVertical(lipgloss.Left,
+		info("enter", "continue", 2, 0),
+		info("+", "zoom in", 6, 1),
+		info("-", "zoom out", 6, 0),
+		info(":q", "quit", 5, 4),
+	)
+	return component.Notification(list, 20, 6, theme.WaveBlue, theme.SumiInk0)
+}
+
+func info(key string, value string, space int, pad int) string {
+	primary := lipgloss.NewStyle().
+		Background(theme.SumiInk0).
+		Foreground(theme.Cursor).
+		PaddingRight(1).
+		Render(key)
+	gap := lipgloss.NewStyle().
+		Background(theme.SumiInk0).
+		Render(strings.Repeat(" ", space))
+
+	secondary := lipgloss.NewStyle().
+		Background(theme.SumiInk0).
+		Foreground(theme.FujiGray).
+		PaddingRight(pad).
+		Render(value)
+	return lipgloss.JoinHorizontal(lipgloss.Bottom, primary, gap, secondary)
+}
+
+func Run(img image.Image, size core.Dimensions, ch chan<- core.Grid) error {
+	p := tea.NewProgram(New(img, size, ch), tea.WithAltScreen())
 	_, err := p.Run()
 	return err
 }
