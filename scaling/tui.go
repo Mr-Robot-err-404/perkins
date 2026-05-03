@@ -15,11 +15,19 @@ type Model struct {
 	height int
 	mode   int
 	grid   core.Grid
+	base   core.Dimensions
+	factor float64
+	img    image.Image
 	cmd    []rune
 }
 
 func New(img image.Image, size core.Dimensions) Model {
-	return Model{grid: core.Image_To_Ascii(img, size)}
+	return Model{
+		grid:   core.Image_To_Ascii(img, size),
+		base:   size,
+		img:    img,
+		factor: 1.0,
+	}
 }
 
 func (m Model) Init() tea.Cmd {
@@ -62,6 +70,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		switch msg.String() {
+		case "+":
+			size, factor := zoom_in(m.base, m.factor, m.img.Bounds())
+			m.grid = core.Image_To_Ascii(m.img, size)
+			m.factor = factor
+
+		case "-", "_":
+			size, factor := zoom_out(m.base, m.factor)
+			m.grid = core.Image_To_Ascii(m.img, size)
+			m.factor = factor
+
 		case "ctrl+c":
 			return m, tea.Quit
 		case ":":
