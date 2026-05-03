@@ -19,6 +19,7 @@ type Model struct {
 	Grid        core.Grid
 	Selected    core.Selected
 	Draw        core.Selected
+	window      *core.Window
 	harpoon     *Harpoon
 	prev_cursor *core.Pos
 	Cursor      *core.Pos
@@ -86,18 +87,21 @@ var SaveConfig = component.ModalConfig{
 }
 
 func New(width, height int, grid core.Grid, selected core.Selected, file_path string) Model {
+	midpoint := core.Find_Center(grid)
+	window := core.Get_Window(core.Dimensions{Width: width, Height: height - 1}, grid, midpoint)
 	return Model{
 		width:       width,
 		height:      height,
 		Grid:        grid,
 		Selected:    selected,
 		Draw:        make(core.Selected),
-		Cursor:      new(core.Pos),
 		prev_cursor: new(core.Pos),
 		harpoon:     new(Harpoon),
 		cmd:         new([]rune),
 		message:     new(string),
 		mirror:      new(Mirror),
+		window:      &window,
+		Cursor:      &midpoint,
 		save_modal:  component.NewModal(SaveConfig, file_path),
 	}
 }
@@ -337,8 +341,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	dm := core.Dimensions{Width: m.width, Height: m.height - 1}
-	ascii := Canvas_Window(m.Grid, m.Selected, *m.Cursor, dm, core.Find_Center(m.Grid))
+	ascii := Canvas_Window(m.Grid, m.Selected, *m.Cursor, m.window)
 
 	indicator := Status_Bar(Status{
 		Mode:    m.Mode,
@@ -348,7 +351,6 @@ func (m Model) View() string {
 		Mirror:  m.mirror.enabled,
 		Axis:    m.mirror.axis,
 	})
-
 	grid_h := len(m.Grid)
 	top_pad := (m.height - 1 - grid_h) / 2
 
@@ -379,6 +381,7 @@ func (m Model) View() string {
 func (m Model) Resize(width, height int) Model {
 	m.width = width
 	m.height = height
+	*m.window = core.Get_Window(core.Dimensions{Width: width, Height: height}, m.Grid, core.Find_Center(m.Grid))
 	return m
 }
 

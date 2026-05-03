@@ -33,15 +33,15 @@ func amplify(n int, factor float64) int {
 
 func window(grid core.Grid, dm core.Dimensions) core.Grid {
 	midpoint := core.Find_Center(grid)
-	start, end := core.Window(dm, grid, midpoint)
-	m := make(core.Grid, end.Row-start.Row)
+	window := core.Get_Window(dm, grid, midpoint)
+	m := make(core.Grid, window.End.Row-window.Start.Row)
 
-	for row := start.Row; row < end.Row; row++ {
-		i := row - start.Row
-		m[i] = make([]core.Cell, end.Col-start.Col)
+	for row := window.Start.Row; row < window.End.Row; row++ {
+		i := row - window.Start.Row
+		m[i] = make([]core.Cell, window.End.Col-window.Start.Col)
 
-		for col := start.Col; col < end.Col; col++ {
-			j := col - start.Col
+		for col := window.Start.Col; col < window.End.Col; col++ {
+			j := col - window.Start.Col
 			m[i][j] = grid[row][col]
 		}
 	}

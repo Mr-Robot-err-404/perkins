@@ -17,6 +17,10 @@ type Dimensions struct {
 	Width  int
 	Height int
 }
+type Window struct {
+	Start Pos
+	End   Pos
+}
 
 type Selected map[Pos]int
 type Grid [][]Cell
@@ -101,7 +105,7 @@ func Filter_Cells(grid Grid, cell Cell, selected Selected) Selected {
 	return filter
 }
 
-func Window(dm Dimensions, grid Grid, midpoint Pos) (Pos, Pos) {
+func Get_Window(dm Dimensions, grid Grid, midpoint Pos) Window {
 	dx := dm.Width / 2
 	dy := dm.Height / 2
 
@@ -115,7 +119,7 @@ func Window(dm Dimensions, grid Grid, midpoint Pos) (Pos, Pos) {
 	}
 	end.Row = min(len(grid), end.Row)
 	end.Col = min(len(grid[0]), end.Col)
-	return start, end
+	return Window{Start: start, End: end}
 }
 
 func Out_Of_Bounds(pos Pos, grid Grid) bool {

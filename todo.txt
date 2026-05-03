@@ -1,7 +1,6 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> windowing in editor
 -> help menu
 -> extend color palette to multiple pages
 -> themes
@@ -15,3 +14,4 @@ TUI quality of life
 -> vim niceties :: w, yank
 -> theme selector
 -> off-by-one mouse offset
+-> cropping panic with windowing applied

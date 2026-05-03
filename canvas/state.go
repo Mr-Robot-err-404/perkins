@@ -193,7 +193,31 @@ func (m Model) expand_selection() {
 func (m Model) update_cursor(pos core.Pos) {
 	*m.prev_cursor = *m.Cursor
 	*m.Cursor = pos
+	update_window(m.window, pos)
 	m.expand_selection()
+}
+
+func update_window(window *core.Window, pos core.Pos) {
+	if pos.Row >= window.End.Row {
+		diff := pos.Row - window.End.Row + 1
+		window.End.Row += diff
+		window.Start.Row += diff
+	}
+	if pos.Col >= window.End.Col {
+		diff := pos.Col - window.End.Col + 1
+		window.End.Col += diff
+		window.Start.Col += diff
+	}
+	if pos.Row < window.Start.Row {
+		diff := window.Start.Row - pos.Row
+		window.Start.Row = pos.Row
+		window.End.Row -= diff
+	}
+	if pos.Col < window.Start.Col {
+		diff := window.Start.Col - pos.Col
+		window.Start.Col = pos.Col
+		window.End.Col -= diff
+	}
 }
 
 func (m Model) set_mirror_axis(axis int) {
