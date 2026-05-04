@@ -83,6 +83,8 @@ func image_to_buffer(img image.Image) [][]float64 {
 }
 
 func luminance(r, g, b uint32) float64 {
-	n := (r >> 8) + (g >> 8) + (b >> 8)
-	return float64(n) / 3.0
+	r >>= 8
+	g >>= 8
+	b >>= 8
+	return float64((r*2126 + g*7152 + b*722) / 10000)
 }
