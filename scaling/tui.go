@@ -14,20 +14,24 @@ import (
 )
 
 type Model struct {
-	width  int
-	height int
-	mode   int
-	grid   core.Grid
-	base   core.Dimensions
-	factor float64
-	img    image.Image
-	cmd    []rune
-	ch     chan<- core.Grid
+	width    int
+	height   int
+	mode     int
+	grid     core.Grid
+	base     core.Dimensions
+	bitmap   *core.ImageBitmap
+	factor   float64
+	img      image.Image
+	cmd      []rune
+	ch       chan<- core.Grid
+	inverted bool
 }
 
 func New(img image.Image, size core.Dimensions, ch chan<- core.Grid) Model {
+	grid, bitmap := core.Image_To_Ascii(img, size, false)
 	return Model{
-		grid:   core.Image_To_Ascii(img, size),
+		grid:   grid,
+		bitmap: &bitmap,
 		base:   size,
 		img:    img,
 		factor: 1.0,
@@ -77,13 +81,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "+":
 			size, factor := zoom_in(m.base, m.factor, m.img.Bounds())
-			m.grid = core.Image_To_Ascii(m.img, size)
+			m.grid, *m.bitmap = core.Image_To_Ascii(m.img, size, m.inverted)
 			m.factor = factor
 
 		case "-", "_":
 			size, factor := zoom_out(m.base, m.factor)
-			m.grid = core.Image_To_Ascii(m.img, size)
+			m.grid, *m.bitmap = core.Image_To_Ascii(m.img, size, m.inverted)
 			m.factor = factor
+
+		case "i":
+			m.inverted = !m.inverted
+			scale := core.Dimensions{
+				Width:  amplify(m.base.Width, m.factor),
+				Height: amplify(m.base.Height, m.factor),
+			}
+			m.bitmap.Invert()
+			m.grid = core.Image_To_Grid(*m.bitmap, scale)
 
 		case "ctrl+c":
 			return m, tea.Quit
@@ -131,9 +144,10 @@ func menu() string {
 		info("enter", "continue", 2, 0),
 		info("+", "zoom in", 6, 1),
 		info("-", "zoom out", 6, 0),
+		info("i", "invert", 6, 2),
 		info(":q", "quit", 5, 4),
 	)
-	return component.Notification(list, 20, 6, theme.WaveBlue, theme.SumiInk0)
+	return component.Notification(list, 20, 7, theme.WaveBlue, theme.SumiInk0)
 }
 
 func info(key string, value string, space int, pad int) string {

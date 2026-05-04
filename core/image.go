@@ -4,10 +4,13 @@ import (
 	"image"
 )
 
-func Image_To_Ascii(img image.Image, size Dimensions) Grid {
+func Image_To_Ascii(img image.Image, size Dimensions, invert bool) (Grid, ImageBitmap) {
 	resized := Scale_Down(img, size)
-	buf := Floyd_Steinberg(resized)
-	return Image_To_Grid(buf, size)
+	bitmap := Floyd_Steinberg(resized)
+	if invert {
+		bitmap.Invert()
+	}
+	return Image_To_Grid(bitmap, size), bitmap
 }
 
 func Scale_Down(src image.Image, canvas Dimensions) image.Image {
@@ -31,8 +34,8 @@ func Image_To_Grid(bitmap ImageBitmap, canvas Dimensions) Grid {
 	m := map[Coords]byte{}
 	grid := make(Grid, canvas.Height)
 
-	for y := range bitmap.height {
-		for x := range bitmap.width {
+	for y := range bitmap.Height {
+		for x := range bitmap.Width {
 			coords := Coords{
 				X: x / 2,
 				Y: y / 4,
@@ -43,7 +46,7 @@ func Image_To_Grid(bitmap ImageBitmap, canvas Dimensions) Grid {
 			}]
 			idx := bitmap.idx(x, y)
 			n := bitmap.bit(x, y)
-			b := bitmap.buf[idx] >> n & 1
+			b := bitmap.Buf[idx] >> n & 1
 
 			if b == 1 {
 				m[coords] |= 1 << bit

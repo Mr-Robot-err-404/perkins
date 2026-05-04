@@ -17,16 +17,22 @@ var Neighbors = map[Coords]float64{
 }
 
 type ImageBitmap struct {
-	buf    []uint64
-	width  int
-	height int
+	Buf    []uint64
+	Width  int
+	Height int
 }
 
 func (bitmap *ImageBitmap) idx(x, y int) int {
-	return ((y * bitmap.width) + x) / 64
+	return ((y * bitmap.Width) + x) / 64
 }
 func (bitmap *ImageBitmap) bit(x, y int) int {
-	return ((y * bitmap.width) + x) % 64
+	return ((y * bitmap.Width) + x) % 64
+}
+
+func (bitmap *ImageBitmap) Invert() {
+	for idx := range bitmap.Buf {
+		bitmap.Buf[idx] = ^bitmap.Buf[idx]
+	}
 }
 
 func Floyd_Steinberg(img image.Image) ImageBitmap {
@@ -34,9 +40,9 @@ func Floyd_Steinberg(img image.Image) ImageBitmap {
 
 	size := (len(buf)*len(buf[0]) + 63) / 64
 	bitmap := ImageBitmap{
-		buf:    make([]uint64, size),
-		width:  len(buf[0]),
-		height: len(buf),
+		Buf:    make([]uint64, size),
+		Width:  len(buf[0]),
+		Height: len(buf),
 	}
 	visited := map[Coords]bool{}
 	bounds := img.Bounds()
@@ -52,7 +58,7 @@ func Floyd_Steinberg(img image.Image) ImageBitmap {
 
 			if buf[y][x] == 0 {
 				idx := bitmap.idx(x, y)
-				bitmap.buf[idx] |= 1 << bitmap.bit(x, y)
+				bitmap.Buf[idx] |= 1 << bitmap.bit(x, y)
 			}
 		}
 	}
