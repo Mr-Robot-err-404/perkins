@@ -1,10 +1,13 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
+-> invert colors
+-> adjust window on scaling tui
 -> help menu
 -> extend color palette to multiple pages
 -> themes
 -> status bar updates
+-> support different image types
 
 --------------------------------------------
 TUI quality of life

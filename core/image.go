@@ -27,12 +27,12 @@ func Scale_Down(src image.Image, canvas Dimensions) image.Image {
 	return img
 }
 
-func Image_To_Grid(buf [][]bool, canvas Dimensions) Grid {
+func Image_To_Grid(bitmap ImageBitmap, canvas Dimensions) Grid {
 	m := map[Coords]byte{}
 	grid := make(Grid, canvas.Height)
 
-	for y := range buf {
-		for x := range buf[y] {
+	for y := range bitmap.height {
+		for x := range bitmap.width {
 			coords := Coords{
 				X: x / 2,
 				Y: y / 4,
@@ -41,7 +41,11 @@ func Image_To_Grid(buf [][]bool, canvas Dimensions) Grid {
 				X: x % 2,
 				Y: y % 4,
 			}]
-			if buf[y][x] {
+			idx := bitmap.idx(x, y)
+			n := bitmap.bit(x, y)
+			b := bitmap.buf[idx] >> n & 1
+
+			if b == 1 {
 				m[coords] |= 1 << bit
 			}
 		}

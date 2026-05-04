@@ -16,16 +16,32 @@ var Neighbors = map[Coords]float64{
 	{X: -1, Y: 1}: 3.0 / 16.0,
 }
 
-func Floyd_Steinberg(img image.Image) [][]bool {
-	buf := image_to_buffer(img)
-	dithered := make([][]bool, len(buf))
+type ImageBitmap struct {
+	buf    []uint64
+	width  int
+	height int
+}
 
+func (bitmap *ImageBitmap) idx(x, y int) int {
+	return ((y * bitmap.width) + x) / 64
+}
+func (bitmap *ImageBitmap) bit(x, y int) int {
+	return ((y * bitmap.width) + x) % 64
+}
+
+func Floyd_Steinberg(img image.Image) ImageBitmap {
+	buf := image_to_buffer(img)
+
+	size := (len(buf)*len(buf[0]) + 63) / 64
+	bitmap := ImageBitmap{
+		buf:    make([]uint64, size),
+		width:  len(buf[0]),
+		height: len(buf),
+	}
 	visited := map[Coords]bool{}
 	bounds := img.Bounds()
 
 	for y := range bounds.Max.Y {
-		dithered[y] = make([]bool, bounds.Max.X)
-
 		for x := range bounds.Max.X {
 			coords := Coords{X: x, Y: y}
 			visited[coords] = true
@@ -35,11 +51,12 @@ func Floyd_Steinberg(img image.Image) [][]bool {
 			diffuse(coords, buf, visited, diff, bounds)
 
 			if buf[y][x] == 0 {
-				dithered[y][x] = true
+				idx := bitmap.idx(x, y)
+				bitmap.buf[idx] |= 1 << bitmap.bit(x, y)
 			}
 		}
 	}
-	return dithered
+	return bitmap
 }
 
 func Buffer_to_image(buf [][]float64) image.Image {
