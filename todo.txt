@@ -1,12 +1,13 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> adjust window on scaling tui
+-> mouse remapping to window
 -> help menu
 -> extend color palette to multiple pages
 -> themes
 -> status bar updates
 -> support different image types
+-> vhs demo
 
 --------------------------------------------
 TUI quality of life
