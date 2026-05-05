@@ -154,21 +154,21 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			colors := m.palette.get_color_palette()
 			return m, ApplyColor(m.palette.Layer, get_color(*pos, colors))
 
-		case "1":
+		case "ctrl+1":
 			return m, FlipBit(0)
-		case "2":
+		case "ctrl+2":
 			return m, FlipBit(1)
-		case "3":
+		case "ctrl+3":
 			return m, FlipBit(2)
-		case "4":
+		case "ctrl+4":
 			return m, FlipBit(6)
-		case "5":
+		case "ctrl+5":
 			return m, FlipBit(3)
-		case "6":
+		case "ctrl+6":
 			return m, FlipBit(4)
-		case "7":
+		case "ctrl+7":
 			return m, FlipBit(5)
-		case "8":
+		case "ctrl+8":
 			return m, FlipBit(7)
 
 		case "x":

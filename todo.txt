@@ -11,7 +11,5 @@ David Abraham would approve
 --------------------------------------------
 TUI quality of life
 --------------------------------------------
--> jump height set to half canvas height
--> number jumps
--> vim niceties :: w, yank
 -> theme selector
+-> cell oopsie in palette

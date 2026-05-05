@@ -29,6 +29,12 @@ func offset(viewport int, size int) int {
 	return n
 }
 
+func (m Model) consume() int {
+	n := max(1, *m.n)
+	*m.n = 0
+	return n
+}
+
 func (m Model) toggle_mode(mode int) int {
 	if mode == m.Mode {
 		return NORMAL_MODE

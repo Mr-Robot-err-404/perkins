@@ -27,6 +27,7 @@ type Model struct {
 	message     *string
 	mirror      *Mirror
 	v_mirror    *Mirror
+	n           *int
 	save_modal  component.Modal
 }
 type Harpoon struct {
@@ -100,6 +101,7 @@ func New(width, height int, grid core.Grid, selected core.Selected, file_path st
 		cmd:         new([]rune),
 		message:     new(string),
 		mirror:      new(Mirror),
+		n:           new(int),
 		Window:      &window,
 		Cursor:      &midpoint,
 		save_modal:  component.NewModal(SaveConfig, file_path),
@@ -216,34 +218,58 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		case REDO:
 			return m, emit(RedoMsg{})
 
+		case "1", "2", "3", "4", "5", "6", "7", "8", "9", "0":
+			d := int(msg.Runes[0] - '0')
+			*m.n *= 10
+			*m.n += d
+			return m, nil
+
 		case VIM_LEFT:
-			m.update_cursor(core.Pos{Row: m.Cursor.Row, Col: max(0, m.Cursor.Col-1)})
+			n := m.consume()
+			m.update_cursor(core.Pos{Row: m.Cursor.Row, Col: max(0, m.Cursor.Col-n)})
 		case VIM_RIGHT:
+			n := m.consume()
 			m.update_cursor(core.Pos{
 				Row: m.Cursor.Row,
-				Col: min(len(m.Grid[m.Cursor.Row])-1, m.Cursor.Col+1),
+				Col: min(len(m.Grid[m.Cursor.Row])-1, m.Cursor.Col+n),
 			})
 		case VIM_UP:
+			n := m.consume()
 			m.update_cursor(core.Pos{
 				Col: m.Cursor.Col,
-				Row: max(0, m.Cursor.Row-1),
+				Row: max(0, m.Cursor.Row-n),
 			})
 		case VIM_DOWN:
+			n := m.consume()
 			m.update_cursor(core.Pos{
 				Col: m.Cursor.Col,
-				Row: min(len(m.Grid)-1, m.Cursor.Row+1),
+				Row: min(len(m.Grid)-1, m.Cursor.Row+n),
 			})
 
 		case JUMP_DOWN:
 			m.update_cursor(core.Pos{
 				Col: m.Cursor.Col,
-				Row: len(m.Grid) - 1,
+				Row: min(len(m.Grid)-1, m.Cursor.Row+10),
 			})
 		case JUMP_UP:
 			m.update_cursor(core.Pos{
 				Col: m.Cursor.Col,
-				Row: 0,
+				Row: max(0, m.Cursor.Row-10),
 			})
+
+		case "w":
+			n := m.consume() * 10
+			m.update_cursor(core.Pos{
+				Row: m.Cursor.Row,
+				Col: min(len(m.Grid[0])-1, m.Cursor.Col+n),
+			})
+		case "b":
+			n := m.consume() * 10
+			m.update_cursor(core.Pos{
+				Col: max(0, m.Cursor.Col-n),
+				Row: m.Cursor.Row,
+			})
+
 		case CENTER:
 			m.update_cursor(core.Find_Center(m.Grid))
 
