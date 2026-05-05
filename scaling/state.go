@@ -31,8 +31,7 @@ func amplify(n int, factor float64) int {
 	return int(float64(n) * factor)
 }
 
-func window(grid core.Grid, dm core.Dimensions, window core.Window) core.Grid {
-
+func window(grid core.Grid, window core.Window) core.Grid {
 	m := make(core.Grid, window.End.Row-window.Start.Row)
 
 	for row := window.Start.Row; row < window.End.Row; row++ {

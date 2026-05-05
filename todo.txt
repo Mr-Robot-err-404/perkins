@@ -1,6 +1,7 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
+-> scaling collapse when zooming in too far
 -> mouse remapping to window
 -> help menu
 -> extend color palette to multiple pages
@@ -8,6 +9,7 @@ David Abraham would approve
 -> status bar updates
 -> support different image types
 -> vhs demo
+-> polish colors in final ascii file
 
 --------------------------------------------
 TUI quality of life

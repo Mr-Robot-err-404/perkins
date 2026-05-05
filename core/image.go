@@ -4,13 +4,20 @@ import (
 	"image"
 )
 
-func Image_To_Ascii(img image.Image, size Dimensions, invert bool) (Grid, ImageBitmap) {
-	resized := Scale_Down(img, size)
-	bitmap := Floyd_Steinberg(resized)
-	if invert {
+type AsciiParams struct {
+	Img       image.Image
+	Size      Dimensions
+	Invert    bool
+	Algorithm int
+}
+
+func Image_To_Ascii(params AsciiParams) (Grid, ImageBitmap) {
+	resized := Scale_Down(params.Img, params.Size)
+	bitmap := Dithering(resized, params.Algorithm)
+	if params.Invert {
 		bitmap.Invert()
 	}
-	return Image_To_Grid(bitmap, size), bitmap
+	return Image_To_Grid(bitmap, params.Size), bitmap
 }
 
 func Scale_Down(src image.Image, canvas Dimensions) image.Image {

@@ -14,31 +14,36 @@ import (
 )
 
 type Model struct {
-	width    int
-	height   int
-	mode     int
-	grid     core.Grid
-	base     core.Dimensions
-	window   *core.Window
-	bitmap   *core.ImageBitmap
-	factor   float64
-	img      image.Image
-	cmd      []rune
-	ch       chan<- core.Grid
-	inverted bool
+	width     int
+	height    int
+	mode      int
+	grid      core.Grid
+	base      core.Dimensions
+	window    *core.Window
+	bitmap    *core.ImageBitmap
+	factor    float64
+	img       image.Image
+	cmd       []rune
+	ch        chan<- core.Grid
+	inverted  bool
+	algorithm int
 }
 
+const NotifyWidth int = 20
+
 func New(img image.Image, size core.Dimensions, ch chan<- core.Grid) Model {
-	grid, bitmap := core.Image_To_Ascii(img, size, false)
+	algorithm := core.FLOYD_STEINBERG_ALGO
+	grid, bitmap := core.Image_To_Ascii(core.AsciiParams{Img: img, Size: size, Algorithm: algorithm})
 
 	return Model{
-		grid:   grid,
-		bitmap: &bitmap,
-		base:   size,
-		img:    img,
-		factor: 1.0,
-		ch:     ch,
-		window: new(core.Window),
+		grid:      grid,
+		bitmap:    &bitmap,
+		base:      size,
+		img:       img,
+		factor:    1.0,
+		ch:        ch,
+		algorithm: algorithm,
+		window:    new(core.Window),
 	}
 }
 
@@ -90,15 +95,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "+":
 			size, factor := zoom_in(m.base, m.factor, m.img.Bounds())
-			m.grid, *m.bitmap = core.Image_To_Ascii(m.img, size, m.inverted)
+			m.grid, *m.bitmap = core.Image_To_Ascii(core.AsciiParams{Img: m.img, Size: size, Invert: m.inverted, Algorithm: m.algorithm})
 			m.factor = factor
 			m.reset_window(m.grid)
 
 		case "-", "_":
 			size, factor := zoom_out(m.base, m.factor)
-			m.grid, *m.bitmap = core.Image_To_Ascii(m.img, size, m.inverted)
+			m.grid, *m.bitmap = core.Image_To_Ascii(core.AsciiParams{Img: m.img, Size: size, Invert: m.inverted, Algorithm: m.algorithm})
 			m.factor = factor
 			m.reset_window(m.grid)
+
+		case "a":
+			scale := core.Dimensions{
+				Width:  amplify(m.base.Width, m.factor),
+				Height: amplify(m.base.Height, m.factor),
+			}
+			m.algorithm = (m.algorithm + 1) % 5
+			m.grid, *m.bitmap = core.Image_To_Ascii(core.AsciiParams{Img: m.img, Size: scale, Invert: m.inverted, Algorithm: m.algorithm})
 
 		case "i":
 			m.inverted = !m.inverted
@@ -158,7 +171,7 @@ func (m Model) View() string {
 		Width: m.width,
 		Cmd:   string(m.cmd),
 	})
-	grid := window(m.grid, core.Dimensions{Width: m.width, Height: m.height - 1}, *m.window)
+	grid := window(m.grid, *m.window)
 	ascii := canvas.Grid_To_Canvas(grid, core.Selected{}, core.Pos{Row: -1, Col: -1}, false)
 
 	content := lipgloss.NewStyle().
@@ -168,26 +181,40 @@ func (m Model) View() string {
 		AlignHorizontal(lipgloss.Center).
 		AlignVertical(lipgloss.Center).
 		Render(ascii)
+
 	screen := lipgloss.JoinVertical(lipgloss.Left, content, indicator)
-	overlay, err := component.Overlay(screen, menu(), 1, 2, true)
+	col := m.width - NotifyWidth - 1
+	overlay, err := component.Overlay(screen, menu(), 1, col, true)
 
 	if err != nil {
 		debug.Logf("overlay failed: %s", err.Error())
 		return screen
 	}
-	return overlay
+	result, err := component.Overlay(
+		overlay,
+		component.Notification(core.Algorithm_label(m.algorithm), NotifyWidth, 3, theme.RoninYellow, theme.SumiInk0),
+		9,
+		col,
+		true,
+	)
+	if err != nil {
+		debug.Logf("overlay failed: %s", err.Error())
+		return overlay
+	}
+	return result
 }
 
 func menu() string {
 	list := lipgloss.JoinVertical(lipgloss.Left,
 		info("enter", "continue", 2, 0),
+		info(":q", "quit", 5, 4),
 		info("+", "zoom in", 6, 1),
 		info("-", "zoom out", 6, 0),
-		info("i", "invert", 6, 2),
 		info("j/k", "up/down", 4, 1),
-		info(":q", "quit", 5, 4),
+		info("i", "invert", 6, 2),
+		info("a", "algorithm", 6, 0),
 	)
-	return component.Notification(list, 20, 8, theme.WaveBlue, theme.SumiInk0)
+	return component.Notification(list, NotifyWidth, 8, theme.WaveBlue, theme.SumiInk0)
 }
 
 func info(key string, value string, space int, pad int) string {

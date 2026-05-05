@@ -9,11 +9,64 @@ import (
 
 const Threshold float64 = 128
 
-var Neighbors = map[Coords]float64{
+const (
+	FLOYD_STEINBERG_ALGO int = iota
+	STUCKI_ALGO
+	ATKINSON_ALGO
+	SIERRA3_ALGO
+	BURKES_ALGO
+)
+
+var SteinbergNeighbors = map[Coords]float64{
 	{X: 1, Y: 0}:  7.0 / 16.0,
 	{X: 1, Y: 1}:  1.0 / 16.0,
 	{X: 0, Y: 1}:  5.0 / 16.0,
 	{X: -1, Y: 1}: 3.0 / 16.0,
+}
+
+var BurkesNeighbors = map[Coords]float64{
+	{X: 1, Y: 0}:  8.0 / 32,
+	{X: 2, Y: 0}:  4.0 / 32,
+	{X: -2, Y: 1}: 2.0 / 32,
+	{X: -1, Y: 1}: 4.0 / 32,
+	{X: 0, Y: 1}:  8.0 / 32,
+	{X: 1, Y: 1}:  4.0 / 32,
+	{X: 2, Y: 1}:  2.0 / 32,
+}
+
+var StuckiNeighbors = map[Coords]float64{
+	{X: 1, Y: 0}:  8.0 / 42.0,
+	{X: 2, Y: 0}:  4.0 / 42.0,
+	{X: -2, Y: 1}: 2.0 / 42.0,
+	{X: -1, Y: 1}: 4.0 / 42.0,
+	{X: 0, Y: 1}:  8.0 / 42.0,
+	{X: 1, Y: 1}:  4.0 / 42.0,
+	{X: 2, Y: 1}:  2.0 / 42.0,
+	{X: -2, Y: 2}: 1.0 / 42.0,
+	{X: -1, Y: 2}: 2.0 / 42.0,
+	{X: 0, Y: 2}:  4.0 / 42.0,
+	{X: 1, Y: 2}:  2.0 / 42.0,
+	{X: 2, Y: 2}:  1.0 / 42.0,
+}
+var AtkinsonNeighbors = map[Coords]float64{
+	{X: 1, Y: 0}:  1.0 / 8.0,
+	{X: 2, Y: 0}:  1.0 / 8.0,
+	{X: -1, Y: 1}: 1.0 / 8.0,
+	{X: 0, Y: 1}:  1.0 / 8.0,
+	{X: 1, Y: 1}:  1.0 / 8.0,
+	{X: 0, Y: 2}:  1.0 / 8.0,
+}
+var Sierra3Neighbors = map[Coords]float64{
+	{X: 1, Y: 0}:  5.0 / 32,
+	{X: 2, Y: 0}:  3.0 / 32,
+	{X: -2, Y: 1}: 2.0 / 32,
+	{X: -1, Y: 1}: 4.0 / 32,
+	{X: 0, Y: 1}:  5.0 / 32,
+	{X: 1, Y: 1}:  4.0 / 32,
+	{X: 2, Y: 1}:  2.0 / 32,
+	{X: -1, Y: 2}: 2.0 / 32,
+	{X: 0, Y: 2}:  3.0 / 32,
+	{X: 1, Y: 2}:  2.0 / 32,
 }
 
 type ImageBitmap struct {
@@ -35,7 +88,7 @@ func (bitmap *ImageBitmap) Invert() {
 	}
 }
 
-func Floyd_Steinberg(img image.Image) ImageBitmap {
+func Dithering(img image.Image, algorithm int) ImageBitmap {
 	buf := image_to_buffer(img)
 
 	size := (len(buf)*len(buf[0]) + 63) / 64
@@ -54,7 +107,7 @@ func Floyd_Steinberg(img image.Image) ImageBitmap {
 
 			q, diff := quantize(buf, coords)
 			buf[y][x] = q
-			diffuse(coords, buf, visited, diff, bounds)
+			diffuse(coords, buf, visited, diff, bounds, algorithm)
 
 			if buf[y][x] == 0 {
 				idx := bitmap.idx(x, y)
@@ -87,12 +140,40 @@ func SaveJPG(img image.Image, path string) error {
 	return jpeg.Encode(f, img, &jpeg.Options{Quality: 100})
 }
 
-func Dither_Ye_NOT(img image.Image) [][]float64 {
-	return image_to_buffer(img)
+func derive_neighbors(algorithm int) map[Coords]float64 {
+	switch algorithm {
+	case STUCKI_ALGO:
+		return StuckiNeighbors
+	case ATKINSON_ALGO:
+		return AtkinsonNeighbors
+	case SIERRA3_ALGO:
+		return Sierra3Neighbors
+	case BURKES_ALGO:
+		return BurkesNeighbors
+	default:
+		return SteinbergNeighbors
+	}
 }
 
-func diffuse(current Coords, buf [][]float64, visited map[Coords]bool, diff float64, bounds image.Rectangle) {
-	for next, multiplier := range Neighbors {
+func Algorithm_label(algorithm int) string {
+	switch algorithm {
+	case STUCKI_ALGO:
+		return "Stucki"
+	case ATKINSON_ALGO:
+		return "Atkinson"
+	case SIERRA3_ALGO:
+		return "Sierra3"
+	case BURKES_ALGO:
+		return "Burkes"
+	default:
+		return "Floyd-Steinberg"
+	}
+}
+
+func diffuse(current Coords, buf [][]float64, visited map[Coords]bool, diff float64, bounds image.Rectangle, algorithm int) {
+	neighbors := derive_neighbors(algorithm)
+
+	for next, multiplier := range neighbors {
 		neighbor := Coords{
 			X: current.X + next.X,
 			Y: current.Y + next.Y,
