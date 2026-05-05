@@ -2,7 +2,6 @@
 David Abraham would approve
 --------------------------------------------
 -> scaling collapse when zooming in too far
--> mouse remapping to window
 -> help menu
 -> extend color palette to multiple pages
 -> themes
@@ -18,4 +17,3 @@ TUI quality of life
 -> number jumps
 -> vim niceties :: w, yank
 -> theme selector
--> off-by-one mouse offset

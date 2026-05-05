@@ -151,7 +151,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		return m, flush()
 
 	case tea.MouseMsg:
-		pos, ok := m.mouse_to_grid(msg.X, msg.Y)
+		pos, ok := m.mouse_to_grid(msg.X, msg.Y, *m.Window)
 		if !ok {
 			return m, nil
 		}
@@ -352,15 +352,12 @@ func (m Model) View() string {
 		Mirror:  m.mirror.enabled,
 		Axis:    m.mirror.axis,
 	})
-	grid_h := len(m.Grid)
-	top_pad := (m.height - 1 - grid_h) / 2
-
 	centered := lipgloss.NewStyle().
 		Width(m.width).
 		Height(m.height - 1).
 		Background(theme.SumiInk1).
-		PaddingTop(top_pad).
 		AlignHorizontal(lipgloss.Center).
+		AlignVertical(lipgloss.Center).
 		Render(ascii)
 
 	modals := []ComponentModal{m.save_modal}
