@@ -64,4 +64,4 @@ const (
 	LotusPink  = "48;2;215;152;166"
 )
 
-var Themes = []Palette{Kanagawa}
+var Themes = []Palette{Kanagawa, Gruvbox, TokyoNight, Nordic, RosePine}

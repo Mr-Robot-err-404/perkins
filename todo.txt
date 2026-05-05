@@ -1,9 +1,8 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
+-> theme selector
 -> help menu
--> extend color palette to multiple pages
--> themes
 -> status bar updates
 -> vhs demo
 -> polish colors in final ascii file
@@ -11,5 +10,4 @@ David Abraham would approve
 --------------------------------------------
 TUI quality of life
 --------------------------------------------
--> theme selector
 -> cell oopsie in palette
