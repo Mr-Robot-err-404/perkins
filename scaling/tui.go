@@ -99,11 +99,27 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.factor = factor
 			m.reset_window(m.grid)
 
+			debug.Logf("scaling: terminal=%dx%d | grid=%dx%d | img=%dx%d | window=(%d,%d)->(%d,%d)",
+				m.width, m.height,
+				len(m.grid[0]), len(m.grid),
+				m.img.Bounds().Max.X, m.img.Bounds().Max.Y,
+				m.window.Start.Col, m.window.Start.Row,
+				m.window.End.Col, m.window.End.Row,
+			)
+
 		case "-", "_":
 			size, factor := zoom_out(m.base, m.factor)
 			m.grid, *m.bitmap = core.Image_To_Ascii(core.AsciiParams{Img: m.img, Size: size, Invert: m.inverted, Algorithm: m.algorithm})
 			m.factor = factor
 			m.reset_window(m.grid)
+
+			debug.Logf("scaling: terminal=%dx%d | grid=%dx%d | img=%dx%d | window=(%d,%d)->(%d,%d)",
+				m.width, m.height,
+				len(m.grid[0]), len(m.grid),
+				m.img.Bounds().Max.X, m.img.Bounds().Max.Y,
+				m.window.Start.Col, m.window.Start.Row,
+				m.window.End.Col, m.window.End.Row,
+			)
 
 		case "a":
 			scale := core.Dimensions{

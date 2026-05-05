@@ -25,12 +25,12 @@ func Scale_Down(src image.Image, canvas Dimensions) image.Image {
 	bounds := image.Rectangle{Min: image.Pt(0, 0), Max: image.Pt(dm.Width, dm.Height)}
 	img := image.NewRGBA(bounds)
 
-	dx := src.Bounds().Max.X / bounds.Max.X
-	dy := src.Bounds().Max.Y / bounds.Max.Y
+	dx := float64(src.Bounds().Max.X) / float64(bounds.Max.X)
+	dy := float64(src.Bounds().Max.Y) / float64(bounds.Max.Y)
 
 	for x := range dm.Width {
 		for y := range dm.Height {
-			color := src.At(x*dx, y*dy)
+			color := src.At(int(float64(x)*dx), int(float64(y)*dy))
 			img.Set(x, y, color)
 		}
 	}

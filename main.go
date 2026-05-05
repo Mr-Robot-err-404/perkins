@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image"
+	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"github.com/Mr-Robot-err-404/perkins/debug"
 	"github.com/Mr-Robot-err-404/perkins/scaling"
 	tea "github.com/charmbracelet/bubbletea"
+	_ "golang.org/x/image/webp"
 )
 
 func main() {

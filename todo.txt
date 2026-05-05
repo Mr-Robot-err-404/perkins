@@ -1,12 +1,10 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> scaling collapse when zooming in too far
 -> help menu
 -> extend color palette to multiple pages
 -> themes
 -> status bar updates
--> support different image types
 -> vhs demo
 -> polish colors in final ascii file
 
