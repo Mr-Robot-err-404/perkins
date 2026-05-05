@@ -1,6 +1,7 @@
 package panel
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/Mr-Robot-err-404/perkins/component"
@@ -31,16 +32,34 @@ var pos_to_idx = map[core.Pos]int{
 	{Row: 3, Col: 1}: 7,
 }
 
-func get_color(pos core.Pos, colors [8]theme.Color) theme.Color {
+func get_color(pos core.Pos, colors []theme.Color) theme.Color {
 	idx := pos_to_idx[pos]
+	if idx >= len(colors) {
+		return theme.Color{}
+	}
 	return colors[idx]
 }
 
-func (p *Palette) get_color_palette() [8]theme.Color {
+func (p *Palette) get_color_palette() []theme.Color {
+	t := theme.Themes[p.theme_idx]
 	if p.Layer == FOREGROUND_LAYER {
-		return theme.Kanagawa.Foreground
+		return t.ForegroundPage(p.page)
 	}
-	return theme.Kanagawa.Background
+	return t.BackgroundPage(p.page)
+}
+
+func (p *Palette) next_page() {
+	t := theme.Themes[p.theme_idx]
+	pages := t.ForegroundPages()
+
+	if p.Layer == BACKGROUND_LAYER {
+		pages = t.BackgroundPages()
+	}
+	p.page = min(p.page+1, pages-1)
+}
+
+func (p *Palette) prev_page() {
+	p.page = max(p.page-1, 0)
 }
 
 func divider_cell(s *strings.Builder, r rune) {
@@ -112,6 +131,13 @@ func (p *Palette) x_gap(idx int, selected int, column int) string {
 	return style.Render(s.String())
 }
 
+func (p *Palette) get_pages(t theme.Palette) int {
+	if p.Layer == BACKGROUND_LAYER {
+		return t.BackgroundPages()
+	}
+	return t.ForegroundPages()
+}
+
 func x_gap_rune(idx int, selected int, column int) rune {
 	r := ' '
 	if column == 0 && selected == 4 {
@@ -140,17 +166,45 @@ func layer_state(layer int) string {
 	return component.Notification("Background", PALETTE_WIDTH, 3, theme.WaveBlue, theme.SumiInk1)
 }
 
-func (p *Palette) column(offset int, color [8]theme.Color, selected int, column int) []string {
+func (p *Palette) column(offset int, color []theme.Color, selected int, column int) []string {
 	items := []string{}
 
 	for i := offset; i < 4+offset; i++ {
-		items = append(items,
-			p.x_gap(i, selected, column),
-			square().Background(color[i].Display).Render(),
-		)
+		items = append(items, p.x_gap(i, selected, column))
+
+		if i >= len(color) {
+			items = append(items, square().Render())
+			continue
+		}
+		items = append(items, square().Background(color[i].Display).Render())
 	}
 	items = append(items, p.x_gap(offset+4, selected, column))
 	return items
+}
+
+func (p *Palette) page_indicator() string {
+	t := theme.Themes[p.theme_idx]
+	pages := p.get_pages(t)
+
+	fg := p.get_highlight()
+	base := lipgloss.NewStyle().Background(theme.SumiInk3).Foreground(theme.FujiGray)
+	active := lipgloss.NewStyle().Background(theme.SumiInk3).Foreground(fg).Bold(true)
+
+	prev := active.Render("<")
+	if p.page == 0 {
+		prev = base.Render("<")
+	}
+	next := active.Render(">")
+	if p.page >= pages-1 {
+		next = base.Render(">")
+	}
+	num := active.PaddingLeft(1).PaddingRight(1).Render(fmt.Sprintf("%d", p.page+1))
+
+	return lipgloss.NewStyle().
+		Width(PALETTE_WIDTH).
+		Background(theme.SumiInk3).
+		AlignHorizontal(lipgloss.Center).
+		Render(lipgloss.JoinHorizontal(lipgloss.Bottom, prev, num, next))
 }
 
 func (p *Palette) render_palette() string {
@@ -169,5 +223,5 @@ func (p *Palette) render_palette() string {
 		right,
 		p.right_divider(selected, 4),
 	)
-	return lipgloss.JoinVertical(lipgloss.Left, layer_state(p.Layer), content)
+	return lipgloss.JoinVertical(lipgloss.Left, layer_state(p.Layer), content, p.page_indicator())
 }

@@ -19,9 +19,11 @@ type Model struct {
 	last_flip core.Pos
 }
 type Palette struct {
-	Layer  int
-	fg_pos *core.Pos
-	bg_pos *core.Pos
+	Layer     int
+	page      int
+	theme_idx int
+	fg_pos    *core.Pos
+	bg_pos    *core.Pos
 }
 type Dimensions struct {
 	Width  int
@@ -145,6 +147,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		case PALETTE_LEFT:
 			pos := m.palette.get_palette_pos()
 			pos.Col = dec(pos.Col, 0)
+
+		case ">":
+			m.palette.next_page()
+		case "<":
+			m.palette.prev_page()
 
 		case SWITCH_LAYER:
 			m.palette.Layer = m.toggle_layer()
