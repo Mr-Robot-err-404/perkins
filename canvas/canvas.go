@@ -271,6 +271,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			})
 
 		case CENTER:
+			midpoint := core.Find_Center(m.Grid)
+			*m.Window = core.Get_Window(core.Dimensions{Width: m.width, Height: m.height - 1}, m.Grid, midpoint)
 			m.update_cursor(core.Find_Center(m.Grid))
 
 		case "G":
