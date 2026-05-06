@@ -135,6 +135,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.window.Start.Row++
 			m.window.End.Row = min(len(m.grid), m.window.End.Row+1)
 
+		case "l", "right":
+			if m.window.End.Col == len(m.grid[0]) {
+				return m, nil
+			}
+			m.window.Start.Col++
+			m.window.End.Col = min(len(m.grid[0]), m.window.End.Col+1)
+		case "h", "left":
+			if m.window.Start.Col == 0 {
+				return m, nil
+			}
+			m.window.Start.Col = max(0, m.window.Start.Col-1)
+			m.window.End.Col--
+
 		case "ctrl+u":
 			if m.window.Start.Row == 0 {
 				return m, nil

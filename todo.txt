@@ -1,7 +1,6 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> make image resizing and dithering blazingly fast
 -> theme selector
 -> help menu
 -> status bar updates
