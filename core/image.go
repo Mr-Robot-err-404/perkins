@@ -2,6 +2,9 @@ package core
 
 import (
 	"image"
+	"time"
+
+	"github.com/Mr-Robot-err-404/perkins/debug"
 )
 
 type AsciiParams struct {
@@ -12,8 +15,17 @@ type AsciiParams struct {
 }
 
 func Image_To_Ascii(params AsciiParams) (Grid, ImageBitmap) {
+	b := params.Img.Bounds()
+	debug.Logf("[debug] image size: %dx%d", b.Max.X, b.Max.Y)
+
+	t0 := time.Now()
 	resized := Scale_Down(params.Img, params.Size)
+	debug.Logf("[perf] resize: %s", time.Since(t0))
+
+	t1 := time.Now()
 	bitmap := Dithering(resized, params.Algorithm)
+	debug.Logf("[perf] dithering: %s", time.Since(t1))
+
 	if params.Invert {
 		bitmap.Invert()
 	}

@@ -97,17 +97,15 @@ func Dithering(img image.Image, algorithm int) ImageBitmap {
 		Width:  len(buf[0]),
 		Height: len(buf),
 	}
-	visited := map[Coords]bool{}
 	bounds := img.Bounds()
 
 	for y := range bounds.Max.Y {
 		for x := range bounds.Max.X {
 			coords := Coords{X: x, Y: y}
-			visited[coords] = true
 
 			q, diff := quantize(buf, coords)
 			buf[y][x] = q
-			diffuse(coords, buf, visited, diff, bounds, algorithm)
+			diffuse(coords, buf, diff, bounds, algorithm)
 
 			if buf[y][x] == 0 {
 				idx := bitmap.idx(x, y)
@@ -170,7 +168,7 @@ func Algorithm_label(algorithm int) string {
 	}
 }
 
-func diffuse(current Coords, buf [][]float64, visited map[Coords]bool, diff float64, bounds image.Rectangle, algorithm int) {
+func diffuse(current Coords, buf [][]float64, diff float64, bounds image.Rectangle, algorithm int) {
 	neighbors := derive_neighbors(algorithm)
 
 	for next, multiplier := range neighbors {
@@ -179,10 +177,6 @@ func diffuse(current Coords, buf [][]float64, visited map[Coords]bool, diff floa
 			Y: current.Y + next.Y,
 		}
 		if out_of_image_bounds(bounds, neighbor.X, neighbor.Y) {
-			continue
-		}
-		_, seen := visited[neighbor]
-		if seen {
 			continue
 		}
 		n := diff * multiplier
