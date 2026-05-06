@@ -99,7 +99,7 @@ func main() {
 		if err != nil {
 			panic(err.Error())
 		}
-		target := core.Scale_Down(img, core.Dimensions{Width: 102, Height: 51})
+		target := core.BlazinglyFastResize(img, core.Dimensions{Width: 102, Height: 51})
 
 		err = core.SaveJPG(target, "resized.jpg")
 		if err != nil {

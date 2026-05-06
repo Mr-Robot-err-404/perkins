@@ -2,9 +2,7 @@ package core
 
 import (
 	"image"
-	"time"
-
-	"github.com/Mr-Robot-err-404/perkins/debug"
+	"sync"
 )
 
 type AsciiParams struct {
@@ -14,17 +12,11 @@ type AsciiParams struct {
 	Algorithm int
 }
 
+const ChunkSize int = 10000
+
 func Image_To_Ascii(params AsciiParams) (Grid, ImageBitmap) {
-	b := params.Img.Bounds()
-	debug.Logf("[debug] image size: %dx%d", b.Max.X, b.Max.Y)
-
-	t0 := time.Now()
-	resized := Scale_Down(params.Img, params.Size)
-	debug.Logf("[perf] resize: %s", time.Since(t0))
-
-	t1 := time.Now()
+	resized := BlazinglyFastResize(params.Img, params.Size)
 	bitmap := Dithering(resized, params.Algorithm)
-	debug.Logf("[perf] dithering: %s", time.Since(t1))
 
 	if params.Invert {
 		bitmap.Invert()
@@ -32,7 +24,7 @@ func Image_To_Ascii(params AsciiParams) (Grid, ImageBitmap) {
 	return Image_To_Grid(bitmap, params.Size), bitmap
 }
 
-func Scale_Down(src image.Image, canvas Dimensions) image.Image {
+func BlazinglyFastResize(src image.Image, canvas Dimensions) image.Image {
 	dm := Dimensions{Width: canvas.Width * 2, Height: canvas.Height * 4}
 	bounds := image.Rectangle{Min: image.Pt(0, 0), Max: image.Pt(dm.Width, dm.Height)}
 	img := image.NewRGBA(bounds)
@@ -40,13 +32,29 @@ func Scale_Down(src image.Image, canvas Dimensions) image.Image {
 	dx := float64(src.Bounds().Max.X) / float64(bounds.Max.X)
 	dy := float64(src.Bounds().Max.Y) / float64(bounds.Max.Y)
 
-	for x := range dm.Width {
-		for y := range dm.Height {
-			color := src.At(int(float64(x)*dx), int(float64(y)*dy))
-			img.Set(x, y, color)
-		}
+	size := dm.Width * dm.Height
+	n := size / ChunkSize
+
+	var wg sync.WaitGroup
+	for chunk := range n {
+		wg.Add(1)
+		go resize(src, img, chunk, dm.Width, size, dx, dy, &wg)
 	}
+	wg.Wait()
 	return img
+}
+
+func resize(src image.Image, img *image.RGBA, chunk int, width int, size int, dx float64, dy float64, wg *sync.WaitGroup) {
+	defer wg.Done()
+	start := chunk * ChunkSize
+	end := start + ChunkSize
+
+	for i := start; i < size && i < end; i++ {
+		x := i % width
+		y := i / width
+		color := src.At(int(float64(x)*dx), int(float64(y)*dy))
+		img.Set(x, y, color)
+	}
 }
 
 func Image_To_Grid(bitmap ImageBitmap, canvas Dimensions) Grid {
