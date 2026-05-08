@@ -153,6 +153,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		return m, flush()
 
 	case tea.MouseMsg:
+		if msg.X > m.width || msg.Y >= m.height {
+			return m, nil
+		}
 		pos, ok := m.mouse_to_grid(msg.X, msg.Y, *m.Window)
 		if !ok {
 			return m, nil
@@ -407,7 +410,7 @@ func (m Model) View() string {
 func (m Model) Resize(width, height int) Model {
 	m.width = width
 	m.height = height
-	*m.Window = core.Get_Window(core.Dimensions{Width: width, Height: height}, m.Grid, core.Find_Center(m.Grid))
+	*m.Window = core.Get_Window(core.Dimensions{Width: width, Height: height - 1}, m.Grid, core.Find_Center(m.Grid))
 	return m
 }
 

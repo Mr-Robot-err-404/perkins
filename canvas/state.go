@@ -21,12 +21,7 @@ func offset(viewport int, size int) int {
 	if diff < 0 {
 		return 0
 	}
-	n := diff / 2
-
-	if diff%2 != 0 {
-		n++
-	}
-	return n
+	return diff / 2
 }
 
 func (m Model) consume() int {

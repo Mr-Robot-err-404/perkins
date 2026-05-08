@@ -114,8 +114,8 @@ func Get_Window(dm Dimensions, grid Grid, midpoint Pos) Window {
 		Col: max(0, midpoint.Col-dx),
 	}
 	end := Pos{
-		Row: max(dm.Height-1, midpoint.Row+dy),
-		Col: max(dm.Width-1, midpoint.Col+dx),
+		Row: start.Row + dm.Height,
+		Col: start.Col + dm.Width,
 	}
 	end.Row = min(len(grid), end.Row)
 	end.Col = min(len(grid[0]), end.Col)

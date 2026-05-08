@@ -33,7 +33,7 @@ func BlazinglyFastResize(src image.Image, canvas Dimensions) image.Image {
 	dy := float64(src.Bounds().Max.Y) / float64(bounds.Max.Y)
 
 	size := dm.Width * dm.Height
-	n := size / ChunkSize
+	n := (size / ChunkSize) + 1
 
 	var wg sync.WaitGroup
 	for chunk := range n {
