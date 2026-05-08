@@ -24,10 +24,15 @@ const (
 	BORDER_SIZE       int = 1
 	PALETTE_HEIGHT    int = 17
 	NAVIGATOR_HEIGHT  int = 1
+	NAVIGATOR_WIDTH   int = 5
 	CONTENT_HEIGHT    int = MAGNIFY_HEIGHT + DIVIDER_HEIGHT + PALETTE_HEIGHT + TOGGLE_HEIGHT + NAVIGATOR_HEIGHT
 )
 
 type Coords map[core.Pos]core.Pos
+type Navigator struct {
+	prev core.Pos
+	next core.Pos
+}
 
 func magnifier_coords(x_offset int, y_offset int) Coords {
 	coords := make(Coords)
@@ -118,4 +123,18 @@ func (m Model) magnifier_start() core.Pos {
 	x += MAGNIFY_PADDING_X
 	y += MAGNIFY_PADDING_Y
 	return core.Pos{Row: y, Col: x}
+}
+
+func (m Model) navigator_start() core.Pos {
+	x, y := m.content_offset()
+	x += (PALETTE_WIDTH - NAVIGATOR_WIDTH) / 2
+	y += CONTENT_HEIGHT - NAVIGATOR_HEIGHT
+	return core.Pos{Row: y, Col: x}
+}
+
+func navigator_coords(x_offset int, y_offset int) Navigator {
+	return Navigator{
+		prev: core.Pos{Row: y_offset, Col: x_offset},
+		next: core.Pos{Row: y_offset, Col: x_offset + NAVIGATOR_WIDTH - 1},
+	}
 }

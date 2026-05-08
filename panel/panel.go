@@ -13,6 +13,7 @@ type Model struct {
 	panel     Dimensions
 	coords    Coords
 	magnifier Coords
+	nav       Navigator
 	toggle    map[core.Pos]bool
 	Cell      func() rune
 	Offset    func() int
@@ -116,14 +117,20 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				if ok {
 					*pos = square
 				}
-			_, ok = m.toggle[mouse]
-			if ok {
-				m.palette.Layer = toggle_layer(&m.palette)
-			}
+				_, ok = m.toggle[mouse]
+				if ok {
+					m.palette.Layer = toggle_layer(&m.palette)
+				}
 				pos, ok := m.magnifier[mouse]
 				if ok {
 					bit := core.Pos_map[pos]
 					return m, FlipBit(bit)
+				}
+				if mouse == m.nav.prev {
+					m.palette.prev_page()
+				}
+				if mouse == m.nav.next {
+					m.palette.next_page()
 				}
 			}
 		case tea.MouseActionMotion:
@@ -246,6 +253,9 @@ func (m Model) Resize(panel Dimensions, terminal Dimensions) Model {
 
 	offset = m.magnifier_start()
 	m.magnifier = magnifier_coords(offset.Col, offset.Row)
+
+	offset = m.navigator_start()
+	m.nav = navigator_coords(offset.Col, offset.Row)
 
 	return m
 }
