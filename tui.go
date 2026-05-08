@@ -47,9 +47,9 @@ func (m model) apply_colours(msg panel.ColorMsg) {
 	for pos := range m.selected {
 		switch msg.Layer {
 		case panel.FOREGROUND_LAYER:
-			m.grid[pos.Row][pos.Col].Fg = msg.Color.Ansi
+			m.grid[pos.Row][pos.Col].Fg = msg.Color.FG()
 		case panel.BACKGROUND_LAYER:
-			m.grid[pos.Row][pos.Col].Bg = msg.Color.Ansi
+			m.grid[pos.Row][pos.Col].Bg = msg.Color.BG()
 		}
 	}
 }

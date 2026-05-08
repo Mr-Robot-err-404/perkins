@@ -1,10 +1,9 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> status bar updates
--> vhs demo
+-> handle all error paths with status updates
 -> polish colors in final ascii file
--> construct ascii colors from hex value
+-> vhs demo
 
 --------------------------------------------
 TUI quality of life

@@ -1,63 +1,24 @@
 package theme
 
-var Gruvbox = Palette{
-	Name: "Gruvbox",
-	Foreground: []Color{
-		// page 1 - reds, neutrals
-		{Ansi: "38;2;251;73;52", Display: "#FB4934"},
-		{Ansi: "38;2;204;36;29", Display: "#CC241D"},
-		{Ansi: "38;2;251;241;199", Display: "#FBF1C7"},
-		{Ansi: "38;2;213;196;161", Display: "#D5C4A1"},
-		{Ansi: "38;2;189;174;147", Display: "#BDAE93"},
-		{Ansi: "38;2;168;153;132", Display: "#A89984"},
-		{Ansi: "38;2;102;92;84", Display: "#665C54"},
-		{Ansi: "38;2;80;73;69", Display: "#504945"},
-		// page 2 - yellows, greens
-		{Ansi: "38;2;60;56;54", Display: "#3C3836"},
-		{Ansi: "38;2;235;219;178", Display: "#EBDBB2"},
-		{Ansi: "38;2;250;189;47", Display: "#FABD2F"},
-		{Ansi: "38;2;254;128;25", Display: "#FE8019"},
-		{Ansi: "38;2;146;131;116", Display: "#928374"},
-		{Ansi: "38;2;215;153;33", Display: "#D79921"},
-		{Ansi: "38;2;184;187;38", Display: "#B8BB26"},
-		{Ansi: "38;2;152;151;26", Display: "#98971A"},
-		// page 3 - greens, blues, purples
-		{Ansi: "38;2;142;192;124", Display: "#8EC07C"},
-		{Ansi: "38;2;104;157;106", Display: "#689D6A"},
-		{Ansi: "38;2;131;165;152", Display: "#83A598"},
-		{Ansi: "38;2;69;133;136", Display: "#458588"},
-		{Ansi: "38;2;7;102;120", Display: "#076678"},
-		{Ansi: "38;2;211;134;155", Display: "#D3869B"},
-		{Ansi: "38;2;177;98;134", Display: "#B16286"},
-		{Ansi: "38;2;254;128;25", Display: "#FE8019"},
+var Gruvbox = buildPalette("Gruvbox", paletteData{
+	fg: []string{
+		"#FB4934", "#CC241D", "#FBF1C7", "#D5C4A1",
+		"#BDAE93", "#A89984", "#665C54", "#504945",
+
+		"#3C3836", "#EBDBB2", "#FABD2F", "#FE8019",
+		"#928374", "#D79921", "#B8BB26", "#98971A",
+
+		"#8EC07C", "#689D6A", "#83A598", "#458588",
+		"#076678", "#D3869B", "#B16286", "#FE8019",
 	},
-	Background: []Color{
-		// page 1 - light
-		{Ansi: "48;2;235;219;178", Display: "#EBDBB2"},
-		{Ansi: "48;2;250;189;47", Display: "#FABD2F"},
-		{Ansi: "48;2;213;196;161", Display: "#D5C4A1"},
-		{Ansi: "48;2;184;187;38", Display: "#B8BB26"},
-		{Ansi: "48;2;142;192;124", Display: "#8EC07C"},
-		{Ansi: "48;2;189;174;147", Display: "#BDAE93"},
-		{Ansi: "48;2;215;153;33", Display: "#D79921"},
-		{Ansi: "48;2;254;128;25", Display: "#FE8019"},
-		// page 2 - mid
-		{Ansi: "48;2;131;165;152", Display: "#83A598"},
-		{Ansi: "48;2;211;134;155", Display: "#D3869B"},
-		{Ansi: "48;2;152;151;26", Display: "#98971A"},
-		{Ansi: "48;2;104;157;106", Display: "#689D6A"},
-		{Ansi: "48;2;251;73;52", Display: "#FB4934"},
-		{Ansi: "48;2;146;131;116", Display: "#928374"},
-		{Ansi: "48;2;69;133;136", Display: "#458588"},
-		{Ansi: "48;2;177;98;134", Display: "#B16286"},
-		// page 3 - dark
-		{Ansi: "48;2;124;111;100", Display: "#7C6F64"},
-		{Ansi: "48;2;204;36;29", Display: "#CC241D"},
-		{Ansi: "48;2;102;92;84", Display: "#665C54"},
-		{Ansi: "48;2;80;73;69", Display: "#504945"},
-		{Ansi: "48;2;60;56;54", Display: "#3C3836"},
-		{Ansi: "48;2;50;48;47", Display: "#32302F"},
-		{Ansi: "48;2;40;40;40", Display: "#282828"},
-		{Ansi: "48;2;29;32;33", Display: "#1D2021"},
+	bg: []string{
+		"#EBDBB2", "#FABD2F", "#D5C4A1", "#B8BB26",
+		"#8EC07C", "#BDAE93", "#D79921", "#FE8019",
+
+		"#83A598", "#D3869B", "#98971A", "#689D6A",
+		"#FB4934", "#928374", "#458588", "#B16286",
+
+		"#7C6F64", "#CC241D", "#665C54", "#504945",
+		"#3C3836", "#32302F", "#282828", "#1D2021",
 	},
-}
+})

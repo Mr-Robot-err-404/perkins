@@ -1,15 +1,43 @@
 package theme
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/charmbracelet/lipgloss"
+)
 
 type Palette struct {
 	Name       string
 	Foreground []Color
 	Background []Color
 }
+
 type Color struct {
-	Ansi    string
+	Hex     string
 	Display lipgloss.Color
+}
+
+func NewColor(hex string) Color {
+	return Color{Hex: hex, Display: lipgloss.Color(hex)}
+}
+
+func (c Color) FG() string {
+	r, g, b := hexToRGB(c.Hex)
+	return fmt.Sprintf("38;2;%d;%d;%d", r, g, b)
+}
+
+func (c Color) BG() string {
+	r, g, b := hexToRGB(c.Hex)
+	return fmt.Sprintf("48;2;%d;%d;%d", r, g, b)
+}
+
+func hexToRGB(hex string) (uint8, uint8, uint8) {
+	if len(hex) > 0 && hex[0] == '#' {
+		hex = hex[1:]
+	}
+	v, _ := strconv.ParseUint(hex, 16, 32)
+	return uint8(v >> 16), uint8(v >> 8), uint8(v)
 }
 
 const PageSize int = 8
@@ -63,5 +91,22 @@ const (
 	WisteriaBG = "48;2;151;124;178"
 	LotusPink  = "48;2;215;152;166"
 )
+
+type paletteData struct {
+	fg []string
+	bg []string
+}
+
+func buildPalette(name string, data paletteData) Palette {
+	fg := make([]Color, len(data.fg))
+	bg := make([]Color, len(data.bg))
+	for i, hex := range data.fg {
+		fg[i] = NewColor(hex)
+	}
+	for i, hex := range data.bg {
+		bg[i] = NewColor(hex)
+	}
+	return Palette{Name: name, Foreground: fg, Background: bg}
+}
 
 var Themes = []Palette{Kanagawa, Gruvbox, TokyoNight, Nordic, RosePine}
