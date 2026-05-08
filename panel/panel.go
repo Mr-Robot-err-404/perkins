@@ -30,6 +30,7 @@ type Dimensions struct {
 	Height int
 }
 
+type ThemeMsg struct{ Idx int }
 type FlipMsg struct{ Bit byte }
 type ActionMsg struct{ Action int }
 type ColorMsg = struct {
@@ -98,6 +99,9 @@ func Fill() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case ThemeMsg:
+		m.palette.theme_idx = msg.Idx
+		return m, nil
 	case tea.MouseMsg:
 		mouse := core.Pos{Row: msg.Y, Col: msg.X}
 		pos := m.palette.get_palette_pos()

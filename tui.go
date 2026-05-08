@@ -147,6 +147,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 
+	case canvas.ThemeMsg:
+		m.panel, _ = m.panel.Update(panel.ThemeMsg{Idx: msg.Idx})
+		return m, nil
+
 	case canvas.SaveMsg:
 		path := msg.Path
 

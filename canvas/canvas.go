@@ -29,6 +29,7 @@ type Model struct {
 	v_mirror    *Mirror
 	n           *int
 	save_modal  component.Modal
+	theme_modal component.SltModal
 }
 type Harpoon struct {
 	min   core.Pos
@@ -46,6 +47,7 @@ type SaveMsg struct {
 	Path  string
 	Ascii []byte
 }
+type ThemeMsg struct{ Idx int }
 type StatusMsg struct{ Status string }
 type Flush struct{}
 
@@ -86,6 +88,11 @@ var SaveConfig = component.ModalConfig{
 	Placeholder: "~/pixel.art",
 	XPadding:    1,
 }
+var ThemeConfig = component.SltModalConfig{
+	Width:    60,
+	Title:    "Select palette theme",
+	XPadding: 1,
+}
 
 func New(width, height int, grid core.Grid, selected core.Selected, file_path string) Model {
 	midpoint := core.Find_Center(grid)
@@ -105,6 +112,7 @@ func New(width, height int, grid core.Grid, selected core.Selected, file_path st
 		Window:      &window,
 		Cursor:      &midpoint,
 		save_modal:  component.NewModal(SaveConfig, file_path),
+		theme_modal: component.NewSltModal(ThemeConfig),
 	}
 }
 
@@ -137,7 +145,17 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		m.save_modal, cmd = m.save_modal.Update(msg)
 		return m, cmd
 	}
+	if m.theme_modal.Active {
+		var cmd tea.Cmd
+		m.theme_modal, cmd = m.theme_modal.Update(msg)
+		return m, cmd
+	}
 	switch msg := msg.(type) {
+	case component.SltModalSubmit:
+		if !msg.Cancel {
+			return m, emit(ThemeMsg{Idx: msg.Idx})
+		}
+
 	case component.ModalSubmit:
 		if msg.Cancel {
 			return m, nil
@@ -201,7 +219,13 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				switch cmd {
 				case "w", "write":
 					m.save_modal.Active = true
-				case "theme":
+				case "t", "th", "theme":
+					names := make([]string, len(theme.Themes))
+					for i, t := range theme.Themes {
+						names[i] = t.Name
+					}
+					m.theme_modal.Slt.List = names
+					m.theme_modal.Active = true
 				case "h", "help":
 				case "q", "quit":
 					return m, tea.Quit
@@ -391,7 +415,7 @@ func (m Model) View() string {
 		AlignVertical(lipgloss.Center).
 		Render(ascii)
 
-	modals := []ComponentModal{m.save_modal}
+	modals := []ComponentModal{m.save_modal, m.theme_modal}
 
 	for _, current := range modals {
 		if !current.IsActive() {
