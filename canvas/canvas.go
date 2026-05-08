@@ -153,20 +153,17 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		return m, cmd
 	}
 	if m.help_open {
-		if key, ok := msg.(tea.KeyMsg); ok {
-			switch key.String() {
-			case "1":
-				m.help_page = component.HelpModes
-			case "2":
-				m.help_page = component.HelpActions
-			case "3":
-				m.help_page = component.HelpCommands
-			case "4":
-				m.help_page = component.HelpNavigate
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "1", "2", "3", "4":
+				d := int(msg.Runes[0] - '0')
+				m.help_page = d - 1
+				return m, nil
 			case "?", "esc":
 				m.help_open = false
+				return m, nil
 			}
-			return m, nil
 		}
 	}
 	switch msg := msg.(type) {
@@ -246,7 +243,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 					m.theme_modal.Slt.List = names
 					m.theme_modal.Active = true
 				case "h", "help":
-				m.help_open = !m.help_open
+					m.help_open = !m.help_open
 				case "q", "quit":
 					return m, tea.Quit
 				default:

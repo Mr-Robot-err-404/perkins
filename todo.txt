@@ -1,7 +1,6 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> help menu
 -> status bar updates
 -> vhs demo
 -> polish colors in final ascii file

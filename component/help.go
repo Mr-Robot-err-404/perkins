@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const HelpWidth int = 46
+const HelpWidth int = 49
 
 const (
 	HelpModes int = iota
@@ -16,45 +16,68 @@ const (
 	HelpNavigate
 )
 
-var helpTabs = []string{"1 MODES", "2 ACTIONS", "3 COMMANDS", "4 NAVIGATE"}
+type Keypair = [2]string
 
-var helpPages = [][]string{
+var helpTabs = []string{"[1] MODE", "[2] ACTION", "[3] COMMAND", "[4] NAVIGATE"}
+
+var pairs = [][]Keypair{
 	{
-		info("v / ctrl+v", "visual block", 21, 0),
-		info("V", "visual line", 30, 1),
-		info("d", "draw mode", 30, 3),
-		info("c", "crop mode", 30, 3),
-		info("ctrl+y", "confirm crop", 25, 0),
+		{"v / ctrl+v", "visual block"},
+		{"V", "visual line"},
+		{"esc", "normal mode"},
+		{"d", "draw mode"},
+		{"c", "crop mode"},
+		{"enter", "confirm crop"},
 	},
 	{
-		info("u / ctrl+r", "undo / redo", 2, 0),
-		info("space", "apply color", 2, 0),
-		info("N", "switch fg/bg layer", 2, 0),
-		info("> / <", "palette page", 2, 0),
-		info("x / f", "clear / fill", 2, 0),
-		info("m", "toggle mirror", 2, 0),
-		info("tab", "toggle mirror axis", 2, 0),
+		{"x / f", "clear / fill"},
+		{"u / ctrl+r", "undo / redo"},
+		{"space", "apply color"},
+		{"m", "toggle mirror"},
+		{"|-> tab", "toggle axis"},
+		{"N", "switch fg/bg"},
+		{"< / >", "palette page"},
 	},
 	{
-		info(":w / :write", "save file", 2, 0),
-		info(":theme", "select palette theme", 2, 0),
-		info(":q / :quit", "quit", 2, 0),
+		{":w / :write", "save file"},
+		{":t / :theme", "palette theme"},
+		{":q / :quit", "quit"},
 	},
 	{
-		info("h/j/k/l", "move cursor", 2, 0),
-		info("ctrl+d/u", "jump 10 rows", 2, 0),
-		info("w/b", "jump 10 cols", 2, 0),
-		info("G", "last row", 2, 0),
-		info("$/_", "end/start of row", 2, 0),
-		info("t", "center canvas", 2, 0),
+		{"h/j/k/l", "move cursor"},
+		{"ctrl+d/u", "jump 10 rows"},
+		{"w/b", "jump 10 cols"},
+		{"_", "start of row"},
+		{"$", "end of row"},
+		{"G", "last row"},
+		{"t", "center canvas"},
 	},
+}
+
+var helpPages = makePages(pairs)
+
+func makePages(pairs [][]Keypair) [][]string {
+	pages := make([][]string, len(pairs))
+
+	for i, list := range pairs {
+		current := make([]string, len(list))
+		_, m2 := column_widths(list)
+
+		for j, keys := range list {
+			k1, k2 := keys[0], keys[1]
+			space, pad := calc_space(m2, len(k1), len(k2))
+			current[j] = info(keys[0], keys[1], space, pad)
+		}
+		pages[i] = current
+	}
+	return pages
 }
 
 func Help(page int) string {
 	tabs := helpTabBar(page)
 	rows := helpPages[page]
 	content := lipgloss.JoinVertical(lipgloss.Left, append([]string{tabs}, rows...)...)
-	h := len(rows) + 2
+	h := len(rows) + 4
 	return Notification(content, HelpWidth, h, theme.WaveBlue, theme.SumiInk0)
 }
 
@@ -62,13 +85,39 @@ func helpTabBar(active int) string {
 	bg := lipgloss.NewStyle().Background(theme.SumiInk0)
 	var tabs []string
 	for i, label := range helpTabs {
+		pad := 2
+		if i == len(helpTabs)-1 {
+			pad = 0
+		}
 		if i == active {
-			tabs = append(tabs, bg.Foreground(theme.WaveBlue).Bold(true).PaddingRight(2).Render(label))
+			tabs = append(tabs, bg.Foreground(theme.RoninYellow).Bold(true).PaddingRight(pad).Render(label))
 		} else {
-			tabs = append(tabs, bg.Foreground(theme.FujiGray).PaddingRight(2).Render(label))
+			tabs = append(tabs, bg.Foreground(theme.FujiGray).PaddingRight(pad).Render(label))
 		}
 	}
-	return lipgloss.JoinHorizontal(lipgloss.Bottom, tabs...)
+	return lipgloss.NewStyle().
+		PaddingBottom(1).
+		Render(lipgloss.JoinHorizontal(lipgloss.Bottom, tabs...))
+}
+
+func calc_space(m2, col1, col2 int) (int, int) {
+	w := HelpWidth - 3
+	space := w - col1 - m2
+	pad := m2 - col2
+	return space, pad
+}
+
+func column_widths(list [][2]string) (int, int) {
+	m1, m2 := 0, 0
+	for _, s := range list {
+		if len(s[0]) > m1 {
+			m1 = len(s[0])
+		}
+		if len(s[1]) > m2 {
+			m2 = len(s[1])
+		}
+	}
+	return m1, m2
 }
 
 func info(key string, value string, space int, pad int) string {
