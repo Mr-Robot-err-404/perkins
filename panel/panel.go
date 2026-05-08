@@ -21,6 +21,8 @@ type Model struct {
 type Palette struct {
 	Layer     int
 	page      int
+	fg_page   int
+	bg_page   int
 	theme_idx int
 	fg_pos    *core.Pos
 	bg_pos    *core.Pos
@@ -114,10 +116,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				if ok {
 					*pos = square
 				}
-				_, ok = m.toggle[mouse]
-				if ok {
-					m.palette.Layer = m.toggle_layer()
-				}
+			_, ok = m.toggle[mouse]
+			if ok {
+				m.palette.Layer = toggle_layer(&m.palette)
+			}
 				pos, ok := m.magnifier[mouse]
 				if ok {
 					bit := core.Pos_map[pos]
@@ -158,7 +160,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			m.palette.prev_page()
 
 		case SWITCH_LAYER:
-			m.palette.Layer = m.toggle_layer()
+			m.palette.Layer = toggle_layer(&m.palette)
 
 		case APPLY_COLOR:
 			pos := m.palette.get_palette_pos()
@@ -207,10 +209,14 @@ func (m Model) View() string {
 		Render(content)
 }
 
-func (m Model) toggle_layer() int {
-	if m.palette.Layer == FOREGROUND_LAYER {
+func toggle_layer(p *Palette) int {
+	if p.Layer == FOREGROUND_LAYER {
+		p.fg_page = p.page
+		p.page = p.bg_page
 		return BACKGROUND_LAYER
 	}
+	p.bg_page = p.page
+	p.page = p.fg_page
 	return FOREGROUND_LAYER
 }
 

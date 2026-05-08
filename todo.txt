@@ -1,7 +1,7 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> persist pages between fg/bg switch
 -> make <> clickable
+-> better theme combos
 -> vhs demo
 -> write the damn README
