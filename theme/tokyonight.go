@@ -2,21 +2,18 @@ package theme
 
 var TokyoNight = buildPalette("TokyoNight", paletteData{
 	fg: []string{
-		"#FF9E64", "#E5C890", "#E0AF68", "#D19A66",
-		"#C3E88D", "#A6D189", "#9ECE6A", "#73DAC8",
+		"#F7768E", "#DB4B4B", "#FF9E64", "#E0AF68",
+		"#9ECE6A", "#73DACA", "#1ABC9C", "#7DCFFF",
 
-		"#89DDFF", "#7DCFFF", "#66D9EF", "#C0CAF5",
-		"#89B4FA", "#82AAFF", "#A9B1D6", "#7AA2F7",
+		"#89DDFF", "#7AA2F7", "#3D59A1", "#BB9AF7",
+		"#9D7CD8", "#FF007C", "#C0CAF5", "#A9B1D6",
 
-		"#565F89", "#414868", "#343B58", "#2A2E49",
-		"#BB9AF7", "#FCA7EA", "#FF757F", "#F7768E",
+		"#565F89", "#414868", "#545C7E", "#737AA2",
+		"#394B70", "#3B4261", "#24283B", "#1F2335",
 	},
 	bg: []string{
-		"#C3E88D", "#89DDFF", "#C0CAF5", "#66D9EF",
-		"#73DAC8", "#7DCFFF", "#9ECE6A", "#E0AF68",
-
-		"#FF9E64", "#A9B1D6", "#82AAFF", "#BB9AF7",
-		"#D19A66", "#7AA2F7", "#FF757F", "#F7768E",
+		"#F7768E", "#FF9E64", "#E0AF68", "#9ECE6A",
+		"#73DACA", "#7AA2F7", "#BB9AF7", "#C0CAF5",
 
 		"#565F89", "#414868", "#343B58", "#292E42",
 		"#24283B", "#1F2335", "#1A1B26", "#0D0E17",

@@ -109,4 +109,4 @@ func buildPalette(name string, data paletteData) Palette {
 	return Palette{Name: name, Foreground: fg, Background: bg}
 }
 
-var Themes = []Palette{Kanagawa, Gruvbox, TokyoNight, Nordic, RosePine}
+var Themes = []Palette{Kanagawa, Gruvbox, TokyoNight, Nordic, RosePine, ANSI}
