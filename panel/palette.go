@@ -85,6 +85,10 @@ func (p *Palette) left_divider(idx int, offset int) string {
 			continue
 		}
 		divider_cell(&s, ' ')
+
+		if offset == 4 && i == offset && idx < offset {
+			append_ascii(&s, ' ')
+		}
 		s.WriteString(" \n")
 	}
 	return lipgloss.NewStyle().
@@ -105,6 +109,14 @@ func (p *Palette) right_divider(idx int, offset int) string {
 			continue
 		}
 		divider_cell(&s, ' ')
+
+		// weird edge case that I won't bother trying to polish
+		if offset == 4 && i == offset && idx < offset {
+			append_ascii(&s, ' ')
+		}
+		if offset == 0 && i == offset && idx > 3 {
+			append_ascii(&s, ' ')
+		}
 		s.WriteString(" \n")
 	}
 	return lipgloss.NewStyle().

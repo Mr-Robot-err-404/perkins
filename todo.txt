@@ -1,14 +1,7 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> solidify colors in final ascii file
--> hide panel if terminal is too small. Also compact panel
--> make <> clickable
 -> persist pages between fg/bg switch
+-> make <> clickable
 -> vhs demo
 -> write the damn README
-
---------------------------------------------
-TUI quality of life
---------------------------------------------
--> cell oopsie in palette

@@ -29,7 +29,7 @@ type meta struct {
 	file_path string
 }
 
-const PANEL_WIDTH int = 42
+const PANEL_WIDTH int = 20
 
 func (m model) apply_action(action int) {
 	switch action {
