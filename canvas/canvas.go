@@ -30,6 +30,8 @@ type Model struct {
 	n           *int
 	save_modal  component.Modal
 	theme_modal component.SltModal
+	help_open   bool
+	help_page   int
 }
 type Harpoon struct {
 	min   core.Pos
@@ -150,6 +152,23 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		m.theme_modal, cmd = m.theme_modal.Update(msg)
 		return m, cmd
 	}
+	if m.help_open {
+		if key, ok := msg.(tea.KeyMsg); ok {
+			switch key.String() {
+			case "1":
+				m.help_page = component.HelpModes
+			case "2":
+				m.help_page = component.HelpActions
+			case "3":
+				m.help_page = component.HelpCommands
+			case "4":
+				m.help_page = component.HelpNavigate
+			case "?", "esc":
+				m.help_open = false
+			}
+			return m, nil
+		}
+	}
 	switch msg := msg.(type) {
 	case component.SltModalSubmit:
 		if !msg.Cancel {
@@ -227,6 +246,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 					m.theme_modal.Slt.List = names
 					m.theme_modal.Active = true
 				case "h", "help":
+				m.help_open = !m.help_open
 				case "q", "quit":
 					return m, tea.Quit
 				default:
@@ -386,9 +406,12 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				m.init_cropping_block()
 				m.expand_selection()
 			}
+		case "?":
+			m.help_open = !m.help_open
 		case "esc":
 			m.Mode = NORMAL_MODE
 			m.Reset_to_normal()
+			m.help_open = false
 		case ":":
 			m.Mode = COMMAND_MODE
 		}
@@ -428,7 +451,19 @@ func (m Model) View() string {
 		}
 		return lipgloss.JoinVertical(lipgloss.Left, overlay, indicator)
 	}
-	return lipgloss.JoinVertical(lipgloss.Left, centered, indicator)
+
+	screen := lipgloss.JoinVertical(lipgloss.Left, centered, indicator)
+
+	if m.help_open {
+		col := m.width - component.HelpWidth - 1
+		overlay, err := component.Overlay(screen, component.Help(m.help_page), 1, col, true)
+		if err != nil {
+			log.Printf("Failed to overlay help: %s", err.Error())
+			return screen
+		}
+		return overlay
+	}
+	return screen
 }
 
 func (m Model) Resize(width, height int) Model {
