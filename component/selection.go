@@ -104,16 +104,14 @@ func (m SltModal) list() string {
 	var items []string
 	for i, current := range m.Slt.List {
 		width := m.Config.Width
-		str := Truncate(current, width)
-
-		item := m.listItemStyle(str, i, width-1)
+		item := m.listItemStyle(current, i, width-1)
 		items = append(items, item)
 	}
 	return container.Render(lipgloss.JoinVertical(lipgloss.Left, items...))
 }
 
 func (m SltModal) title() string {
-	style := container.Foreground(theme.FujiGray)
+	style := container.Foreground(theme.WaveBlue)
 
 	if !m.Config.IsDelete {
 		return style.Width(m.Config.Width).Render(m.Config.Title)

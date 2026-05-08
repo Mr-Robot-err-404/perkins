@@ -37,6 +37,7 @@ var pairs = [][]Keypair{
 		{"|-> tab", "toggle axis"},
 		{"N", "switch fg/bg"},
 		{"< / >", "palette page"},
+		{"?", "toggle help"},
 	},
 	{
 		{":w / :write", "save file"},
@@ -45,6 +46,7 @@ var pairs = [][]Keypair{
 	},
 	{
 		{"h/j/k/l", "move cursor"},
+		{"H/J/K/L", "navigate palette"},
 		{"ctrl+d/u", "jump 10 rows"},
 		{"w/b", "jump 10 cols"},
 		{"_", "start of row"},

@@ -28,11 +28,3 @@ func JustifyBetween(j Justify) string {
 	gap := max(n, 0) + j.Offset
 	return lipgloss.JoinHorizontal(lipgloss.Bottom, j.Left, strings.Repeat(gapStyle(j.Bg), gap), j.Right)
 }
-
-func Truncate(in string, width int) string {
-	max := width - 3
-	if len(in) < max {
-		return in
-	}
-	return in[0:max] + "..."
-}

@@ -47,11 +47,10 @@ func (m Modal) infoList() string {
 	bg := theme.SumiInk0
 	return containerBg.
 		Render(JustifyBetween(Justify{
-			Left:   s,
-			Right:  t,
-			Offset: -1,
-			Width:  m.Config.Width - 2,
-			Bg:     &bg,
+			Left:  s,
+			Right: t,
+			Width: m.Config.Width - 2,
+			Bg:    &bg,
 		}))
 }
 func (m Modal) Update(msg tea.Msg) (Modal, tea.Cmd) {

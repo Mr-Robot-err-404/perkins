@@ -1,9 +1,12 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> handle all error paths with status updates
--> polish colors in final ascii file
+-> solidify colors in final ascii file
+-> hide panel if terminal is too small. Also compact panel
+-> make <> clickable
+-> persist pages between fg/bg switch
 -> vhs demo
+-> write the damn README
 
 --------------------------------------------
 TUI quality of life
