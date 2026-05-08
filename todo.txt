@@ -1,6 +1,5 @@
 --------------------------------------------
 David Abraham would approve
 --------------------------------------------
--> better theme combos
--> vhs demo
 -> write the damn README
+-> vhs demo
