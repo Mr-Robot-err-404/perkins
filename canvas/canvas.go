@@ -78,7 +78,7 @@ const (
 	JUMP_DOWN string = "ctrl+d"
 	JUMP_UP   string = "ctrl+u"
 	CENTER    string = "t"
-	CONFIRM   string = "ctrl+y"
+	CONFIRM   string = "enter"
 	CROP      string = "c"
 	UNDO      string = "u"
 	REDO      string = "ctrl+r"
