@@ -74,10 +74,9 @@ func Parse_Ansi(data []byte) Grid {
 	width, height := grid_dimensions(m)
 	grid := make(Grid, height)
 
-	for i := range grid {
-		grid[i] = make([]Cell, width)
-	}
 	for row := range height {
+		grid[row] = make([]Cell, width)
+
 		for col := range width {
 			pos := Pos{Row: row, Col: col}
 			cell, ok := m[pos]
@@ -88,9 +87,6 @@ func Parse_Ansi(data []byte) Grid {
 			}
 			grid[row][col] = cell
 		}
-	}
-	for pos, cell := range m {
-		grid[pos.Row][pos.Col] = cell
 	}
 	return grid
 }

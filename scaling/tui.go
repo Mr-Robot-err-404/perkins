@@ -81,6 +81,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "enter":
 				switch string(m.cmd) {
 				case "q", "quit":
+					close(m.ch)
 					return m, tea.Quit
 				}
 				m.mode = canvas.NORMAL_MODE
@@ -164,6 +165,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.window.End.Row += dy
 
 		case "ctrl+c":
+			close(m.ch)
 			return m, tea.Quit
 		case ":":
 			m.mode = canvas.COMMAND_MODE

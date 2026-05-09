@@ -175,8 +175,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.canvas, cmd = m.canvas.Update(msg)
 	cmds = append(cmds, cmd)
 
-	m.panel, cmd = m.panel.Update(msg)
-	cmds = append(cmds, cmd)
+	if m.canvas.Mode != canvas.COMMAND_MODE {
+		m.panel, cmd = m.panel.Update(msg)
+		cmds = append(cmds, cmd)
+	}
 
 	return m, tea.Batch(cmds...)
 }

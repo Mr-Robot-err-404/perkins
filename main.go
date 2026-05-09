@@ -87,26 +87,6 @@ func main() {
 			os.Exit(1)
 		}
 
-	case "dev":
-		f, err := os.Open(file_path)
-
-		if err != nil {
-			panic(err.Error())
-		}
-		defer f.Close()
-
-		img, _, err := image.Decode(f)
-		if err != nil {
-			panic(err.Error())
-		}
-		target := core.BlazinglyFastResize(img, core.Dimensions{Width: 102, Height: 51})
-
-		err = core.SaveJPG(target, "resized.jpg")
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("resized image")
-
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command %q. Usage: %s <convert|edit> <file>\n", cmd, os.Args[0])
 		os.Exit(1)
