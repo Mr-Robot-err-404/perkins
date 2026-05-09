@@ -98,25 +98,42 @@ func toggle_coords(x_offset int, y_offset int) map[core.Pos]bool {
 	return m
 }
 
+func (m Model) show_magnifier() bool {
+	return m.panel.Height >= CONTENT_HEIGHT
+}
+
+func (m Model) effective_content_height() int {
+	if m.show_magnifier() {
+		return CONTENT_HEIGHT
+	}
+	return CONTENT_HEIGHT - MAGNIFY_HEIGHT - DIVIDER_HEIGHT
+}
+
 func (m Model) content_offset() (int, int) {
 	panel_x := m.terminal.Width - m.panel.Width
 	x := panel_x + (m.panel.Width-PALETTE_WIDTH)/2
-	y := (m.panel.Height - CONTENT_HEIGHT) / 2
+	y := (m.panel.Height - m.effective_content_height()) / 2
 	return x, y
 }
 
 func (m Model) palette_start() core.Pos {
 	x, y := m.content_offset()
 	x += BORDER_SIZE
-	y += MAGNIFY_HEIGHT + DIVIDER_HEIGHT + TOGGLE_HEIGHT + BORDER_SIZE
+	if m.show_magnifier() {
+		y += MAGNIFY_HEIGHT + DIVIDER_HEIGHT
+	}
+	y += TOGGLE_HEIGHT + BORDER_SIZE
 	return core.Pos{Row: y, Col: x}
 }
 
 func (m Model) toggle_start() core.Pos {
 	x, y := m.content_offset()
-	y += MAGNIFY_HEIGHT + DIVIDER_HEIGHT
+	if m.show_magnifier() {
+		y += MAGNIFY_HEIGHT + DIVIDER_HEIGHT
+	}
 	return core.Pos{Row: y, Col: x}
 }
+
 func (m Model) magnifier_start() core.Pos {
 	x, y := m.content_offset()
 	x += (PALETTE_WIDTH - MAGNIFY_WIDTH) / 2
@@ -128,7 +145,7 @@ func (m Model) magnifier_start() core.Pos {
 func (m Model) navigator_start() core.Pos {
 	x, y := m.content_offset()
 	x += (PALETTE_WIDTH - NAVIGATOR_WIDTH) / 2
-	y += CONTENT_HEIGHT - NAVIGATOR_HEIGHT
+	y += m.effective_content_height() - NAVIGATOR_HEIGHT
 	return core.Pos{Row: y, Col: x}
 }
 

@@ -201,12 +201,17 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	divider := lipgloss.NewStyle().Height(DIVIDER_HEIGHT).Render()
-	content := lipgloss.JoinVertical(lipgloss.Center,
-		m.magnify(),
-		divider,
-		m.palette.render_palette(),
-	)
+	var content string
+	if m.show_magnifier() {
+		divider := lipgloss.NewStyle().Height(DIVIDER_HEIGHT).Render()
+		content = lipgloss.JoinVertical(lipgloss.Center,
+			m.magnify(),
+			divider,
+			m.palette.render_palette(),
+		)
+	} else {
+		content = m.palette.render_palette()
+	}
 	return lipgloss.NewStyle().
 		Width(m.panel.Width).
 		Height(m.panel.Height).
@@ -251,8 +256,12 @@ func (m Model) Resize(panel Dimensions, terminal Dimensions) Model {
 	offset = m.toggle_start()
 	m.toggle = toggle_coords(offset.Col, offset.Row)
 
-	offset = m.magnifier_start()
-	m.magnifier = magnifier_coords(offset.Col, offset.Row)
+	if m.show_magnifier() {
+		offset = m.magnifier_start()
+		m.magnifier = magnifier_coords(offset.Col, offset.Row)
+	} else {
+		m.magnifier = make(Coords)
+	}
 
 	offset = m.navigator_start()
 	m.nav = navigator_coords(offset.Col, offset.Row)
