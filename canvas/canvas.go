@@ -348,6 +348,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 				m.Reset_to_normal()
 				return m, nil
 			}
+			if !m.can_crop(Y_AXIS) {
+				m.Mode = NORMAL_MODE
+				m.Reset_to_normal()
+				return m, Notify("canvas too small to crop")
+			}
 			m.mirror.enabled = true
 			m.set_mirror_axis(Y_AXIS)
 			m.init_cropping_block()
@@ -394,7 +399,12 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			m.toggle_mirror()
 
 		case "tab":
-			m.mirror.axis = m.toggle_mirror_axis()
+			next_axis := m.toggle_mirror_axis()
+
+			if m.Mode == CROP_MODE && !m.can_crop(next_axis) {
+				return m, Notify("canvas too small to crop on this axis")
+			}
+			m.mirror.axis = next_axis
 
 			switch m.Mode {
 			case VISUAL_BLOCK, DRAW_MODE:

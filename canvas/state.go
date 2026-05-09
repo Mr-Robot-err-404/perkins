@@ -127,6 +127,17 @@ func (m Model) crop_canvas() core.Grid {
 	return grid
 }
 
+func (m Model) can_crop(axis int) bool {
+	w, h := len(m.Grid[0]), len(m.Grid)
+	switch axis {
+	case Y_AXIS:
+		return w >= 4
+	case X_AXIS:
+		return h >= 4
+	}
+	return false
+}
+
 func (m Model) selection_type() int {
 	if m.Mode == CROP_MODE {
 		return core.Crop
@@ -140,12 +151,12 @@ func (h *Harpoon) selection(pos core.Pos) {
 	h.max.Row = max(h.start.Row, pos.Row)
 	h.max.Col = max(h.start.Col, pos.Col)
 }
-func (h *Harpoon) crop(pos core.Pos, axis int) {
+func (h *Harpoon) crop(pos core.Pos, axis int, w, rows int) {
 	switch axis {
 	case X_AXIS:
-		h.max.Row = pos.Row
+		h.max.Row = min(pos.Row, rows/2-2)
 	case Y_AXIS:
-		h.max.Col = pos.Col
+		h.max.Col = min(pos.Col, w/2-2)
 	}
 }
 
@@ -180,7 +191,7 @@ func (m Model) expand_selection() {
 	case VISUAL_BLOCK:
 		m.harpoon.selection(pos)
 	case CROP_MODE:
-		m.harpoon.crop(pos, m.mirror.axis)
+		m.harpoon.crop(pos, m.mirror.axis, w, h)
 	}
 	clear(m.Selected)
 
@@ -205,6 +216,15 @@ func (m Model) expand_selection() {
 }
 func (m Model) update_cursor(pos core.Pos) {
 	*m.prev_cursor = *m.Cursor
+	if m.Mode == CROP_MODE {
+		w, h := len(m.Grid[0]), len(m.Grid)
+		switch m.mirror.axis {
+		case Y_AXIS:
+			pos.Col = min(pos.Col, w/2-2)
+		case X_AXIS:
+			pos.Row = min(pos.Row, h/2-2)
+		}
+	}
 	*m.Cursor = pos
 	update_window(m.Window, pos)
 	m.expand_selection()
