@@ -176,7 +176,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		if msg.Cancel {
 			return m, nil
 		}
-		ascii := Grid_To_Canvas(m.Grid, core.Selected{}, core.Pos{Row: -1, Col: -1}, false)
+		ascii := Grid_To_Canvas(m.Grid, core.Selected{}, core.Pos{Row: -1, Col: -1})
 		return m, emit(SaveMsg{Path: strings.TrimSpace(msg.Value), Ascii: []byte(ascii)})
 
 	case Flush:
@@ -440,7 +440,6 @@ func (m Model) View() string {
 	centered := lipgloss.NewStyle().
 		Width(m.width).
 		Height(m.height - 1).
-		Background(theme.SumiInk1).
 		AlignHorizontal(lipgloss.Center).
 		AlignVertical(lipgloss.Center).
 		Render(ascii)

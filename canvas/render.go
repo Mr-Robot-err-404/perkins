@@ -29,7 +29,7 @@ func Canvas_Window(
 	return cv.String()
 }
 
-func Grid_To_Canvas(grid core.Grid, selected core.Selected, pos core.Pos, wrap bool) string {
+func Grid_To_Canvas(grid core.Grid, selected core.Selected, pos core.Pos) string {
 	cv := strings.Builder{}
 	prev := core.Cell{}
 	width := len(grid[0])
@@ -42,14 +42,7 @@ func Grid_To_Canvas(grid core.Grid, selected core.Selected, pos core.Pos, wrap b
 			cv.WriteString("\n")
 		}
 	}
-	if wrap {
-		return wrap_theme(cv.String())
-	}
 	return cv.String()
-}
-
-func wrap_theme(ansi string) string {
-	return theme.CanvasBG + ansi + theme.Reset
 }
 
 func transform_cell(
@@ -80,7 +73,7 @@ func transform_cell(
 
 	if len(cell.Fg) == 0 && len(cell.Bg) == 0 {
 		if has_ansi_changed(*prev, cell) || is_prev_highlighted(selected, pos, prev_pos) {
-			set_ansi(cv, theme.CanvasBG)
+			cv.WriteString(theme.Reset)
 		}
 		cv.WriteRune(cell.Value)
 		return
@@ -126,5 +119,4 @@ func set_canvas_cell(cv *strings.Builder, ansi string, r rune) {
 	cv.WriteString(ansi)
 	cv.WriteRune(r)
 	cv.WriteString(theme.Reset)
-	cv.WriteString(theme.CanvasBG)
 }

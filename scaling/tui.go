@@ -187,12 +187,11 @@ func (m Model) View() string {
 		Cmd:   string(m.cmd),
 	})
 	grid := window(m.grid, *m.window)
-	ascii := canvas.Grid_To_Canvas(grid, core.Selected{}, core.Pos{Row: -1, Col: -1}, false)
+	ascii := canvas.Grid_To_Canvas(grid, core.Selected{}, core.Pos{Row: -1, Col: -1})
 
 	content := lipgloss.NewStyle().
 		Width(m.width).
 		Height(m.height - 1).
-		Background(theme.SumiInk1).
 		AlignHorizontal(lipgloss.Center).
 		AlignVertical(lipgloss.Center).
 		Render(ascii)
