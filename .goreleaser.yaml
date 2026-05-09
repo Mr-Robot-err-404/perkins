@@ -1,0 +1,33 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - formats:
+      - tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+
+brews:
+  - name: perkins
+    repository:
+      owner: Mr-Robot-err-404
+      name: homebrew-perkins
+    homepage: "https://github.com/Mr-Robot-err-404/perkins"
+    description: "Braille ASCII pixel art editor for the terminal"
+    install: |
+      bin.install "perkins"
+
+checksum:
+  name_template: "checksums.txt"
