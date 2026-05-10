@@ -31,3 +31,7 @@ Press `?` inside the editor for the full help menu.
 ![Help Menu](help_menu.png)
 
 *Named after the [Perkins Brailler](https://en.wikipedia.org/wiki/Perkins_Brailler), a braille typewriter invented by David Abraham.*
+
+## License
+
+MIT
