@@ -13,11 +13,7 @@ brew install perkins
 **Linux (curl)**
 ```sh
 # amd64
-curl -sSL https://github.com/Mr-Robot-err-404/perkins/releases/latest/download/perkins_linux_amd64.tar.gz | tar -xz && sudo mv perkins /usr/local/bin/
-
-# arm64
-curl -sSL https://github.com/Mr-Robot-err-404/perkins/releases/latest/download/perkins_linux_arm64.tar.gz | tar -xz && sudo mv perkins /usr/local/bin/
-```
+curl -sSL https://github.com/Mr-Robot-err-404/perkins/releases/latest/download/perkins_linux_amd64.tar.gz | tar -xz && mv perkins /usr/local/bin/
 
 ## Usage
 
