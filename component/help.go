@@ -32,6 +32,8 @@ var pairs = [][]Keypair{
 	{
 		{"x / f", "clear / fill"},
 		{"u / ctrl+r", "undo / redo"},
+		{"Q/W/E/R", "flip left bits"},
+		{"U/I/O/P", "flip right bits"},
 		{"space", "apply color"},
 		{"m", "toggle mirror"},
 		{"|-> tab", "toggle axis"},
@@ -43,6 +45,7 @@ var pairs = [][]Keypair{
 		{":w / :write", "save file"},
 		{":t / :theme", "palette theme"},
 		{":q / :quit", "quit"},
+		{":h / :help", "help"},
 	},
 	{
 		{"h/j/k/l", "move cursor"},
