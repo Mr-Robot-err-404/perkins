@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/Mr-Robot-err-404/perkins/core"
 	"github.com/Mr-Robot-err-404/perkins/debug"
@@ -39,7 +40,9 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		abs = "~/" + abs[len(home)+1:]
+		if strings.HasPrefix(abs, home) {
+			abs = "~/" + abs[len(home)+1:]
+		}
 	}
 	meta := meta{file_path: abs}
 
