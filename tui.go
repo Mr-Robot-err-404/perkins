@@ -25,7 +25,6 @@ type model struct {
 	meta     meta
 }
 type meta struct {
-	home      string
 	file_path string
 }
 
@@ -155,10 +154,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		path := msg.Path
 
 		if strings.HasPrefix(msg.Path, "~/") {
-			path = filepath.Join(m.meta.home, path[2:])
-		}
-		if strings.HasPrefix(msg.Path, "$HOME/") {
-			path = filepath.Join(m.meta.home, path[6:])
+			home, err := os.UserHomeDir()
+			if err == nil {
+				path = filepath.Join(home, msg.Path[2:])
+			}
 		}
 		err := os.WriteFile(path, msg.Ascii, 0644)
 

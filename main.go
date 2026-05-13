@@ -29,21 +29,15 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	home, err := os.UserHomeDir()
-
-	if err != nil {
-		panic(err.Error())
-	}
 	abs, err := filepath.Abs(file_path)
 
 	if err != nil {
 		panic(err)
 	}
-	if strings.HasPrefix(abs, home) {
-		offset := len(home) + 1
-		abs = "~/" + abs[offset:]
+	if home, err := os.UserHomeDir(); err == nil && strings.HasPrefix(abs, home) {
+		abs = "~/" + abs[len(home)+1:]
 	}
-	meta := meta{home: home, file_path: abs}
+	meta := meta{file_path: abs}
 
 	switch cmd {
 	case "convert":
@@ -65,7 +59,6 @@ func main() {
 			os.Exit(1)
 		}
 		grid := <-ch
-		meta.file_path = strings.TrimSuffix(meta.file_path, file_path)
 		p := tea.NewProgram(newModel(grid, meta), tea.WithAltScreen(), tea.WithMouseCellMotion())
 
 		if _, err := p.Run(); err != nil {
