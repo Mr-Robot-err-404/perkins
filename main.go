@@ -8,7 +8,7 @@ import (
 	_ "image/png"
 	"os"
 	"path/filepath"
-	"strings"
+	"runtime"
 
 	"github.com/Mr-Robot-err-404/perkins/core"
 	"github.com/Mr-Robot-err-404/perkins/debug"
@@ -34,7 +34,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	if home, err := os.UserHomeDir(); err == nil && strings.HasPrefix(abs, home) {
+	if runtime.GOOS != "windows" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			panic(err)
+		}
 		abs = "~/" + abs[len(home)+1:]
 	}
 	meta := meta{file_path: abs}
