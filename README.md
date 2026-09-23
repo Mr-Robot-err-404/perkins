@@ -1,6 +1,6 @@
 Ascii pixel art editor for the terminal, using braille characters.
 
-![Made with VHS](https://vhs.charm.sh/vhs-2GeJtYL5a4p3BbGnm9GHWl.gif)
+![Made with VHS](https://vhs.charm.sh/vhs-fwuJ5e5NeijW22jUL6c4u.gif)
 
 ## Installation
 

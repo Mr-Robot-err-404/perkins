@@ -9,6 +9,8 @@ Set Width 1600
 Set Height 800
 Set Framerate 60
 Set TypingSpeed 100ms
+Set Padding 0
+Set Margin 0
 
 Type "perkins convert ~/fox.jpeg"
 Sleep 500ms
